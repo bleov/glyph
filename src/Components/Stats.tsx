@@ -107,7 +107,7 @@ function CrosswordStats({
       }
       fetchData();
     }
-  }, [open, loaded]);
+  }, [open, loaded, user?.id]);
 
   return (
     <>
@@ -202,7 +202,7 @@ function CustomPuzzleStats({ user, open, setOpen }: { user?: UsersRecord; open: 
       return a;
     }, 0) / data.filter((c) => c.public).length;
 
-  const mostPlayed = data.sort((a, b) => (b.completions ?? 0) - (a.completions ?? 0))[0];
+  const mostPlayed = data.toSorted((a, b) => (b.completions ?? 0) - (a.completions ?? 0))[0];
 
   return (
     <>
