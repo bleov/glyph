@@ -269,12 +269,14 @@ export function Stats({
   open,
   setOpen,
   type,
-  user
+  user,
+  showCustom = false
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   type: "mini" | "daily" | "midi";
   user?: UsersRecord;
+  showCustom?: boolean;
 }) {
   return (
     <Modal open={open} onClose={() => setOpen(false)} centered size={"sm"}>
@@ -294,9 +296,15 @@ export function Stats({
           <Tabs.Tab eventKey="daily" title="Daily" icon={<Image src="/icons/daily/favicon.svg" width={16} height={16} />}>
             <CrosswordStats type="daily" user={user} open={open} setOpen={setOpen} />
           </Tabs.Tab>
-          <Tabs.Tab eventKey="custom" title="Custom" icon={<Image src="/icons/custom_crossword/pwa-192x192.png" width={16} height={16} />}>
-            <CustomPuzzleStats user={user} open={open} setOpen={setOpen} />
-          </Tabs.Tab>
+          {showCustom && (
+            <Tabs.Tab
+              eventKey="custom"
+              title="Custom"
+              icon={<Image src="/icons/custom_crossword/pwa-192x192.png" width={16} height={16} />}
+            >
+              <CustomPuzzleStats user={user} open={open} setOpen={setOpen} />
+            </Tabs.Tab>
+          )}
         </Tabs>
       </Modal.Body>
     </Modal>

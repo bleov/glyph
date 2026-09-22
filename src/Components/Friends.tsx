@@ -77,7 +77,7 @@ function FriendListEntry({
           </Menu>
         </HStack>
       </List.Item>
-      <Stats open={statsOpen} setOpen={setStatsOpen} type="mini" user={friend} />
+      <Stats open={statsOpen} setOpen={setStatsOpen} type="mini" user={friend} showCustom />
     </>
   );
 }
