@@ -44,6 +44,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const [rebusMode, setRebusMode] = useState<boolean>(false);
   const [rebusText, setRebusText] = useState<string>("");
   const [overlayURL, setOverlayURL] = useState<string>("");
+  const [readOnly, setReadOnly] = useState<boolean>(false);
 
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -121,7 +122,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
-    if (complete) return;
+    if (complete || readOnly) return;
     const square = boardRef.current.querySelector(`g[data-index='${cellIndex}']`);
     if (!square) return;
     const guess = square.querySelector(".guess");
@@ -452,7 +453,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       overlayURL,
       setOverlayURL,
       toast,
-      replay
+      replay,
+      readOnly
     }),
     [
       alreadyCompleted,
@@ -484,7 +486,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       user,
       overlayURL,
       toast,
-      replay
+      replay,
+      readOnly
     ]
   );
 
@@ -523,7 +526,8 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
     setRebusText,
     nextEditableClue,
     exit,
-    overlayURL
+    overlayURL,
+    readOnly
   } = contextValue;
 
   const { activateRebusMode, handleKeyDown } = useInput();
@@ -626,6 +630,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <>
                 <Toggle
                   checked={autoCheck}
+                  readOnly={readOnly}
                   name="autoCheck"
                   onChange={(e) => {
                     setAutoCheck(e);
@@ -665,10 +670,12 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
                         key={clueIndex}
                         className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""} ${isClueComplete(clueIndex) ? "completed-clue" : ""}`}
                         onClick={() => {
+                          if (readOnly) return;
                           const targetCell = getFirstEmptyCell(clue);
                           setSelected(targetCell);
                           setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
                         }}
+                        style={{ cursor: readOnly ? "default" : "pointer" }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
                         <span className="clue-text" dangerouslySetInnerHTML={{ __html: getRenderedClue(clueIndex) }}></span>
@@ -720,6 +727,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <div
                 className="clue-bar-back"
                 onClick={() => {
+                  if (readOnly) return;
                   nextEditableClue(true);
                 }}
               >
@@ -733,6 +741,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <div
                 className="clue-bar-forward"
                 onClick={() => {
+                  if (readOnly) return;
                   nextEditableClue();
                 }}
               >

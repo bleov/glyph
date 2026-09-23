@@ -43,6 +43,7 @@ export interface CrosswordContextValue {
   exit: (destination?: string) => void;
   overlayURL: string;
   replay: ReplayRecorder;
+  readOnly: boolean;
 
   setSelected: Dispatch<SetStateAction<number | null>>;
   setDirection: Dispatch<SetStateAction<"across" | "down">>;
