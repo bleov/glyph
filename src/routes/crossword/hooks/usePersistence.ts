@@ -85,7 +85,7 @@ export function usePersistence() {
       localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
       if (!saved[1]) return;
-      const replayData = replay.getData();
+      const replayData = replay.getEncoded();
 
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
@@ -94,8 +94,8 @@ export function usePersistence() {
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
       record.set("type", type);
       record.set("hardcore", options.includes("hardcore").toString());
-      if (replayData && replayData.events.length > 1) {
-        record.set("replay", JSON.stringify(replayData));
+      if (replayData) {
+        record.set("replay", replayData);
       }
 
       leaderboard

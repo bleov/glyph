@@ -89,7 +89,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   useEffect(() => {
     if (replay.isRecording()) {
-      replay.record("change_direction", direction);
+      replay.record("change_direction", direction.substring(0, 1));
     }
   }, [direction]);
 

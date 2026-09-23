@@ -20,6 +20,7 @@ export interface ReplayRecorder {
   record: (eventId: string, ...data: any[]) => void;
   isRecording: () => boolean;
   getData: () => ReplayRecording;
+  getEncoded: () => string;
 }
 
 const defaultReplay: ReplayRecording = {
@@ -31,6 +32,20 @@ interface ReplayBufferItem {
   event: number;
   timestamp: number;
   data: any[];
+}
+
+export function encodeReplay(replay: ReplayRecording): string {
+  return `${replay.version}\n${replay.events.map((event) => event.join(",")).join("\n")}`;
+}
+
+export function decodeReplay(encoded: string): ReplayRecording {
+  const lines = encoded.split("\n");
+  const version = lines[0];
+  const events = lines.slice(1).map((line) => {
+    const [event, timestamp, ...data] = line.split(",");
+    return [parseInt(event), parseInt(timestamp), ...data];
+  });
+  return { version, events } as ReplayRecording;
 }
 
 export default function useReplayRecorder(): ReplayRecorder {
@@ -79,6 +94,9 @@ export default function useReplayRecorder(): ReplayRecorder {
     },
     getData: () => {
       return replay.current;
+    },
+    getEncoded: () => {
+      return encodeReplay(replay.current);
     }
   };
 
