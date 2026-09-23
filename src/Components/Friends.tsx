@@ -77,7 +77,7 @@ function FriendListEntry({
           </Menu>
         </HStack>
       </List.Item>
-      <Stats open={statsOpen} setOpen={setStatsOpen} type="mini" user={friend} />
+      <Stats open={statsOpen} setOpen={setStatsOpen} type="mini" user={friend} showCustom />
     </>
   );
 }
@@ -88,7 +88,9 @@ async function fetchFriends(setFriends: (friends: UsersRecord[]) => void, setFri
     const friends: UsersRecord[] = await pb.collection("users").getFullList({
       fields: "id,username,friend_code,avatar",
       sort: "username:lower",
-      filter: `id != "${pb.authStore.record.id}"`
+      filter: pb.filter("id != {:userId}", {
+        userId: pb.authStore.record.id
+      })
     });
     setFriends(friends);
     setFriendsLoading(false);
