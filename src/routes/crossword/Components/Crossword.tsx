@@ -81,7 +81,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     if (options.includes("hardcore")) {
       replay.start();
     }
-  }, []);
+  }, [options]);
 
   useEffect(() => {
     if (replay.isRecording()) {
