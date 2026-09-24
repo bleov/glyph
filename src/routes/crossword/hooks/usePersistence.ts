@@ -97,7 +97,7 @@ export function usePersistence() {
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
       record.set("type", type);
       record.set("hardcore", options.includes("hardcore").toString());
-      if (replayData) {
+      if (options.includes("hardcore") && replayData) {
         record.set("replay", replayData);
       }
 
