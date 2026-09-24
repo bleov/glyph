@@ -449,7 +449,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
             if (event[3] === "") {
               delete newState[cellIndex];
             } else {
-              newState[cellIndex] = event[3];
+              if (typeof event[3] === "string" && /^[A-Za-z0-9]*$/.test(event[3])) newState[cellIndex] = event[3];
             }
             return newState;
           });
