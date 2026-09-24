@@ -435,18 +435,22 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
           setReadOnly(false);
         }
         if (event[0] === replayEvents.select_cell) {
-          setSelected(event[2]);
+          const selectedCell = event[2] === "" ? null : Number(event[2]);
+          if (selectedCell === null || Number.isInteger(selectedCell)) {
+            setSelected(selectedCell);
+          }
         }
         if (event[0] === replayEvents.change_direction) {
           setDirection(event[2] === "a" ? "across" : "down");
         }
         if (event[0] === replayEvents.modify_cell) {
+          const cellIndex = Number(event[2]);
           setBoardState((prev) => {
             const newState = { ...prev };
             if (event[3] === "") {
-              delete newState[event[2]];
+              delete newState[cellIndex];
             } else {
-              newState[event[2]] = event[3];
+              newState[cellIndex] = event[3];
             }
             return newState;
           });
