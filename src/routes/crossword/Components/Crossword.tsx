@@ -459,6 +459,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       if (replayComplete) {
         clearInterval(tickInterval);
         setReadOnly(false);
+        setModalType("leaderboard");
       }
     };
 

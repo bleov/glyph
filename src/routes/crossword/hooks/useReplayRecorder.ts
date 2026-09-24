@@ -68,9 +68,13 @@ export default function useReplayRecorder(): ReplayRecorder {
       };
     },
     end: () => {
-      replayBuffer.current = [];
       // @ts-ignore
       window.timerEvent = (ms: number) => {
+        replayBuffer.current.sort((a, b) => a.timestamp - b.timestamp);
+        replayBuffer.current.forEach((event) => {
+          replay.current.events.push([event.event, ms, ...event.data]);
+        });
+        replayBuffer.current = [];
         replay.current.events.push([replayEvents.complete, ms]);
         // @ts-ignore
         delete window.timerEvent;
