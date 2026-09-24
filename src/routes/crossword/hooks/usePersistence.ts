@@ -1,7 +1,7 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
 import throttle from "throttleit";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { fireworks } from "@/lib/confetti";
 import { pb } from "@/main";
@@ -31,6 +31,8 @@ export function usePersistence() {
     replay,
     readOnly
   } = useCrosswordContext();
+
+  const wasReadOnly = useRef(false);
 
   const cloudSave = useCallback(async () => {
     if (!user) return;
@@ -119,7 +121,7 @@ export function usePersistence() {
   }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user, readOnly]);
 
   useEffect(() => {
-    if (readOnly) return;
+    if (wasReadOnly.current === true) return;
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");
@@ -142,6 +144,7 @@ export function usePersistence() {
       incorrectShown.current = true;
       posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current, autoCheck });
     }
+    wasReadOnly.current = readOnly;
   }, [
     alreadyCompleted,
     autoCheck,
