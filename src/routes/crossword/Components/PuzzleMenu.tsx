@@ -9,6 +9,7 @@ import { pb } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
 import { Button, useDialog } from "rsuite";
 import { useNavigate } from "react-router";
+import { useCrosswordContext } from "./CrosswordContext";
 
 export default function PuzzleMenu({
   data,
@@ -25,6 +26,7 @@ export default function PuzzleMenu({
 }) {
   const { user } = useContext(GlobalState);
   const { type, options, complete, setOptions } = useContext(CrosswordAppState);
+  const { readOnly } = useCrosswordContext();
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -45,7 +47,7 @@ export default function PuzzleMenu({
         onClick={() => {
           setPuzzleModalState("leaderboard");
         }}
-        disabled={!complete}
+        disabled={!complete || readOnly}
       >
         <TrophyIcon />
         Leaderboard
@@ -54,7 +56,7 @@ export default function PuzzleMenu({
         onClick={() => {
           setPuzzleModalState("victory");
         }}
-        disabled={!complete}
+        disabled={!complete || readOnly}
       >
         <StarIcon />
         Rate
