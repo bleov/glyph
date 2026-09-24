@@ -423,16 +423,15 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     setModalType(null);
     prepareReplay();
 
-    const eventKeys = Object.keys(replayEvents);
+    replayTick.current = 0;
     const tick = () => {
       replayTick.current += 50;
-      // console.log(replayTick.current);
       const tickEvents = replay.events.filter((event) => event[1] <= replayTick.current);
-      // console.log(tickEvents);
+      let replayComplete = false;
       tickEvents.forEach((event) => {
         if (event[0] === replayEvents.complete) {
-          clearInterval(tickInterval);
-          setReadOnly(false);
+          replayComplete = true;
+          return;
         }
         if (event[0] === replayEvents.select_cell) {
           const selectedCell = event[2] === "" ? null : Number(event[2]);
@@ -457,6 +456,10 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
         }
       });
       replay.events = replay.events.filter((event) => event[1] > replayTick.current);
+      if (replayComplete) {
+        clearInterval(tickInterval);
+        setReadOnly(false);
+      }
     };
 
     const tickInterval = setInterval(tick, 50);
