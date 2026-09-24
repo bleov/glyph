@@ -15,7 +15,7 @@ import VictoryModal from "./VictoryModal";
 import { useBoardRenderer } from "../hooks/useBoardRenderer";
 import { useInput } from "../hooks/useInput";
 import { usePersistence } from "../hooks/usePersistence";
-import useReplayRecorder from "../hooks/useReplayRecorder";
+import useReplayRecorder, { decodeReplay, replayEvents } from "../hooks/useReplayRecorder";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -56,6 +56,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       return renderClue(clue);
     });
   }, [data]);
+  const replayTick = useRef<number>(0);
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -137,7 +138,9 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       } else {
         newState[cellIndex] = letter;
       }
-      localforage.setItem(`state-${data.id}`, newState);
+      if (!readOnly) {
+        localforage.setItem(`state-${data.id}`, newState);
+      }
       return newState;
     });
     replay.record("modify_cell", cellIndex, letter);
@@ -200,6 +203,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, [selected, direction]);
 
   useEffect(() => {
+    if (readOnly) return;
     if (autoCheck) {
       localforage.setItem(`cheated-${data.id}`, true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
@@ -379,6 +383,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, []);
 
   useEffect(() => {
+    if (readOnly) return;
     localforage.setItem(`selected-${data.id}`, [selected, direction]);
   }, [selected, direction, data.id]);
 
@@ -405,8 +410,56 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     }
   }
 
-  const crosswordContextValue = useMemo<CrosswordContextValue>(
-    () => ({
+  function prepareReplay() {
+    setReadOnly(true);
+    setBoardState({});
+    setDirection("across");
+  }
+
+  function playReplay(encodedReplay: string) {
+    const replay = decodeReplay(encodedReplay.replaceAll("\r", ""));
+
+    console.log(replay);
+    setModalType(null);
+    prepareReplay();
+
+    const eventKeys = Object.keys(replayEvents);
+    const tick = () => {
+      replayTick.current += 50;
+      // console.log(replayTick.current);
+      const tickEvents = replay.events.filter((event) => event[1] <= replayTick.current);
+      // console.log(tickEvents);
+      tickEvents.forEach((event) => {
+        if (event[0] === replayEvents.complete) {
+          clearInterval(tickInterval);
+          setReadOnly(false);
+        }
+        if (event[0] === replayEvents.select_cell) {
+          setSelected(event[2]);
+        }
+        if (event[0] === replayEvents.change_direction) {
+          setDirection(event[2] === "a" ? "across" : "down");
+        }
+        if (event[0] === replayEvents.modify_cell) {
+          setBoardState((prev) => {
+            const newState = { ...prev };
+            if (event[3] === "") {
+              delete newState[event[2]];
+            } else {
+              newState[event[2]] = event[3];
+            }
+            return newState;
+          });
+        }
+      });
+      replay.events = replay.events.filter((event) => event[1] > replayTick.current);
+    };
+
+    const tickInterval = setInterval(tick, 50);
+  }
+
+  const crosswordContextValue = useMemo<CrosswordContextValue>(() => {
+    const value = {
       body,
       data,
       user,
@@ -454,42 +507,49 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       setOverlayURL,
       toast,
       replay,
-      readOnly
-    }),
-    [
-      alreadyCompleted,
-      autoCheck,
-      boardState,
-      body,
-      checkBoard,
-      complete,
-      data,
-      direction,
-      globalSelectedClue,
-      keyboardOpen,
-      modalType,
-      next,
-      nextCell,
-      nextEditableClue,
-      options,
-      paused,
-      prefersReducedMotion,
-      previous,
-      rebusMode,
-      rebusText,
-      boardHeight,
-      selected,
-      setComplete,
-      stateDocId,
-      timeRef,
-      type,
-      user,
-      overlayURL,
-      toast,
-      replay,
-      readOnly
-    ]
-  );
+      readOnly,
+      playReplay
+    };
+
+    if (import.meta.env.DEV) {
+      // @ts-ignore
+      window.xwd = value;
+    }
+    return value;
+  }, [
+    alreadyCompleted,
+    autoCheck,
+    boardState,
+    body,
+    checkBoard,
+    complete,
+    data,
+    direction,
+    globalSelectedClue,
+    keyboardOpen,
+    modalType,
+    next,
+    nextCell,
+    nextEditableClue,
+    options,
+    paused,
+    prefersReducedMotion,
+    previous,
+    rebusMode,
+    rebusText,
+    boardHeight,
+    selected,
+    setComplete,
+    stateDocId,
+    timeRef,
+    type,
+    user,
+    overlayURL,
+    toast,
+    replay,
+    readOnly,
+    playReplay
+  ]);
 
   return (
     <CrosswordProvider value={crosswordContextValue}>

@@ -1,5 +1,5 @@
 import { CrosswordAppState } from "@/routes/crossword/state";
-import { LogInIcon, MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon, UsersIcon } from "lucide-react";
+import { LogInIcon, MonitorIcon, RotateCcwIcon, SmartphoneIcon, StarIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, Center, Checkbox, Loader, Modal, Tooltip, Whisper } from "rsuite";
@@ -11,6 +11,7 @@ import { pb } from "../main";
 import Nudge from "./Nudge";
 import posthog from "posthog-js";
 import type { LeaderboardRecord, PuzzleStateRecord } from "@/lib/pb-types";
+import { useCrosswordContext } from "@/routes/crossword/Components/CrosswordContext";
 
 export function FriendsNudge() {
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ export default function Leaderboard({
   const [data, setData] = useState<PuzzleStateRecord[]>([]);
 
   const { user } = useContext(GlobalState);
+  const { playReplay } = useCrosswordContext();
 
   useEffect(() => {
     if (!user) return;
@@ -162,13 +164,34 @@ export default function Leaderboard({
           {data && !loading && (
             <>
               <Table data={data} bordered autoHeight maxHeight={408}>
-                <Table.Column width={40} align="center" verticalAlign="center">
+                <Table.Column width={30} align="center" verticalAlign="center">
                   <Table.HeaderCell>#</Table.HeaderCell>
                   <Table.Cell dataKey="rank" />
                 </Table.Column>
                 <Table.Column flexGrow={2} align="left" verticalAlign="center">
                   <Table.HeaderCell>Username</Table.HeaderCell>
                   <Table.Cell dataKey="expand.user.username" className="leaderboard-username" />
+                </Table.Column>
+                <Table.Column width={20} align="center" verticalAlign="center">
+                  <Table.HeaderCell> </Table.HeaderCell>
+                  <Table.Cell
+                    dataKey="replay"
+                    renderCell={(replay) =>
+                      replay.length > 6 ? (
+                        <Whisper placement="top" trigger={"hover"} speaker={<Tooltip>View replay</Tooltip>}>
+                          <RotateCcwIcon
+                            cursor={"pointer"}
+                            style={{ color: "var(--rs-orange-600)" }}
+                            onClick={() => {
+                              playReplay(replay);
+                            }}
+                          />
+                        </Whisper>
+                      ) : (
+                        ""
+                      )
+                    }
+                  ></Table.Cell>
                 </Table.Column>
                 <Table.Column width={20} align="center" verticalAlign="center">
                   <Table.HeaderCell> </Table.HeaderCell>

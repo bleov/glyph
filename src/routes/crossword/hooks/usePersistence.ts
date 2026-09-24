@@ -28,11 +28,13 @@ export function usePersistence() {
     setComplete,
     checkBoard,
     toast,
-    replay
+    replay,
+    readOnly
   } = useCrosswordContext();
 
   const cloudSave = useCallback(async () => {
     if (!user) return;
+    if (readOnly) return;
     const puzzleState = pb.collection("puzzle_state");
     const record = new FormData();
 
@@ -75,6 +77,7 @@ export function usePersistence() {
 
   const submitScore = useCallback(async () => {
     if (!user) return;
+    if (readOnly) return;
 
     const leaderboard = pb.collection("leaderboard");
     const record = new FormData();
@@ -116,6 +119,7 @@ export function usePersistence() {
   }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user]);
 
   useEffect(() => {
+    if (readOnly) return;
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");

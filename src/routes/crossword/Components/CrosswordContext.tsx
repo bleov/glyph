@@ -64,7 +64,8 @@ export interface CrosswordContextValue {
   nextEditableClue: (previous?: boolean) => void;
   arrowKey: (key: string, dir: "across" | "down") => void;
   checkBoard: () => { totalCells: number; totalFilled: number; totalCorrect: number };
-  toast: (message: string, duration: number = 1500) => void;
+  toast: (message: string, duration: number) => void;
+  playReplay: (encodedReplay: string) => void;
 }
 
 const CrosswordContext = createContext<CrosswordContextValue | null>(null);
