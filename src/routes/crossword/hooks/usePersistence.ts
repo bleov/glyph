@@ -110,13 +110,13 @@ export function usePersistence() {
           posthog.capture("leaderboard_submission", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
         });
     });
-  }, [data.id, data.publicationDate, keyboardOpen, options, timeRef, type, user]);
+  }, [data.id, data.publicationDate, keyboardOpen, options, timeRef, type, user, readOnly]);
 
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 4000), [cloudSave]);
 
   useEffect(() => {
     throttledCloudSave();
-  }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user]);
+  }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user, readOnly]);
 
   useEffect(() => {
     if (readOnly) return;
@@ -155,7 +155,8 @@ export function usePersistence() {
     setComplete,
     setModalType,
     submitScore,
-    timeRef
+    timeRef,
+    readOnly
   ]);
 
   return {
