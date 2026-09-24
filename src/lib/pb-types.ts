@@ -112,10 +112,12 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
-export type ArchiveRecord<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
+export type ArchiveRecord<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
 	connections?: null | Tconnections
 	connections_id?: number
 	created: IsoAutoDateString
+	cryptic?: null | Tcryptic
+	cryptic_id?: string
 	daily?: null | Tdaily
 	daily_id?: number
 	id: string
@@ -225,6 +227,7 @@ export type LeaderboardRecord = {
 	id: string
 	platform?: LeaderboardPlatformOptions
 	puzzle_id?: number
+	replay?: string
 	time?: number
 	type?: LeaderboardTypeOptions
 	updated: IsoAutoDateString
@@ -290,7 +293,7 @@ export type ShapesRecord<Tdata = unknown> = {
 
 export type StrandsLeaderboardRecord<Tstate = unknown> = {
 	created: IsoAutoDateString
-	hints_used: number
+	hints_used?: number
 	id: string
 	puzzle_date?: string
 	puzzle_id: number
@@ -389,7 +392,7 @@ export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRec
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
-export type ArchiveResponse<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tconnections, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
+export type ArchiveResponse<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tconnections, Tcryptic, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
 export type AverageRatingsResponse<Trating = unknown, Texpand = unknown> = Required<AverageRatingsRecord<Trating>> & BaseSystemFields<Texpand>
 export type ConnectionsLeaderboardResponse<Tguesses = unknown, Torder = unknown, Texpand = unknown> = Required<ConnectionsLeaderboardRecord<Tguesses, Torder>> & BaseSystemFields<Texpand>
 export type ConnectionsStateResponse<Tstate = unknown, Texpand = unknown> = Required<ConnectionsStateRecord<Tstate>> & BaseSystemFields<Texpand>

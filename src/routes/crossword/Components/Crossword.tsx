@@ -15,6 +15,7 @@ import VictoryModal from "./VictoryModal";
 import { useBoardRenderer } from "../hooks/useBoardRenderer";
 import { useInput } from "../hooks/useInput";
 import { usePersistence } from "../hooks/usePersistence";
+import useReplayRecorder, { decodeReplay, replayEvents } from "../hooks/useReplayRecorder";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -43,16 +44,19 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const [rebusMode, setRebusMode] = useState<boolean>(false);
   const [rebusText, setRebusText] = useState<string>("");
   const [overlayURL, setOverlayURL] = useState<string>("");
+  const [readOnly, setReadOnly] = useState<boolean>(false);
 
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
   const toaster = useToaster();
+  const replay = useReplayRecorder();
   const renderedClues = useMemo(() => {
     return body.clues.map((clue) => {
       return renderClue(clue);
     });
   }, [data]);
+  const replayTick = useRef<number>(0);
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -73,6 +77,33 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     setModalState(destination);
   }
 
+  useEffect(() => {
+    if (options.includes("hardcore")) {
+      replay.start();
+    }
+  }, [options]);
+
+  useEffect(() => {
+    if (replay.isRecording()) {
+      replay.record("select_cell", selected);
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    if (replay.isRecording()) {
+      replay.record("change_direction", direction.substring(0, 1));
+    }
+  }, [direction]);
+
+  useEffect(() => {
+    if (replay.isRecording() && complete) {
+      replay.end();
+    } else if (complete && !options.includes("hardcore")) {
+      // hardcore was invalided
+      replay.cancel();
+    }
+  }, [complete]);
+
   useLayoutEffect(() => {
     if (boardRef.current) {
       setBoardHeight(boardRef.current.offsetHeight);
@@ -92,7 +123,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   function typeLetter(letter: string, cellIndex: number) {
     if (!boardRef.current) return;
-    if (complete) return;
+    if (complete || readOnly) return;
     const square = boardRef.current.querySelector(`g[data-index='${cellIndex}']`);
     if (!square) return;
     const guess = square.querySelector(".guess");
@@ -107,9 +138,12 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       } else {
         newState[cellIndex] = letter;
       }
-      localforage.setItem(`state-${data.id}`, newState);
+      if (!readOnly) {
+        localforage.setItem(`state-${data.id}`, newState);
+      }
       return newState;
     });
+    replay.record("modify_cell", cellIndex, letter);
   }
 
   function getCellsInDirection(start: number, dir: "across" | "down") {
@@ -169,6 +203,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, [selected, direction]);
 
   useEffect(() => {
+    if (readOnly) return;
     if (autoCheck) {
       localforage.setItem(`cheated-${data.id}`, true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
@@ -348,6 +383,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, []);
 
   useEffect(() => {
+    if (readOnly) return;
     localforage.setItem(`selected-${data.id}`, [selected, direction]);
   }, [selected, direction, data.id]);
 
@@ -374,8 +410,64 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     }
   }
 
-  const crosswordContextValue = useMemo<CrosswordContextValue>(
-    () => ({
+  function prepareReplay() {
+    setReadOnly(true);
+    setBoardState({});
+    setDirection("across");
+  }
+
+  function playReplay(encodedReplay: string) {
+    const replay = decodeReplay(encodedReplay.replaceAll("\r", ""));
+
+    console.log(replay);
+    setModalType(null);
+    prepareReplay();
+
+    replayTick.current = 0;
+    const tick = () => {
+      replayTick.current += 50;
+      const tickEvents = replay.events.filter((event) => event[1] <= replayTick.current);
+      let replayComplete = false;
+      tickEvents.forEach((event) => {
+        if (event[0] === replayEvents.complete) {
+          replayComplete = true;
+          return;
+        }
+        if (event[0] === replayEvents.select_cell) {
+          const selectedCell = event[2] === "" ? null : Number(event[2]);
+          if (selectedCell === null || Number.isInteger(selectedCell)) {
+            setSelected(selectedCell);
+          }
+        }
+        if (event[0] === replayEvents.change_direction) {
+          setDirection(event[2] === "a" ? "across" : "down");
+        }
+        if (event[0] === replayEvents.modify_cell) {
+          const cellIndex = Number(event[2]);
+          setBoardState((prev) => {
+            const newState = { ...prev };
+            if (event[3] === "") {
+              delete newState[cellIndex];
+            } else {
+              if (typeof event[3] === "string" && /^[A-Za-z0-9]*$/.test(event[3])) newState[cellIndex] = event[3];
+            }
+            return newState;
+          });
+        }
+      });
+      replay.events = replay.events.filter((event) => event[1] > replayTick.current);
+      if (replayComplete) {
+        clearInterval(tickInterval);
+        setReadOnly(false);
+        setModalType("leaderboard");
+      }
+    };
+
+    const tickInterval = setInterval(tick, 50);
+  }
+
+  const crosswordContextValue = useMemo<CrosswordContextValue>(() => {
+    const value = {
       body,
       data,
       user,
@@ -421,40 +513,51 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       checkBoard,
       overlayURL,
       setOverlayURL,
-      toast
-    }),
-    [
-      alreadyCompleted,
-      autoCheck,
-      boardState,
-      body,
-      checkBoard,
-      complete,
-      data,
-      direction,
-      globalSelectedClue,
-      keyboardOpen,
-      modalType,
-      next,
-      nextCell,
-      nextEditableClue,
-      options,
-      paused,
-      prefersReducedMotion,
-      previous,
-      rebusMode,
-      rebusText,
-      boardHeight,
-      selected,
-      setComplete,
-      stateDocId,
-      timeRef,
-      type,
-      user,
-      overlayURL,
-      toast
-    ]
-  );
+      toast,
+      replay,
+      readOnly,
+      playReplay
+    };
+
+    if (import.meta.env.DEV) {
+      // @ts-ignore
+      window.xwd = value;
+    }
+    return value;
+  }, [
+    alreadyCompleted,
+    autoCheck,
+    boardState,
+    body,
+    checkBoard,
+    complete,
+    data,
+    direction,
+    globalSelectedClue,
+    keyboardOpen,
+    modalType,
+    next,
+    nextCell,
+    nextEditableClue,
+    options,
+    paused,
+    prefersReducedMotion,
+    previous,
+    rebusMode,
+    rebusText,
+    boardHeight,
+    selected,
+    setComplete,
+    stateDocId,
+    timeRef,
+    type,
+    user,
+    overlayURL,
+    toast,
+    replay,
+    readOnly,
+    playReplay
+  ]);
 
   return (
     <CrosswordProvider value={crosswordContextValue}>
@@ -491,7 +594,8 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
     setRebusText,
     nextEditableClue,
     exit,
-    overlayURL
+    overlayURL,
+    readOnly
   } = contextValue;
 
   const { activateRebusMode, handleKeyDown } = useInput();
@@ -594,6 +698,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <>
                 <Toggle
                   checked={autoCheck}
+                  readOnly={readOnly}
                   name="autoCheck"
                   onChange={(e) => {
                     setAutoCheck(e);
@@ -633,10 +738,12 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
                         key={clueIndex}
                         className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""} ${isClueComplete(clueIndex) ? "completed-clue" : ""}`}
                         onClick={() => {
+                          if (readOnly) return;
                           const targetCell = getFirstEmptyCell(clue);
                           setSelected(targetCell);
                           setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
                         }}
+                        style={{ cursor: readOnly ? "default" : "pointer" }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
                         <span className="clue-text" dangerouslySetInnerHTML={{ __html: getRenderedClue(clueIndex) }}></span>
@@ -688,6 +795,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <div
                 className="clue-bar-back"
                 onClick={() => {
+                  if (readOnly) return;
                   nextEditableClue(true);
                 }}
               >
@@ -701,6 +809,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               <div
                 className="clue-bar-forward"
                 onClick={() => {
+                  if (readOnly) return;
                   nextEditableClue();
                 }}
               >

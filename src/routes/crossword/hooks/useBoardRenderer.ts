@@ -17,7 +17,8 @@ export function useBoardRenderer() {
     setSelected,
     getCellsInDirection,
     checkCell,
-    setOverlayURL
+    setOverlayURL,
+    readOnly
   } = useCrosswordContext();
 
   useLayoutEffect(() => {
@@ -70,6 +71,7 @@ export function useBoardRenderer() {
 
       if ("answer" in body.cells[index]) {
         parent.addEventListener("click", () => {
+          if (readOnly) return;
           if (selected === index) {
             setDirection(direction === "across" ? "down" : "across");
           }

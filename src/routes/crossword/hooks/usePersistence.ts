@@ -1,7 +1,7 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
 import throttle from "throttleit";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { fireworks } from "@/lib/confetti";
 import { pb } from "@/main";
@@ -27,11 +27,16 @@ export function usePersistence() {
     setModalType,
     setComplete,
     checkBoard,
-    toast
+    toast,
+    replay,
+    readOnly
   } = useCrosswordContext();
+
+  const wasReadOnly = useRef(false);
 
   const cloudSave = useCallback(async () => {
     if (!user) return;
+    if (readOnly) return;
     const puzzleState = pb.collection("puzzle_state");
     const record = new FormData();
 
@@ -74,6 +79,7 @@ export function usePersistence() {
 
   const submitScore = useCallback(async () => {
     if (!user) return;
+    if (readOnly) return;
 
     const leaderboard = pb.collection("leaderboard");
     const record = new FormData();
@@ -84,6 +90,8 @@ export function usePersistence() {
       localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
       if (!saved[1]) return;
+      const replayData = replay.getEncoded();
+
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("time", saved[0]?.toString() ?? "0");
@@ -91,6 +99,9 @@ export function usePersistence() {
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
       record.set("type", type);
       record.set("hardcore", options.includes("hardcore").toString());
+      if (options.includes("hardcore") && replayData) {
+        record.set("replay", replayData);
+      }
 
       leaderboard
         .create(record)
@@ -101,15 +112,16 @@ export function usePersistence() {
           posthog.capture("leaderboard_submission", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
         });
     });
-  }, [data.id, data.publicationDate, keyboardOpen, options, timeRef, type, user]);
+  }, [data.id, data.publicationDate, keyboardOpen, options, timeRef, type, user, readOnly]);
 
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 4000), [cloudSave]);
 
   useEffect(() => {
     throttledCloudSave();
-  }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user]);
+  }, [throttledCloudSave, boardState, autoCheck, complete, selected, direction, user, readOnly]);
 
   useEffect(() => {
+    if (wasReadOnly.current === true) return;
     const results = checkBoard();
     if (results.totalCells > 0 && results.totalCells === results.totalCorrect) {
       setModalType("victory");
@@ -132,6 +144,7 @@ export function usePersistence() {
       incorrectShown.current = true;
       posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current, autoCheck });
     }
+    wasReadOnly.current = readOnly;
   }, [
     alreadyCompleted,
     autoCheck,
@@ -145,7 +158,8 @@ export function usePersistence() {
     setComplete,
     setModalType,
     submitScore,
-    timeRef
+    timeRef,
+    readOnly
   ]);
 
   return {

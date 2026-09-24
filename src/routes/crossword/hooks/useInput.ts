@@ -28,7 +28,8 @@ export function useInput() {
     previous,
     next,
     nextEditableClue,
-    arrowKey
+    arrowKey,
+    readOnly
   } = useCrosswordContext();
 
   const activateRebusMode = useCallback(() => {
@@ -63,6 +64,8 @@ export function useInput() {
         }
         return;
       }
+
+      if (readOnly) return;
 
       // Typing logic
       if (letters.includes(e.key) && selected !== null) {
