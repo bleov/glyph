@@ -52,7 +52,7 @@ const strandsDate = miniData.publicationDate;
 const strandsData: StrandsGame = await fetchJSON([HOST, "svc", "strands", "v2", `${strandsDate}.json`].join("/"));
 
 console.log("Fetching minute cryptic data...");
-const minuteCrypticData: CrypticGame = await fetchJSON("https://www.minutecryptic.com/api/daily_puzzle/today?tz=America/New_York");
+const minuteCrypticData: CrypticGame = await fetchJSON("https://www.minutecryptic.com/api/daily_puzzle/today?tz=UTC");
 
 console.log("Creating archive record...");
 
