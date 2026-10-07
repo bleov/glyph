@@ -1,7 +1,7 @@
 import type { CrypticGame } from "@/lib/types";
 import CrypticClue from "./CrypticClue";
 import CrypticInput from "./CrypticInput";
-import { Button, ButtonToolbar, Center, useDialog, VStack } from "rsuite";
+import { Button, ButtonToolbar, Center, Modal, Text, useDialog, VStack } from "rsuite";
 import { useEffect, useState } from "react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import CrytpicKeyboard from "./CrypticKeyboard";
@@ -14,8 +14,13 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [revealed, setRevealed] = useState(new Array(length).fill(false));
   const [hints, setHints] = useState<string[]>([]);
   const [lastInput, setLastInput] = useState<KeyboardEvent | null>(null);
+  const [hintDialogType, setHintDialogType] = useState<"indicators" | "fodder" | "definition" | null>(null);
+  const [hintDialogOpen, setHintDialogOpen] = useState(false);
 
-  const dialog = useDialog();
+  const hintTexts: Record<string, string> = {};
+  for (const hint of data.hints) {
+    hintTexts[hint.type] = hint.text;
+  }
 
   function showLetter() {
     const revealedCount = revealed.filter((x) => x).length;
@@ -35,61 +40,60 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
     setHints((prev) => [...prev, "letter"]);
   }
 
-  function showHintDialog(hintType: string) {
-    const hint = data.hints.find((hint) => hint.type === hintType);
-    if (hint) {
-      dialog.alert(hint.text, {
-        title: (
-          <>
-            <LightbulbIcon /> Hint
-          </>
-        ),
-        okText: "Done"
-      });
-    }
-  }
-
   function showIndicators() {
     if (!hints.includes("indicators")) setHints((prev) => [...prev, "indicators"]);
-    showHintDialog("indicators");
+    setHintDialogType("indicators");
+    setHintDialogOpen(true);
   }
   function showFodder() {
     if (!hints.includes("fodder")) setHints((prev) => [...prev, "fodder"]);
-    showHintDialog("fodder");
+    setHintDialogType("fodder");
+    setHintDialogOpen(true);
   }
   function showDefinition() {
     if (!hints.includes("definition")) setHints((prev) => [...prev, "definition"]);
-    showHintDialog("definition");
+    setHintDialogType("definition");
+    setHintDialogOpen(true);
   }
 
   return (
-    <VStack spacing={32} height={"100%"}>
-      <CrypticClue clue={data.clue} answerLength={Object.keys(data.puzzlePieces).length} hintsData={data.hints} hints={hints} />
-      <CrypticInput
-        entry={entry}
-        setEntry={setEntry}
-        revealed={revealed}
-        puzzlePieces={data.puzzlePieces}
-        lastInput={lastInput}
-        setLastInput={setLastInput}
-      />
-      <ButtonToolbar alignSelf={"center"} spacing={16}>
-        <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
-          <MenuItem onClick={showIndicators}>show indicators</MenuItem>
-          <MenuItem onClick={showFodder}>show fodder</MenuItem>
-          <MenuItem onClick={showDefinition}>show definition</MenuItem>
-          <MenuDivider />
-          <MenuItem onClick={showLetter}>show letter</MenuItem>
-        </Menu>
-        <Button disabled={!entry.every((x) => x !== "")}>check</Button>
-      </ButtonToolbar>
-      <Center width={"100%"} marginTop={"auto"}>
-        <CrytpicKeyboard
-          handleKeyDown={(e) => {
-            setLastInput(e);
-          }}
+    <>
+      <VStack spacing={32} height={"100%"}>
+        <CrypticClue clue={data.clue} answerLength={Object.keys(data.puzzlePieces).length} hintsData={data.hints} hints={hints} />
+        <CrypticInput
+          entry={entry}
+          setEntry={setEntry}
+          revealed={revealed}
+          puzzlePieces={data.puzzlePieces}
+          lastInput={lastInput}
+          setLastInput={setLastInput}
         />
-      </Center>
-    </VStack>
+        <ButtonToolbar alignSelf={"center"} spacing={16}>
+          <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
+            <MenuItem onClick={showIndicators}>show indicators</MenuItem>
+            <MenuItem onClick={showFodder}>show fodder</MenuItem>
+            <MenuItem onClick={showDefinition}>show definition</MenuItem>
+            <MenuDivider />
+            <MenuItem onClick={showLetter}>show letter</MenuItem>
+          </Menu>
+          <Button disabled={!entry.every((x) => x !== "")}>check</Button>
+        </ButtonToolbar>
+        <Center width={"100%"} marginTop={"auto"}>
+          <CrytpicKeyboard
+            handleKeyDown={(e) => {
+              setLastInput(e);
+            }}
+          />
+        </Center>
+      </VStack>
+      <Modal open={hintDialogOpen} onClose={() => setHintDialogOpen(false)} size={"xs"} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <LightbulbIcon /> Hint
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ maxHeight: 400 }}>{hintDialogType && <Text>{hintTexts[hintDialogType]}</Text>}</Modal.Body>
+      </Modal>
+    </>
   );
 }
