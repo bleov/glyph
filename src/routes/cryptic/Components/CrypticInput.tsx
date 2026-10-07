@@ -100,6 +100,7 @@ export default function CrypticInput({
     if (!ALLOWED_KEYS.includes(e.key)) {
       e.preventDefault();
       if (e.key === "Backspace") {
+        if (revealed[selected]) return;
         setEntry((prev) => {
           const newEntry = [...prev];
           newEntry[selected] = "";
@@ -109,6 +110,7 @@ export default function CrypticInput({
       }
       return;
     }
+    if (revealed[selected]) return;
     setEntry((prev) => {
       const newEntry = [...prev];
       newEntry[selected] = e.key.toUpperCase();
@@ -122,7 +124,7 @@ export default function CrypticInput({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [puzzlePieces, selected]);
+  }, [puzzlePieces, revealed, selected]);
 
   useEffect(() => {
     if (revealed[selected]) {
