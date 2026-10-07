@@ -1,10 +1,11 @@
 import type { CrypticGame } from "@/lib/types";
 import CrypticClue from "./CrypticClue";
 import CrypticInput from "./CrypticInput";
-import { Button, ButtonToolbar, Center, VStack } from "rsuite";
+import { Button, ButtonToolbar, Center, useDialog, VStack } from "rsuite";
 import { useEffect, useState } from "react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import CrytpicKeyboard from "./CrypticKeyboard";
+import { LightbulbIcon } from "lucide-react";
 
 export default function Cryptic({ data }: { data: CrypticGame }) {
   const length = Object.keys(data.puzzlePieces).length;
@@ -13,6 +14,8 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [revealed, setRevealed] = useState(new Array(length).fill(false));
   const [hints, setHints] = useState<string[]>([]);
   const [lastInput, setLastInput] = useState<KeyboardEvent | null>(null);
+
+  const dialog = useDialog();
 
   function showLetter() {
     const revealedCount = revealed.filter((x) => x).length;
@@ -32,14 +35,31 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
     setHints((prev) => [...prev, "letter"]);
   }
 
+  function showHintDialog(hintType: string) {
+    const hint = data.hints.find((hint) => hint.type === hintType);
+    if (hint) {
+      dialog.alert(hint.text, {
+        title: (
+          <>
+            <LightbulbIcon /> Hint
+          </>
+        ),
+        okText: "Done"
+      });
+    }
+  }
+
   function showIndicators() {
     if (!hints.includes("indicators")) setHints((prev) => [...prev, "indicators"]);
+    showHintDialog("indicators");
   }
   function showFodder() {
     if (!hints.includes("fodder")) setHints((prev) => [...prev, "fodder"]);
+    showHintDialog("fodder");
   }
   function showDefinition() {
     if (!hints.includes("definition")) setHints((prev) => [...prev, "definition"]);
+    showHintDialog("definition");
   }
 
   return (
