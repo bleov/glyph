@@ -1,0 +1,95 @@
+body:has(.cryptic) {
+  background-color: #e3f2fd;
+}
+
+#root:has(.cryptic) {
+  margin-inline: 0;
+  width: 100%;
+}
+
+.cryptic {
+  --selected: #f5d1fd;
+  --hint-btn: #fff2b1;
+
+  max-width: 640px;
+  margin-inline: auto;
+
+  .cryptic-input-box {
+    width: 46px;
+    height: 46px;
+    outline: 4px solid black;
+    outline-offset: -2px;
+    background-color: white;
+
+    &:not(.revealed) {
+      cursor: pointer;
+    }
+    &:first-child {
+      border-start-start-radius: 0.25rem;
+      border-end-start-radius: 0.25rem;
+    }
+    &:last-child {
+      border-start-end-radius: 0.25rem;
+      border-end-end-radius: 0.25rem;
+    }
+
+    &.selected {
+      background-color: var(--selected);
+    }
+    &.revealed {
+      background-color: var(--hint-btn);
+    }
+  }
+
+  .cryptic-input {
+    align-self: center;
+  }
+
+  .cryptic-input-text {
+    font-size: 36px;
+    font-family: "Sansita", sans-serif !important;
+    font-weight: 800;
+    font-style: italic;
+    text-transform: lowercase;
+    translate: 0 -0.25rem;
+  }
+
+  .cryptic-clue {
+    align-self: center;
+    padding: 8px 16px;
+    background-color: white;
+    border-radius: 0.5rem;
+    font-size: 24px;
+
+    user-select: text;
+    * {
+      user-select: inherit;
+    }
+  }
+
+  .rs-btn {
+    font-size: 20px;
+    font-family: "Sansita", sans-serif !important;
+    font-weight: 800;
+    padding: 22px 32px;
+    border-radius: var(--rs-radius-full);
+    border: 3px solid black;
+    outline: none;
+    box-shadow: 3px 3px 0 0 black;
+    background-color: var(--selected);
+    transition: all 300ms;
+
+    &:hover:not(:disabled) {
+      scale: 1.05;
+    }
+    &:disabled {
+      box-shadow: none;
+      opacity: 0.6;
+      background-color: transparent;
+    }
+
+    &.hints-btn {
+      background-color: var(--hint-btn);
+    }
+  }
+}

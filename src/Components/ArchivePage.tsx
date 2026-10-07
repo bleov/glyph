@@ -5,9 +5,9 @@ import { pb } from "@/main";
 import { getButtonText, getMonthFilter } from "@/lib/formatting";
 import { ArrowLeftIcon, CircleCheckIcon, CircleIcon, HourglassIcon } from "lucide-react";
 import { Link } from "react-router";
-import type { ArchiveRecord, PuzzleStateRecord, PuzzleStatsRecord } from "@/lib/pb-types";
+import type { ArchiveRecord, PuzzleStateRecord } from "@/lib/pb-types";
 
-export default function ArchivePage({ type }: { type: "connections" | "wordle" | "strands" }) {
+export default function ArchivePage({ type }: { type: "connections" | "wordle" | "strands" | "cryptic" }) {
   const [data, setData] = useState<ArchiveRecord[] | null>(null);
   const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {

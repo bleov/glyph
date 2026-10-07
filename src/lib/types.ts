@@ -143,17 +143,19 @@ export interface CrypticHint {
   highlighting: number[][];
 }
 
+export interface CrypticPuzzlePiece {
+  answer: string;
+  isRevealed: boolean;
+  input: string;
+}
+
 export interface CrypticGame {
   puzzleId: string;
   letterRevealOrder: number[];
   hint: any;
   clue: CrypticClue[];
   answer: string;
-  puzzlePieces: {
-    answer: string;
-    isRevealed: boolean;
-    input: string;
-  };
+  puzzlePieces: Record<number, CrypticPuzzlePiece>;
   config: number[];
   par: number;
   explainerVideo: string;
