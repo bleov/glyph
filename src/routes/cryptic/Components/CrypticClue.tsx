@@ -26,26 +26,26 @@ export default function CrypticClue({
   let definitionHighlight: number[] = [];
 
   function getHighlightedWords(highlighting: [number, number][]): number[] {
-    const highlightedWords: number[] = [];
-    for (const highlight of highlighting) {
-      for (let i = highlight[0]; i <= highlight[1]; i++) {
-        let clueLength = 0;
-        for (let j = 0; j < clue.length; j++) {
-          const segment = clue[j].text;
-          clueLength += segment.length;
-          if (j < clue.length - 1) {
-            clueLength += 1;
-          }
-          if (clueLength >= i) {
-            if (!highlightedWords.includes(j)) {
-              highlightedWords.push(j);
-            }
-            break;
-          }
+    const highlightedWords = new Set<number>();
+    let segmentStart = 0;
+
+    for (let segmentIndex = 0; segmentIndex < clue.length; segmentIndex++) {
+      const segmentEnd = segmentStart + clue[segmentIndex].text.length - 1;
+
+      for (const [highlightStart, highlightEnd] of highlighting) {
+        if (segmentStart <= highlightEnd && segmentEnd >= highlightStart) {
+          highlightedWords.add(segmentIndex);
+          break;
         }
       }
+
+      segmentStart += clue[segmentIndex].text.length;
+      if (segmentIndex < clue.length - 1) {
+        segmentStart += 1;
+      }
     }
-    return highlightedWords;
+
+    return [...highlightedWords];
   }
 
   if (indicators && indicatorsHint) {
