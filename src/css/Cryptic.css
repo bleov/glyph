@@ -4,6 +4,7 @@ body:has(.cryptic) {
 
 #root:has(.cryptic) {
   margin-inline: 0;
+  height: 90vh;
   width: 100%;
 }
 
@@ -11,6 +12,11 @@ body:has(.cryptic) {
   --selected: #f5d1fd;
   --hint-btn: #fff2b1;
 
+  --indicator-hint: #f5d1fd;
+  --fodder-hint: var(--hint-btn);
+  --definition-hint: #d5e8ff;
+
+  height: 100%;
   max-width: 640px;
   margin-inline: auto;
 
@@ -65,6 +71,16 @@ body:has(.cryptic) {
     * {
       user-select: inherit;
     }
+
+    & .indicator {
+      background-color: var(--indicator-hint);
+    }
+    & .fodder {
+      background-color: var(--fodder-hint);
+    }
+    & .definition {
+      background-color: var(--definition-hint);
+    }
   }
 
   .rs-btn {
@@ -90,6 +106,39 @@ body:has(.cryptic) {
 
     &.hints-btn {
       background-color: var(--hint-btn);
+    }
+  }
+
+  .cryptic-keyboard {
+    min-width: clamp(280px, 100vw, 560px);
+    position: relative;
+
+    .hg-theme-default {
+      background-color: transparent;
+    }
+
+    .hg-button {
+      width: 33px;
+      height: 50px;
+      font-weight: bold;
+      font-size: 1.3em;
+      box-shadow: none;
+      background-color: white;
+
+      &.hg-button-bksp {
+        background-image: url("/icons/delete.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
+      &.hg-button-enter {
+        background-image: url("/icons/enter.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
+    }
+
+    .hg-row:nth-child(2) {
+      margin-inline: 5%;
     }
   }
 }

@@ -1,9 +1,10 @@
 import type { CrypticGame } from "@/lib/types";
 import CrypticClue from "./CrypticClue";
 import CrypticInput from "./CrypticInput";
-import { Button, ButtonToolbar, VStack } from "rsuite";
+import { Button, ButtonToolbar, Center, VStack } from "rsuite";
 import { useEffect, useState } from "react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
+import CrytpicKeyboard from "./CrypticKeyboard";
 
 export default function Cryptic({ data }: { data: CrypticGame }) {
   const length = Object.keys(data.puzzlePieces).length;
@@ -11,6 +12,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [entry, setEntry] = useState(new Array(length).fill(""));
   const [revealed, setRevealed] = useState(new Array(length).fill(false));
   const [hints, setHints] = useState<string[]>([]);
+  const [lastInput, setLastInput] = useState<KeyboardEvent | null>(null);
 
   function showLetter() {
     const revealedCount = revealed.filter((x) => x).length;
@@ -41,9 +43,16 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   }
 
   return (
-    <VStack spacing={32}>
-      <CrypticClue clue={data.clue} answerLength={Object.keys(data.puzzlePieces).length} hints={hints} />
-      <CrypticInput entry={entry} setEntry={setEntry} revealed={revealed} puzzlePieces={data.puzzlePieces} />
+    <VStack spacing={32} height={"100%"}>
+      <CrypticClue clue={data.clue} answerLength={Object.keys(data.puzzlePieces).length} hintsData={data.hints} hints={hints} />
+      <CrypticInput
+        entry={entry}
+        setEntry={setEntry}
+        revealed={revealed}
+        puzzlePieces={data.puzzlePieces}
+        lastInput={lastInput}
+        setLastInput={setLastInput}
+      />
       <ButtonToolbar alignSelf={"center"} spacing={16}>
         <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
           <MenuItem onClick={showIndicators}>show indicators</MenuItem>
@@ -54,6 +63,13 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
         </Menu>
         <Button disabled={!entry.every((x) => x !== "")}>check</Button>
       </ButtonToolbar>
+      <Center width={"100%"} marginTop={"auto"}>
+        <CrytpicKeyboard
+          handleKeyDown={(e) => {
+            setLastInput(e);
+          }}
+        />
+      </Center>
     </VStack>
   );
 }

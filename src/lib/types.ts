@@ -140,7 +140,7 @@ export interface CrypticHint {
   text: string;
   type: string;
   colour: string;
-  highlighting: number[][];
+  highlighting: [number, number][];
 }
 
 export interface CrypticPuzzlePiece {

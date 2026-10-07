@@ -1,16 +1,99 @@
-import type { CrypticClue, CrypticClue as CrypticClueType } from "@/lib/types";
+import type { CrypticClue, CrypticClue as CrypticClueType, CrypticHint } from "@/lib/types";
 import { Fragment } from "react/jsx-runtime";
 import { Text } from "rsuite";
 
-export default function CrypticClue({ clue, answerLength, hints }: { clue: CrypticClueType[]; answerLength: number; hints: string[] }) {
+export default function CrypticClue({
+  clue,
+  answerLength,
+  hintsData,
+  hints
+}: {
+  clue: CrypticClueType[];
+  answerLength: number;
+  hintsData: CrypticHint[];
+  hints: string[];
+}) {
+  const indicators = hintsData.find((hint) => hint.type === "indicators");
+  const fodder = hintsData.find((hint) => hint.type === "fodder");
+  const definition = hintsData.find((hint) => hint.type === "definition");
+
+  const indicatorsHint = hints.includes("indicators");
+  const fodderHint = hints.includes("fodder");
+  const definitionHint = hints.includes("definition");
+
+  let indicatorsHighlight: number[] = [];
+  let fodderHighlight: number[] = [];
+  let definitionHighlight: number[] = [];
+
+  function getHighlightedWords(highlighting: [number, number][]): number[] {
+    const highlightedWords: number[] = [];
+    for (const highlight of highlighting) {
+      for (let i = highlight[0]; i <= highlight[1]; i++) {
+        let clueLength = 0;
+        for (let j = 0; j < clue.length; j++) {
+          const segment = clue[j].text;
+          clueLength += segment.length;
+          if (j < clue.length - 1) {
+            clueLength += 1;
+          }
+          if (clueLength >= i) {
+            if (!highlightedWords.includes(j)) {
+              highlightedWords.push(j);
+            }
+            break;
+          }
+        }
+      }
+    }
+    return highlightedWords;
+  }
+
+  if (indicators && indicatorsHint) {
+    indicatorsHighlight = getHighlightedWords(indicators.highlighting);
+  }
+  if (fodder && fodderHint) {
+    fodderHighlight = getHighlightedWords(fodder.highlighting);
+  }
+  if (definition && definitionHint) {
+    definitionHighlight = getHighlightedWords(definition.highlighting);
+  }
+
   return (
     <Text className="cryptic-clue" size={"xl"}>
-      {clue.map((word, i) => (
-        <Fragment key={i}>
-          <span className="cryptic-clue-word">{word.text}</span>
-          {i !== clue.length - 1 && <span className="cryptic-clue-space"> </span>}
-        </Fragment>
-      ))}
+      {clue.map((word, i) => {
+        const isSpace = i !== clue.length - 1;
+        const wordClassList = ["cryptic-clue-word"];
+        const spaceClassList = ["cryptic-clue-space"];
+
+        if (indicatorsHighlight.includes(i)) {
+          wordClassList.push("indicator");
+        }
+        if (fodderHighlight.includes(i)) {
+          wordClassList.push("fodder");
+        }
+        if (definitionHighlight.includes(i)) {
+          wordClassList.push("definition");
+        }
+
+        if (isSpace) {
+          if (indicatorsHighlight.includes(i) && indicatorsHighlight.includes(i + 1)) {
+            spaceClassList.push("indicator");
+          }
+          if (fodderHighlight.includes(i) && fodderHighlight.includes(i + 1)) {
+            spaceClassList.push("fodder");
+          }
+          if (definitionHighlight.includes(i) && definitionHighlight.includes(i + 1)) {
+            spaceClassList.push("definition");
+          }
+        }
+
+        return (
+          <Fragment key={i}>
+            <span className={wordClassList.join(" ")}>{word.text}</span>
+            {isSpace && <span className={spaceClassList.join(" ")}> </span>}
+          </Fragment>
+        );
+      })}
       <span className="cryptic-clue-length"> ({answerLength})</span>
     </Text>
   );

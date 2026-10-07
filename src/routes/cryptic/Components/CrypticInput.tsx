@@ -34,18 +34,29 @@ export default function CrypticInput({
   puzzlePieces,
   entry,
   revealed,
-  setEntry
+  setEntry,
+  lastInput,
+  setLastInput
 }: {
   puzzlePieces: Record<number, CrypticPuzzlePiece>;
   entry: string[];
   revealed: boolean[];
   setEntry: Dispatch<SetStateAction<string[]>>;
+  lastInput: KeyboardEvent | null;
+  setLastInput: Dispatch<SetStateAction<KeyboardEvent | null>>;
 }) {
   const length = Object.keys(puzzlePieces).length;
 
   const [selected, setSelected] = useState(0);
 
   const ALLOWED_KEYS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  useEffect(() => {
+    if (lastInput) {
+      handleKeyDown(lastInput);
+      setLastInput(null);
+    }
+  }, [lastInput]);
 
   function nextBox() {
     if (selected < length - 1) {
