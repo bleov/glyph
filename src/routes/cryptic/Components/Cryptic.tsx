@@ -2,7 +2,7 @@ import type { CrypticGame } from "@/lib/types";
 import CrypticClue from "./CrypticClue";
 import CrypticInput from "./CrypticInput";
 import { Button, ButtonToolbar, Center, Modal, Text, useDialog, VStack } from "rsuite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import CrytpicKeyboard from "./CrypticKeyboard";
 import { LightbulbIcon } from "lucide-react";
@@ -16,6 +16,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [lastInput, setLastInput] = useState<KeyboardEvent | null>(null);
   const [hintDialogType, setHintDialogType] = useState<"indicators" | "fodder" | "definition" | null>(null);
   const [hintDialogOpen, setHintDialogOpen] = useState(false);
+  const [shaking, setShaking] = useState(false);
 
   const hintTexts: Record<string, string> = {};
   for (const hint of data.hints) {
@@ -56,6 +57,19 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
     setHintDialogOpen(true);
   }
 
+  function check() {
+    if (!entry.every((x) => x !== "")) return;
+    if (shaking) return;
+    if (entry.every((x, i) => x === data.puzzlePieces[i].answer)) {
+      alert("Correct!");
+    } else {
+      setShaking(true);
+      setTimeout(() => {
+        setShaking(false);
+      }, 500);
+    }
+  }
+
   return (
     <>
       <VStack spacing={32} height={"100%"}>
@@ -67,6 +81,8 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
           puzzlePieces={data.puzzlePieces}
           lastInput={lastInput}
           setLastInput={setLastInput}
+          shaking={shaking}
+          check={check}
         />
         <ButtonToolbar alignSelf={"center"} spacing={16}>
           <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
@@ -76,7 +92,9 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
             <MenuDivider />
             <MenuItem onClick={showLetter}>show letter</MenuItem>
           </Menu>
-          <Button disabled={!entry.every((x) => x !== "")}>check</Button>
+          <Button disabled={!entry.every((x) => x !== "")} onClick={check}>
+            check
+          </Button>
         </ButtonToolbar>
         <Center width={"100%"} marginTop={"auto"}>
           <CrytpicKeyboard

@@ -3,13 +3,11 @@ import { useEffect, useState, type Dispatch, type MouseEventHandler, type SetSta
 import { Box, Center, HStack } from "rsuite";
 
 function CrypticInputBox({
-  piece,
   selected,
   revealed,
   value,
   onClick
 }: {
-  piece: CrypticPuzzlePiece;
   selected: boolean;
   revealed: boolean;
   value: string;
@@ -36,7 +34,9 @@ export default function CrypticInput({
   revealed,
   setEntry,
   lastInput,
-  setLastInput
+  setLastInput,
+  shaking,
+  check
 }: {
   puzzlePieces: Record<number, CrypticPuzzlePiece>;
   entry: string[];
@@ -44,6 +44,8 @@ export default function CrypticInput({
   setEntry: Dispatch<SetStateAction<string[]>>;
   lastInput: KeyboardEvent | null;
   setLastInput: Dispatch<SetStateAction<KeyboardEvent | null>>;
+  shaking: boolean;
+  check: () => void;
 }) {
   const length = Object.keys(puzzlePieces).length;
 
@@ -108,6 +110,9 @@ export default function CrypticInput({
         });
         previousBox();
       }
+      if (e.key === "Enter") {
+        check();
+      }
       return;
     }
     if (revealed[selected]) return;
@@ -124,7 +129,7 @@ export default function CrypticInput({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [puzzlePieces, revealed, selected]);
+  }, [puzzlePieces, revealed, selected, entry, shaking]);
 
   useEffect(() => {
     if (revealed[selected]) {
@@ -147,11 +152,10 @@ export default function CrypticInput({
   }, [revealed, selected]);
 
   return (
-    <HStack className="cryptic-input" spacing={0}>
+    <HStack className={`cryptic-input${shaking ? " shake" : ""}`} spacing={0}>
       {Object.values(puzzlePieces).map((piece, i) => (
         <CrypticInputBox
           key={i}
-          piece={piece}
           selected={selected === i}
           revealed={revealed[i]}
           value={entry[i]}
