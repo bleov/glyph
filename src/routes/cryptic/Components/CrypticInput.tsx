@@ -36,7 +36,8 @@ export default function CrypticInput({
   lastInput,
   setLastInput,
   shaking,
-  check
+  check,
+  config
 }: {
   puzzlePieces: Record<number, CrypticPuzzlePiece>;
   entry: string[];
@@ -46,6 +47,7 @@ export default function CrypticInput({
   setLastInput: Dispatch<SetStateAction<KeyboardEvent | null>>;
   shaking: boolean;
   check: () => void;
+  config: number[];
 }) {
   const length = Object.keys(puzzlePieces).length;
 
@@ -151,18 +153,28 @@ export default function CrypticInput({
     }
   }, [revealed, selected]);
 
+  const segments: string[][] = [];
+  for (const segmentLength of config) {
+    segments.push(entry.slice(segments.flat().length, segments.flat().length + segmentLength));
+  }
+  console.log(segments);
+
   return (
-    <HStack className={`cryptic-input${shaking ? " shake" : ""}`} spacing={0}>
-      {Object.values(puzzlePieces).map((piece, i) => (
-        <CrypticInputBox
-          key={i}
-          selected={selected === i}
-          revealed={revealed[i]}
-          value={entry[i]}
-          onClick={() => {
-            if (!revealed[i]) setSelected(i);
-          }}
-        />
+    <HStack wrap width={"100%"} spacing={16} justifyContent={"center"}>
+      {segments.map((segment, i) => (
+        <HStack key={i} className={`cryptic-input${shaking ? " shake" : ""}`} spacing={0}>
+          {segment.map((_, j) => (
+            <CrypticInputBox
+              key={i.toString() + "_" + j.toString()}
+              selected={selected === segments.slice(0, i).flat().length + j}
+              revealed={revealed[segments.slice(0, i).flat().length + j]}
+              value={entry[segments.slice(0, i).flat().length + j]}
+              onClick={() => {
+                if (!revealed[i]) setSelected(i);
+              }}
+            />
+          ))}
+        </HStack>
       ))}
     </HStack>
   );

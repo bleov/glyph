@@ -73,7 +73,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   return (
     <>
       <VStack spacing={32} height={"100%"}>
-        <CrypticClue clue={data.clue} answerLength={Object.keys(data.puzzlePieces).length} hintsData={data.hints} hints={hints} />
+        <CrypticClue clue={data.clue} config={data.config} hintsData={data.hints} hints={hints} />
         <CrypticInput
           entry={entry}
           setEntry={setEntry}
@@ -83,6 +83,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
           setLastInput={setLastInput}
           shaking={shaking}
           check={check}
+          config={data.config}
         />
         <ButtonToolbar alignSelf={"center"} spacing={16}>
           <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>

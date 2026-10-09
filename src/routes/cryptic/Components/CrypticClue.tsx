@@ -4,12 +4,12 @@ import { Text } from "rsuite";
 
 export default function CrypticClue({
   clue,
-  answerLength,
+  config,
   hintsData,
   hints
 }: {
   clue: CrypticClueType[];
-  answerLength: number;
+  config: number[];
   hintsData: CrypticHint[];
   hints: string[];
 }) {
@@ -94,7 +94,7 @@ export default function CrypticClue({
           </Fragment>
         );
       })}
-      <span className="cryptic-clue-length"> ({answerLength})</span>
+      <span className="cryptic-clue-length"> ({config.join(", ")})</span>
     </Text>
   );
 }
