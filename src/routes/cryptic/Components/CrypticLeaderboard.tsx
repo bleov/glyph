@@ -55,7 +55,7 @@ export default function CrypticLeaderboard({ open, onClose, puzzleData }: { open
     return () => {
       cancelled = true;
     };
-  }, [open, puzzleData.id, ready]);
+  }, [open, puzzleData.puzzleId, ready]);
 
   function ModalHeader() {
     return (
