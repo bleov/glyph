@@ -81,6 +81,9 @@ body:has(.cryptic) {
     &.revealed {
       background-color: var(--hint-btn);
     }
+    &.complete {
+      cursor: default;
+    }
   }
 
   .cryptic-input {

@@ -6,19 +6,24 @@ function CrypticInputBox({
   selected,
   revealed,
   value,
-  onClick
+  onClick,
+  complete
 }: {
   selected: boolean;
   revealed: boolean;
   value: string;
   onClick: MouseEventHandler<HTMLDivElement>;
+  complete: boolean;
 }) {
-  const boxClassList = ["cryptic-input-box"];
+  let boxClassList = ["cryptic-input-box"];
   if (selected) {
     boxClassList.push("selected");
   }
   if (revealed) {
     boxClassList.push("revealed");
+  }
+  if (complete) {
+    boxClassList = ["cryptic-input-box", "complete"];
   }
 
   return (
@@ -37,7 +42,8 @@ export default function CrypticInput({
   setLastInput,
   shaking,
   check,
-  config
+  config,
+  complete
 }: {
   puzzlePieces: Record<number, CrypticPuzzlePiece>;
   entry: string[];
@@ -48,6 +54,7 @@ export default function CrypticInput({
   shaking: boolean;
   check: () => void;
   config: number[];
+  complete: boolean;
 }) {
   const length = Object.keys(puzzlePieces).length;
 
@@ -94,6 +101,7 @@ export default function CrypticInput({
   }
 
   function handleKeyDown(e: KeyboardEvent) {
+    if (complete) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "ArrowLeft") {
       previousBox();
@@ -131,7 +139,7 @@ export default function CrypticInput({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [puzzlePieces, revealed, selected, entry, shaking]);
+  }, [puzzlePieces, revealed, selected, entry, shaking, complete]);
 
   useEffect(() => {
     if (revealed[selected]) {
@@ -170,8 +178,10 @@ export default function CrypticInput({
               revealed={revealed[segments.slice(0, i).flat().length + j]}
               value={entry[segments.slice(0, i).flat().length + j]}
               onClick={() => {
-                if (!revealed[i]) setSelected(i);
+                if (complete) return;
+                if (!revealed[i]) setSelected(segments.slice(0, i).flat().length + j);
               }}
+              complete={complete}
             />
           ))}
         </HStack>
