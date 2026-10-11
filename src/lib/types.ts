@@ -140,7 +140,13 @@ export interface CrypticHint {
   text: string;
   type: string;
   colour: string;
-  highlighting: number[][];
+  highlighting: [number, number][];
+}
+
+export interface CrypticPuzzlePiece {
+  answer: string;
+  isRevealed: boolean;
+  input: string;
 }
 
 export interface CrypticGame {
@@ -149,11 +155,7 @@ export interface CrypticGame {
   hint: any;
   clue: CrypticClue[];
   answer: string;
-  puzzlePieces: {
-    answer: string;
-    isRevealed: boolean;
-    input: string;
-  };
+  puzzlePieces: Record<number, CrypticPuzzlePiece>;
   config: number[];
   par: number;
   explainerVideo: string;

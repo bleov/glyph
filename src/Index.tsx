@@ -125,17 +125,8 @@ export default function Index() {
       </div>
       <CardGroup columns={columns} className={`game-cards${columns === 1 ? " vertical" : ""}`} spacing={10}>
         <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
-        {columns === 1 ? (
-          <>
-            <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
-            <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
-          </>
-        ) : (
-          <CardGroup columns={columns} spacing={10} className="game-cards game-cards-small">
-            <LinkCard title="The Midi" description="" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" small />
-            <LinkCard title="The Daily" description="" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" small />
-          </CardGroup>
-        )}
+        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
+        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
         <LinkCard
           title="Connections"
           description="Create groups of four"
@@ -163,6 +154,15 @@ export default function Index() {
           <Center paddingRight={17}>
             <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
               <Link to={"/strands/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
+        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png">
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/cryptic/archive"}>
                 <IconButton icon={<ArchiveIcon />} />
               </Link>
             </Whisper>

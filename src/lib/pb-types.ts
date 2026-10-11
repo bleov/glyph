@@ -15,6 +15,8 @@ export const Collections = {
 	AverageRatings: "average_ratings",
 	ConnectionsLeaderboard: "connections_leaderboard",
 	ConnectionsState: "connections_state",
+	CrypticLeaderboard: "cryptic_leaderboard",
+	CrypticState: "cryptic_state",
 	CustomPuzzleData: "custom_puzzle_data",
 	CustomPuzzles: "custom_puzzles",
 	Leaderboard: "leaderboard",
@@ -159,6 +161,28 @@ export type ConnectionsStateRecord<Tstate = unknown> = {
 	id: string
 	puzzle_date?: string
 	puzzle_id: number
+	state?: null | Tstate
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
+export type CrypticLeaderboardRecord<Thint_order = unknown> = {
+	created: IsoAutoDateString
+	hint_count?: number
+	hint_order?: null | Thint_order
+	id: string
+	puzzle_date?: string
+	puzzle_id: string
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
+export type CrypticStateRecord<Tstate = unknown> = {
+	complete?: boolean
+	created: IsoAutoDateString
+	id: string
+	puzzle_date?: string
+	puzzle_id: string
 	state?: null | Tstate
 	updated: IsoAutoDateString
 	user: RecordIdString
@@ -396,6 +420,8 @@ export type ArchiveResponse<Tconnections = unknown, Tcryptic = unknown, Tdaily =
 export type AverageRatingsResponse<Trating = unknown, Texpand = unknown> = Required<AverageRatingsRecord<Trating>> & BaseSystemFields<Texpand>
 export type ConnectionsLeaderboardResponse<Tguesses = unknown, Torder = unknown, Texpand = unknown> = Required<ConnectionsLeaderboardRecord<Tguesses, Torder>> & BaseSystemFields<Texpand>
 export type ConnectionsStateResponse<Tstate = unknown, Texpand = unknown> = Required<ConnectionsStateRecord<Tstate>> & BaseSystemFields<Texpand>
+export type CrypticLeaderboardResponse<Thint_order = unknown, Texpand = unknown> = Required<CrypticLeaderboardRecord<Thint_order>> & BaseSystemFields<Texpand>
+export type CrypticStateResponse<Tstate = unknown, Texpand = unknown> = Required<CrypticStateRecord<Tstate>> & BaseSystemFields<Texpand>
 export type CustomPuzzleDataResponse<Tauthor_name = unknown, Tavg_rating = unknown, Tcompletions = unknown, Tpuzzle = unknown, Texpand = unknown> = Required<CustomPuzzleDataRecord<Tauthor_name, Tavg_rating, Tcompletions, Tpuzzle>> & BaseSystemFields<Texpand>
 export type CustomPuzzlesResponse<Tpuzzle = unknown, Texpand = unknown> = Required<CustomPuzzlesRecord<Tpuzzle>> & BaseSystemFields<Texpand>
 export type LeaderboardResponse<Texpand = unknown> = Required<LeaderboardRecord> & BaseSystemFields<Texpand>
@@ -425,6 +451,8 @@ export type CollectionRecords = {
 	average_ratings: AverageRatingsRecord
 	connections_leaderboard: ConnectionsLeaderboardRecord
 	connections_state: ConnectionsStateRecord
+	cryptic_leaderboard: CrypticLeaderboardRecord
+	cryptic_state: CrypticStateRecord
 	custom_puzzle_data: CustomPuzzleDataRecord
 	custom_puzzles: CustomPuzzlesRecord
 	leaderboard: LeaderboardRecord
@@ -453,6 +481,8 @@ export type CollectionResponses = {
 	average_ratings: AverageRatingsResponse
 	connections_leaderboard: ConnectionsLeaderboardResponse
 	connections_state: ConnectionsStateResponse
+	cryptic_leaderboard: CrypticLeaderboardResponse
+	cryptic_state: CrypticStateResponse
 	custom_puzzle_data: CustomPuzzleDataResponse
 	custom_puzzles: CustomPuzzlesResponse
 	leaderboard: LeaderboardResponse
