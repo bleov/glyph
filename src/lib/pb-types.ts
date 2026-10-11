@@ -27,6 +27,7 @@ export const Collections = {
 	Shapes: "shapes",
 	StrandsLeaderboard: "strands_leaderboard",
 	StrandsState: "strands_state",
+	StrandsStats: "strands_stats",
 	UserDailyStats: "user_daily_stats",
 	UserMidiStats: "user_midi_stats",
 	UserMiniStats: "user_mini_stats",
@@ -337,6 +338,16 @@ export type StrandsStateRecord<Tstate = unknown> = {
 	user: RecordIdString
 }
 
+export type StrandsStatsRecord<Tcomplete = unknown, TcompletedHintless = unknown, ThintsFound = unknown, ThintsUsed = unknown, TwordsFound = unknown> = {
+	attempted?: number
+	complete?: null | Tcomplete
+	completedHintless?: null | TcompletedHintless
+	hintsFound?: null | ThintsFound
+	hintsUsed?: null | ThintsUsed
+	id: string
+	wordsFound?: null | TwordsFound
+}
+
 export type UserDailyStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown> = {
 	average_time?: null | Taverage_time
 	highest_time?: null | Thighest_time
@@ -432,6 +443,7 @@ export type RatingsResponse<Texpand = unknown> = Required<RatingsRecord> & BaseS
 export type ShapesResponse<Tdata = unknown, Texpand = unknown> = Required<ShapesRecord<Tdata>> & BaseSystemFields<Texpand>
 export type StrandsLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type StrandsStateResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsStateRecord<Tstate>> & BaseSystemFields<Texpand>
+export type StrandsStatsResponse<Tcomplete = unknown, TcompletedHintless = unknown, ThintsFound = unknown, ThintsUsed = unknown, TwordsFound = unknown, Texpand = unknown> = Required<StrandsStatsRecord<Tcomplete, TcompletedHintless, ThintsFound, ThintsUsed, TwordsFound>> & BaseSystemFields<Texpand>
 export type UserDailyStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserDailyStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMidiStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMidiStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMiniStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
@@ -463,6 +475,7 @@ export type CollectionRecords = {
 	shapes: ShapesRecord
 	strands_leaderboard: StrandsLeaderboardRecord
 	strands_state: StrandsStateRecord
+	strands_stats: StrandsStatsRecord
 	user_daily_stats: UserDailyStatsRecord
 	user_midi_stats: UserMidiStatsRecord
 	user_mini_stats: UserMiniStatsRecord
@@ -493,6 +506,7 @@ export type CollectionResponses = {
 	shapes: ShapesResponse
 	strands_leaderboard: StrandsLeaderboardResponse
 	strands_state: StrandsStateResponse
+	strands_stats: StrandsStatsResponse
 	user_daily_stats: UserDailyStatsResponse
 	user_midi_stats: UserMidiStatsResponse
 	user_mini_stats: UserMiniStatsResponse

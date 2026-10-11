@@ -1,7 +1,24 @@
 import { formatDuration } from "@/lib/formatting";
-import { Collections, type CustomPuzzleDataResponse, type UsersRecord } from "@/lib/pb-types";
+import {
+  Collections,
+  type CustomPuzzleDataResponse,
+  type StrandsStatsRecord,
+  type StrandsStatsResponse,
+  type UsersRecord
+} from "@/lib/pb-types";
 import { pb } from "@/main";
-import { ChartNoAxesColumnIcon, ClockIcon, CrownIcon, HashIcon, RabbitIcon, StarIcon, TrophyIcon, TurtleIcon } from "lucide-react";
+import {
+  ChartNoAxesColumnIcon,
+  ClockIcon,
+  CrownIcon,
+  HashIcon,
+  LetterTextIcon,
+  LightbulbIcon,
+  RabbitIcon,
+  StarIcon,
+  TrophyIcon,
+  TurtleIcon
+} from "lucide-react";
 import type { AuthRecord, RecordModel } from "pocketbase";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -31,6 +48,16 @@ const emptyStats: StatsRecord = {
   num_desktop: 0,
   collectionId: "",
   collectionName: ""
+};
+
+const emptyStrandsStats: StrandsStatsRecord = {
+  id: "",
+  attempted: 0,
+  complete: 0,
+  completedHintless: 0,
+  hintsFound: 0,
+  hintsUsed: 0,
+  wordsFound: 0
 };
 
 function formatPublicationDate(dateStr: string) {
@@ -265,6 +292,73 @@ function CustomPuzzleStats({ user, open, setOpen }: { user?: UsersRecord; open: 
   );
 }
 
+function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boolean; setOpen: (open: boolean) => void }) {
+  const [data, setData] = useState<StrandsStatsResponse<number, number, number, number, number>>();
+  const [loaded, setLoaded] = useState(false);
+
+  user ??= pb.authStore.record as unknown as UsersRecord;
+
+  const hintlessPercent = Math.floor(((data?.completedHintless ?? 0) / Math.max(data?.complete!, 1)) * 100);
+
+  useEffect(() => {
+    if (!loaded && open) {
+      async function fetchData() {
+        let response: StrandsStatsResponse<number, number, number, number, number>;
+
+        try {
+          response = await pb
+            .collection(Collections.StrandsStats)
+            .getOne<StrandsStatsResponse<number, number, number, number, number>>(user!.id);
+        } catch (err) {
+          console.error(err);
+          setData(emptyStrandsStats as StrandsStatsResponse<number, number, number, number, number>);
+          setLoaded(true);
+          return;
+        }
+
+        setData(response);
+        setLoaded(true);
+      }
+
+      fetchData();
+    }
+  }, [open, loaded]);
+
+  return (
+    <>
+      <StatGroup columns={2}>
+        <Stat bordered>
+          <Stat.Label>
+            <TrophyIcon /> Puzzles Completed
+          </Stat.Label>
+          <Stat.Value>{data?.complete}</Stat.Value>
+        </Stat>
+        <Stat bordered>
+          <HStack spacing={16}>
+            <ProgressCircle percent={hintlessPercent} w={50} strokeWidth={10} trailWidth={10} />
+            <VStack>
+              <Stat.Label>Completed Hintless</Stat.Label>
+              <Stat.Value>{data?.completedHintless}</Stat.Value>
+            </VStack>
+          </HStack>
+        </Stat>
+        <Stat bordered>
+          <Stat.Label>
+            <LightbulbIcon /> Hints Used
+          </Stat.Label>
+          <Stat.Value>{data?.hintsUsed}</Stat.Value>
+        </Stat>
+        <Stat bordered>
+          <Stat.Label>
+            <LetterTextIcon /> Extra Words Found
+          </Stat.Label>
+          <Stat.Value>{data?.hintsFound}</Stat.Value>
+        </Stat>
+      </StatGroup>
+    </>
+  );
+}
+
 export function Stats({
   open,
   setOpen,
@@ -293,6 +387,9 @@ export function Stats({
           </Tabs.Tab>
           <Tabs.Tab eventKey="daily" title="Daily" icon={<Image src="/icons/daily/favicon.svg" width={16} height={16} />}>
             <CrosswordStats type="daily" user={user} open={open} setOpen={setOpen} />
+          </Tabs.Tab>
+          <Tabs.Tab eventKey="strands" title="Strands" icon={<Image src="/icons/strands/favicon.svg" width={16} height={16} />}>
+            <StrandsStats user={user} open={open} setOpen={setOpen} />
           </Tabs.Tab>
           <Tabs.Tab eventKey="custom" title="Custom" icon={<Image src="/icons/custom_crossword/pwa-192x192.png" width={16} height={16} />}>
             <CustomPuzzleStats user={user} open={open} setOpen={setOpen} />
