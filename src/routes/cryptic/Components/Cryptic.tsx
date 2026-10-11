@@ -9,9 +9,11 @@ import { LightbulbIcon } from "lucide-react";
 import CrypticResults from "./CrypticResults";
 import usePersistence from "../hooks/usePersistence";
 import CrypticLeaderboard from "./CrypticLeaderboard";
+import positiveWords from "../data/positive_words.json";
 
 export default function Cryptic({ data }: { data: CrypticGame }) {
   const length = Object.keys(data.puzzlePieces).length;
+  const positiveWord = positiveWords.find((w) => w.toLowerCase() === data.answer.toLowerCase());
 
   const [loading, setLoading] = useState(true);
   const [entry, setEntry] = useState(new Array(length).fill(""));
@@ -22,7 +24,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [hintDialogOpen, setHintDialogOpen] = useState(false);
   const [shaking, setShaking] = useState(false);
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
-  const [resultText, setResultText] = useState<string>("Well done!");
+  const [resultText, setResultText] = useState<string>(positiveWord ? positiveWord + "!" : "Well done!");
   const [complete, setComplete] = useState(false);
 
   const hintTexts: Record<string, string> = {};
@@ -69,7 +71,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
     if (shaking) return;
     if (entry.every((x, i) => x === data.puzzlePieces[i].answer)) {
       setComplete(true);
-      if (hints.length === 0) {
+      if (hints.length === 0 && !positiveWord) {
         setResultText("No hints!");
       }
       setModalState("results");
@@ -150,7 +152,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
         data={data}
         resultText={resultText}
       />
-      <CrypticLeaderboard open={modalState === "leaderboard"} onClose={() => setModalState(null)} puzzleData={data} />
+      <CrypticLeaderboard open={modalState === "leaderboard"} onClose={() => setModalState("results")} puzzleData={data} />
     </>
   );
 }

@@ -165,7 +165,6 @@ export default function CrypticInput({
   for (const segmentLength of config) {
     segments.push(entry.slice(segments.flat().length, segments.flat().length + segmentLength));
   }
-  console.log(segments);
 
   return (
     <HStack wrap width={"100%"} spacing={16} justifyContent={"center"}>
