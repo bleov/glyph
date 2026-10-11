@@ -117,9 +117,15 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
           ) : (
             <>
               <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
-                <MenuItem onClick={showIndicators}>show indicators</MenuItem>
-                <MenuItem onClick={showFodder}>show fodder</MenuItem>
-                <MenuItem onClick={showDefinition}>show definition</MenuItem>
+                <MenuItem onClick={showIndicators} disabled={hintTexts.indicators === undefined}>
+                  show indicators
+                </MenuItem>
+                <MenuItem onClick={showFodder} disabled={hintTexts.fodder === undefined}>
+                  show fodder
+                </MenuItem>
+                <MenuItem onClick={showDefinition} disabled={hintTexts.definition === undefined}>
+                  show definition
+                </MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={showLetter}>show letter</MenuItem>
               </Menu>
