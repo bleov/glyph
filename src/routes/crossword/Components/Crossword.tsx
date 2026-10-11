@@ -73,6 +73,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   function exit(destination: string = "welcome") {
     setComplete(false);
+    stateDocId.current = "";
     setData(null);
     setModalState(destination);
   }
