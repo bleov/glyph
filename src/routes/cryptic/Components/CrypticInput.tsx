@@ -23,7 +23,11 @@ function CrypticInputBox({
     boxClassList.push("revealed");
   }
   if (complete) {
-    boxClassList = ["cryptic-input-box", "complete"];
+    boxClassList.push("complete");
+    const selectedIndex = boxClassList.indexOf("selected");
+    if (selectedIndex !== -1) {
+      boxClassList.splice(selectedIndex, 1);
+    }
   }
 
   return (
