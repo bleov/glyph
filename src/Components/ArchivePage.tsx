@@ -34,7 +34,7 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
         }
         const list = (await archive.getFullList({
           fields: `${type}_id,publication_date,id`,
-          filter: `${type}_id!=0 && ${monthFilter}`
+          filter: `${type}_id!=0 && ${type}_id!="" && ${monthFilter}`
         })) as typedArchiveRecord[];
 
         let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replace("publication", "puzzle")}`;

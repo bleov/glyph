@@ -159,13 +159,15 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard
-          title="Minute Cryptic"
-          description="Solve cryptic clues"
-          link="/cryptic/today"
-          imageSrc="/icons/cryptic/pwa-192x192.png"
-          badgeContent="New"
-        ></LinkCard>
+        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png">
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/cryptic/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
         <LinkCard
           title="Custom Puzzles"
           description="Create and share puzzles"
