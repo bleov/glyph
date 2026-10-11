@@ -34,14 +34,20 @@
   }
 }
 
+:root:has(.cryptic),
+body:has(.cryptic),
+#root:has(.cryptic) {
+  overflow-y: hidden;
+}
+
 body:has(.cryptic) {
   background-color: #e3f2fd;
 }
 
 #root:has(.cryptic) {
   margin-inline: 0;
-  height: 90vh;
-  width: 100%;
+  height: calc(100vh - 30px);
+  width: calc(100vw - 30px);
 }
 
 .cryptic {
@@ -57,9 +63,13 @@ body:has(.cryptic) {
   margin-inline: auto;
 
   .cryptic-input-box {
-    width: 46px;
-    height: 46px;
-    outline: 4px solid black;
+    width: 100%;
+    max-width: 46px;
+    aspect-ratio: 1;
+    min-width: 0;
+    min-height: 0;
+    container-type: size;
+    outline: min(4px, 8cqw) solid black;
     outline-offset: -2px;
     background-color: white;
 
@@ -88,15 +98,18 @@ body:has(.cryptic) {
 
   .cryptic-input {
     align-self: center;
+    display: grid;
+    grid-template-columns: repeat(var(--cryptic-input-length), minmax(0, 1fr));
+    width: min(100%, calc(var(--cryptic-input-length) * 46px));
   }
 
   .cryptic-input-text {
-    font-size: 36px;
+    font-size: min(36px, 78cqw);
     font-family: "Sansita", sans-serif !important;
     font-weight: 800;
     font-style: italic;
     text-transform: lowercase;
-    translate: 0 -0.25rem;
+    translate: 0 -0.15em;
   }
 
   .cryptic-clue {
@@ -152,6 +165,7 @@ body:has(.cryptic) {
   .cryptic-keyboard {
     min-width: clamp(280px, 100vw, 560px);
     position: relative;
+    padding-bottom: 20px;
 
     .hg-theme-default {
       background-color: transparent;

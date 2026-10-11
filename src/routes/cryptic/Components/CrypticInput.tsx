@@ -1,5 +1,5 @@
 import type { CrypticPuzzlePiece } from "@/lib/types";
-import { useEffect, useState, type Dispatch, type MouseEventHandler, type SetStateAction } from "react";
+import { useEffect, useState, type CSSProperties, type Dispatch, type MouseEventHandler, type SetStateAction } from "react";
 import { Box, Center, HStack } from "rsuite";
 
 function CrypticInputBox({
@@ -173,7 +173,12 @@ export default function CrypticInput({
   return (
     <HStack wrap width={"100%"} spacing={16} justifyContent={"center"}>
       {segments.map((segment, i) => (
-        <HStack key={i} className={`cryptic-input${shaking ? " shake" : ""}`} spacing={0}>
+        <HStack
+          key={i}
+          className={`cryptic-input${shaking ? " shake" : ""}`}
+          style={{ "--cryptic-input-length": segment.length } as CSSProperties}
+          spacing={0}
+        >
           {segment.map((_, j) => (
             <CrypticInputBox
               key={i.toString() + "_" + j.toString()}
