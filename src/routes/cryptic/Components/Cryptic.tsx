@@ -20,7 +20,7 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
   const [revealed, setRevealed] = useState(new Array(length).fill(false));
   const [hints, setHints] = useState<string[]>([]);
   const [lastInput, setLastInput] = useState<KeyboardEvent | null>(null);
-  const [hintDialogType, setHintDialogType] = useState<"indicators" | "fodder" | "definition" | null>(null);
+  const [hintDialogType, setHintDialogType] = useState<string | null>(null);
   const [hintDialogOpen, setHintDialogOpen] = useState(false);
   const [shaking, setShaking] = useState(false);
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
@@ -50,19 +50,9 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
     setHints((prev) => [...prev, "letter"]);
   }
 
-  function showIndicators() {
-    if (!hints.includes("indicators")) setHints((prev) => [...prev, "indicators"]);
-    setHintDialogType("indicators");
-    setHintDialogOpen(true);
-  }
-  function showFodder() {
-    if (!hints.includes("fodder")) setHints((prev) => [...prev, "fodder"]);
-    setHintDialogType("fodder");
-    setHintDialogOpen(true);
-  }
-  function showDefinition() {
-    if (!hints.includes("definition")) setHints((prev) => [...prev, "definition"]);
-    setHintDialogType("definition");
+  function showHint(type: string) {
+    if (!hints.includes(type)) setHints((prev) => [...prev, type]);
+    setHintDialogType(type);
     setHintDialogOpen(true);
   }
 
@@ -117,15 +107,11 @@ export default function Cryptic({ data }: { data: CrypticGame }) {
           ) : (
             <>
               <Menu portal transition menuButton={<Button className="hints-btn">hints</Button>}>
-                <MenuItem onClick={showIndicators} disabled={hintTexts.indicators === undefined}>
-                  show indicators
-                </MenuItem>
-                <MenuItem onClick={showFodder} disabled={hintTexts.fodder === undefined}>
-                  show fodder
-                </MenuItem>
-                <MenuItem onClick={showDefinition} disabled={hintTexts.definition === undefined}>
-                  show definition
-                </MenuItem>
+                {data.hints.map((hint) => (
+                  <MenuItem key={hint.type} onClick={() => showHint(hint.type)}>
+                    show {hint.type}
+                  </MenuItem>
+                ))}
                 <MenuDivider />
                 <MenuItem onClick={showLetter}>show letter</MenuItem>
               </Menu>

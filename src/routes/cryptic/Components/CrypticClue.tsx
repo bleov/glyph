@@ -13,17 +13,7 @@ export default function CrypticClue({
   hintsData: CrypticHint[];
   hints: string[];
 }) {
-  const indicators = hintsData.find((hint) => hint.type === "indicators");
-  const fodder = hintsData.find((hint) => hint.type === "fodder");
-  const definition = hintsData.find((hint) => hint.type === "definition");
-
-  const indicatorsHint = hints.includes("indicators");
-  const fodderHint = hints.includes("fodder");
-  const definitionHint = hints.includes("definition");
-
-  let indicatorsHighlight: number[] = [];
-  let fodderHighlight: number[] = [];
-  let definitionHighlight: number[] = [];
+  const hintColorMap: Record<string, string> = { pink: "indicator", yellow: "fodder", blue: "definition" };
 
   function getHighlightedWords(highlighting: [number, number][]): number[] {
     const highlightedWords = new Set<number>();
@@ -48,15 +38,11 @@ export default function CrypticClue({
     return [...highlightedWords];
   }
 
-  if (indicators && indicatorsHint) {
-    indicatorsHighlight = getHighlightedWords(indicators.highlighting);
-  }
-  if (fodder && fodderHint) {
-    fodderHighlight = getHighlightedWords(fodder.highlighting);
-  }
-  if (definition && definitionHint) {
-    definitionHighlight = getHighlightedWords(definition.highlighting);
-  }
+  const highlights: { color: string; type: string; highlight: number[] }[] = [];
+  hintsData.forEach((hint: CrypticHint) => {
+    const highlight = getHighlightedWords(hint.highlighting);
+    highlights.push({ color: hint.colour, type: hint.type, highlight });
+  });
 
   return (
     <Text className="cryptic-clue" size={"xl"}>
@@ -65,27 +51,14 @@ export default function CrypticClue({
         const wordClassList = ["cryptic-clue-word"];
         const spaceClassList = ["cryptic-clue-space"];
 
-        if (indicatorsHighlight.includes(i)) {
-          wordClassList.push("indicator");
-        }
-        if (fodderHighlight.includes(i)) {
-          wordClassList.push("fodder");
-        }
-        if (definitionHighlight.includes(i)) {
-          wordClassList.push("definition");
-        }
-
-        if (isSpace) {
-          if (indicatorsHighlight.includes(i) && indicatorsHighlight.includes(i + 1)) {
-            spaceClassList.push("indicator");
+        highlights.forEach((highlight) => {
+          if (highlight.highlight.includes(i) && hints.includes(highlight.type)) {
+            wordClassList.push(hintColorMap[highlight.color]);
+            if (clue[i + 1] && highlight.highlight.includes(i + 1)) {
+              spaceClassList.push(hintColorMap[highlight.color]);
+            }
           }
-          if (fodderHighlight.includes(i) && fodderHighlight.includes(i + 1)) {
-            spaceClassList.push("fodder");
-          }
-          if (definitionHighlight.includes(i) && definitionHighlight.includes(i + 1)) {
-            spaceClassList.push("definition");
-          }
-        }
+        });
 
         return (
           <Fragment key={i}>
