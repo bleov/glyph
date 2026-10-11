@@ -37,7 +37,7 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
           filter: `${type}_id!=0 && ${type}_id!="" && ${monthFilter}`
         })) as typedArchiveRecord[];
 
-        let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replace("publication", "puzzle")}`;
+        let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replaceAll("publication_date", "puzzle_date")}`;
 
         let completed: typedArchiveRecord[] = [];
 

@@ -43,10 +43,16 @@ export function renderClue(clue: CrosswordClue): string {
     .join("");
 }
 
+function formatMonthStart(year: number, monthIndex: number) {
+  return `${year}-${(monthIndex + 1).toString().padStart(2, "0")}-01`;
+}
+
 export function getMonthFilter(date: Date) {
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  return `publication_date ~ "${year}-${month}"`;
+  const month = date.getMonth();
+  const start = formatMonthStart(year, month);
+  const end = month === 11 ? formatMonthStart(year + 1, 0) : formatMonthStart(year, month + 1);
+  return `publication_date >= "${start}" && publication_date < "${end}"`;
 }
 
 export function getButtonText(state: string) {
