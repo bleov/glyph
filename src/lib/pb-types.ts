@@ -31,6 +31,7 @@ export const Collections = {
 	UserDailyStats: "user_daily_stats",
 	UserMidiStats: "user_midi_stats",
 	UserMiniStats: "user_mini_stats",
+	UserTodayStatus: "user_today_status",
 	Users: "users",
 	WordleLeaderboard: "wordle_leaderboard",
 	WordleState: "wordle_state",
@@ -384,6 +385,17 @@ export type UserMiniStatsRecord<Taverage_time = unknown, Thighest_time = unknown
 	num_desktop?: null | Tnum_desktop
 }
 
+export type UserTodayStatusRecord<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
+	connections?: null | Tconnections
+	cryptic?: null | Tcryptic
+	daily?: null | Tdaily
+	id: string
+	midi?: null | Tmidi
+	mini?: null | Tmini
+	strands?: null | Tstrands
+	wordle?: null | Twordle
+}
+
 export type UsersRecord = {
 	avatar?: FileNameString
 	created: IsoAutoDateString
@@ -447,6 +459,7 @@ export type StrandsStatsResponse<Tcomplete = unknown, TcompletedHintless = unkno
 export type UserDailyStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserDailyStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMidiStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMidiStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMiniStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
+export type UserTodayStatusResponse<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<UserTodayStatusRecord<Tconnections, Tcryptic, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 export type WordleLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<WordleLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type WordleStateResponse<Tstate = unknown, Texpand = unknown> = Required<WordleStateRecord<Tstate>> & BaseSystemFields<Texpand>
@@ -479,6 +492,7 @@ export type CollectionRecords = {
 	user_daily_stats: UserDailyStatsRecord
 	user_midi_stats: UserMidiStatsRecord
 	user_mini_stats: UserMiniStatsRecord
+	user_today_status: UserTodayStatusRecord
 	users: UsersRecord
 	wordle_leaderboard: WordleLeaderboardRecord
 	wordle_state: WordleStateRecord
@@ -510,6 +524,7 @@ export type CollectionResponses = {
 	user_daily_stats: UserDailyStatsResponse
 	user_midi_stats: UserMidiStatsResponse
 	user_mini_stats: UserMiniStatsResponse
+	user_today_status: UserTodayStatusResponse
 	users: UsersResponse
 	wordle_leaderboard: WordleLeaderboardResponse
 	wordle_state: WordleStateResponse
