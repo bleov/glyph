@@ -28,7 +28,7 @@ export default function CrypticLeaderboard({ open, onClose, puzzleData }: { open
         const leaderboard = pb.collection("cryptic_leaderboard");
         const filter = pb.filter(`puzzle_id={:puzzleId}`, { puzzleId: puzzleData.puzzleId });
         const leaderboardData = await leaderboard.getList(1, 50, {
-          sort: "-hint_count",
+          sort: "+hint_count",
           filter,
           expand: "user"
         });
