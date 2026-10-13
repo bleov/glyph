@@ -1,6 +1,18 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 import { useCrosswordContext } from "../Components/CrosswordContext";
+
+const rebusSizeMap: Record<number, number> = {
+  2: 17,
+  3: 13,
+  4: 9,
+  5: 8,
+  6: 6,
+  7: 5,
+  8: 5,
+  9: 5,
+  10: 5
+};
 
 export function useBoardRenderer() {
   const {
@@ -21,87 +33,128 @@ export function useBoardRenderer() {
     readOnly
   } = useCrosswordContext();
 
-  useLayoutEffect(() => {
+  function forEachCell(callback: (cell: SVGElement, index: number) => void) {
     if (!boardRef.current) return;
     const cells = boardRef.current.querySelectorAll(".cell");
-    cells.forEach((cell) => {
-      // Cell renderer
+    for (const cell of cells) {
       const parent = cell.parentElement;
-      if (!parent) return;
+      if (!parent) continue;
       const index = parseInt(parent.getAttribute("data-index") || "-1", 10);
-      if (isNaN(index) || index < 0) return;
-      const guess: SVGTextElement | null = parent.querySelector(".guess");
+      if (isNaN(index) || index < 0) continue;
+      callback(cell as SVGElement, index);
+    }
+  }
 
-      let highlightedCells: number[] = [];
-      if (selected !== null) {
-        highlightedCells = getCellsInDirection(selected, direction);
-      }
-
+  useLayoutEffect(() => {
+    // one-time setup
+    forEachCell((cell) => {
       if (cell.getAttribute("fill") === "#d3d3d3") {
         cell.removeAttribute("fill");
         cell.classList.add("shaded");
       }
 
-      if (highlightedCells.includes(index)) {
-        cell.classList.add("highlighted");
-      }
-
-      if (globalSelectedClue && globalSelectedClue.relatives) {
-        globalSelectedClue.relatives.forEach((rel) => {
-          const relClue = body.clues[rel];
-          if (relClue.cells.includes(index)) {
-            cell.classList.add("related");
-          }
-        });
-      }
-
       if (cell.getAttribute("fill") === "none" || cell.classList.contains("shaded")) {
-        if (selected === index) {
-          cell.classList.add("selected");
-        } else {
-          cell.setAttribute("fill", "transparent");
-        }
+        cell.setAttribute("fill", "transparent");
       }
+    });
+  }, [data, boardRef]);
+
+  function handleCellClick(e: PointerEvent) {
+    const target = e.target as HTMLElement;
+    let parent: SVGGElement | null = null;
+    if (target.nodeName === "g") {
+      parent = target as unknown as SVGGElement;
+    }
+    if (target.nodeName === "path" || target.nodeName === "text") {
+      parent = target.parentElement as unknown as SVGGElement;
+    }
+    if (!parent) return;
+    const index = parseInt(parent.getAttribute("data-index") ?? "-1", 10);
+    if (isNaN(index) || index < 0) return;
+    if (readOnly) return;
+    if (selected === index) {
+      setDirection(direction === "across" ? "down" : "across");
+    }
+    setSelected(index);
+  }
+
+  useEffect(() => {
+    if (readOnly) return;
+    forEachCell((cell, index) => {
+      if (body.cells[index]?.answer === undefined) return;
+      const parent = cell.parentElement;
+      if (!parent) return;
+      parent.addEventListener("click", handleCellClick);
+    });
+
+    return () => {
+      forEachCell((cell) => {
+        const parent = cell.parentElement;
+        if (!parent) return;
+        parent.removeEventListener("click", handleCellClick);
+      });
+    };
+  }, [data, boardRef, selected, direction, readOnly]);
+
+  useLayoutEffect(() => {
+    // cell highlighting
+    forEachCell((cell, index) => {
+      if (selected !== null) {
+        const highlightedCells = getCellsInDirection(selected, direction);
+        cell.classList.toggle("highlighted", highlightedCells.includes(index));
+        cell.classList.toggle("selected", selected === index);
+
+        let isRelated = false;
+        if (globalSelectedClue && globalSelectedClue.relatives) {
+          globalSelectedClue.relatives.forEach((rel) => {
+            const relClue = body.clues[rel];
+            if (relClue.cells.includes(index)) {
+              isRelated = true;
+            }
+          });
+        }
+        cell.classList.toggle("related", isRelated);
+      }
+    });
+  }, [selected, direction]);
+
+  useLayoutEffect(() => {
+    // cell content
+    forEachCell((cell, index) => {
+      const parent = cell.parentElement;
+      if (!parent) return;
+      const guess: SVGTextElement | null = parent.querySelector(".guess");
+      if (!guess) return;
 
       if (boardState[index]) {
-        if (guess) {
-          guess.innerHTML = boardState[index].toUpperCase();
-        }
+        guess.innerHTML = boardState[index].toUpperCase();
+      } else {
+        guess.innerHTML = "";
       }
 
-      if ("answer" in body.cells[index]) {
-        parent.addEventListener("click", () => {
-          if (readOnly) return;
-          if (selected === index) {
-            setDirection(direction === "across" ? "down" : "across");
-          }
-          setSelected(index);
-        });
-        if (autoCheck) {
-          if (guess && checkCell(index) && boardState[index] !== undefined) {
-            guess.classList.add("correct");
-          } else {
-            guess?.classList.add("incorrect");
-          }
-        }
+      if (autoCheck && guess) {
+        const isCorrect = checkCell(index) && boardState[index] !== undefined;
+        guess.classList.toggle("correct", isCorrect);
+        guess.classList.toggle("incorrect", !isCorrect && boardState[index] !== undefined);
+      } else if (!autoCheck) {
+        guess.classList.remove("correct", "incorrect");
       }
 
       // rebus sizing
-      if (boardState[index] && boardState[index].length > 1) {
+      const guessLength: number = boardState[index]?.length ?? 0;
+      if (boardState[index] && guessLength > 1) {
         if (guess) {
-          let size = 22;
-          let minFont = 0.5;
-          let maxFont = 13;
-          const boxWidth = cell.getBoundingClientRect().width;
-          const length = guess.getBBox().width;
-          size *= boxWidth / length;
-          size = Math.min(maxFont, size);
-          size = Math.max(minFont, Math.floor(size));
-          guess.setAttribute("font-size", size.toString());
+          guess.setAttribute("font-size", rebusSizeMap[guessLength].toString() ?? "22");
         }
+      } else if (guessLength === 1) {
+        guess.setAttribute("font-size", "22");
       }
     });
+  }, [boardState, autoCheck]);
 
+  useLayoutEffect(() => {
+    // overlays
+    if (!boardRef.current) return;
     if (data.assets && data.assets.length > 0) {
       let startOverlay = null;
       let solveOverlay = null;
@@ -114,18 +167,14 @@ export function useBoardRenderer() {
         }
       });
       if ((startOverlay && solveOverlay && !complete) || (startOverlay && !solveOverlay)) {
-        const overlay = document.createElement("image");
-        boardRef.current.querySelector("svg")?.appendChild(overlay);
         setOverlayURL(startOverlay);
       }
       if (solveOverlay && complete) {
-        const overlay = document.createElement("image");
-        boardRef.current.querySelector("svg")?.appendChild(overlay);
         setOverlayURL(solveOverlay);
       }
       if (!startOverlay && !solveOverlay) {
         setOverlayURL("");
       }
     }
-  });
+  }, [boardRef, complete]);
 }
