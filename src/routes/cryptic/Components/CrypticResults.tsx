@@ -1,6 +1,6 @@
 import Rating from "@/Components/Rating";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
-import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
+import { ArrowLeftIcon, ExternalLinkIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import type { CrypticGame } from "@/lib/types";
@@ -36,6 +36,14 @@ export default function CrypticResults({ open, onClose, onOpenLeaderboard, data,
             appearance="primary"
           >
             Admire Puzzle
+          </Button>
+          <Button
+            startIcon={<ExternalLinkIcon />}
+            onClick={() => {
+              window.open(`https://www.youtube-nocookie.com/embed/${data.explainerVideo.split("/")[3]}`, "_blank");
+            }}
+          >
+            Explanation Video
           </Button>
           <Button onClick={onOpenLeaderboard} startIcon={<TrophyIcon />}>
             Leaderboard
