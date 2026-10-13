@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 import { useCrosswordContext } from "../Components/CrosswordContext";
 
@@ -33,6 +33,8 @@ export function useBoardRenderer() {
     readOnly
   } = useCrosswordContext();
 
+  const defaultTextSizeRef = useRef(0);
+
   function forEachCell(callback: (cell: SVGElement, index: number) => void) {
     if (!boardRef.current) return;
     const cells = boardRef.current.querySelectorAll(".cell");
@@ -55,6 +57,13 @@ export function useBoardRenderer() {
 
       if (cell.getAttribute("fill") === "none" || cell.classList.contains("shaded")) {
         cell.setAttribute("fill", "transparent");
+      }
+
+      if (defaultTextSizeRef.current == 0) {
+        const guess = cell.parentElement?.querySelector(".guess");
+        if (guess) {
+          defaultTextSizeRef.current = parseInt(guess.getAttribute("font-size") ?? "0", 10);
+        }
       }
     });
   }, [data, boardRef]);
@@ -147,7 +156,7 @@ export function useBoardRenderer() {
           guess.setAttribute("font-size", rebusSizeMap[guessLength].toString() ?? "22");
         }
       } else if (guessLength === 1) {
-        guess.setAttribute("font-size", "22");
+        guess.setAttribute("font-size", defaultTextSizeRef.current.toString());
       }
     });
   }, [boardState, autoCheck]);
