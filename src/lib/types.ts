@@ -173,3 +173,26 @@ export interface CrypticGame {
     anonSolverCount: number;
   };
 }
+
+export interface BracketCityGame {
+  completionText: string;
+  puzzleDate: string;
+  completionURL: string;
+  puzzleSolution: string;
+  author: string;
+  status: string;
+  shortCode: string;
+  review: {
+    log: {
+      author: string;
+      ts: string;
+      id: string;
+      role: string;
+      text: string;
+    }[];
+    reviewer: string;
+    notes: string;
+  };
+  initialPuzzle: string;
+  solutions: Record<string, string>;
+}

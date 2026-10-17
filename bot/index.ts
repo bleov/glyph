@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame } from "../src/lib/types";
+import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame, BracketCityGame } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -54,6 +54,14 @@ const strandsData: StrandsGame = await fetchJSON([HOST, "svc", "strands", "v2", 
 console.log("Fetching minute cryptic data...");
 const minuteCrypticData: CrypticGame = await fetchJSON("https://www.minutecryptic.com/api/daily_puzzle/today?tz=UTC");
 
+console.log("Fetching Bracket City data...");
+const bracketCityDate = miniData.publicationDate;
+const bracketCityData: BracketCityGame = await fetchJSON(
+  "https://8huadblp0h.execute-api.us-east-2.amazonaws.com/puzzles/" + bracketCityDate
+);
+
+console.log(bracketCityData);
+
 console.log("Creating archive record...");
 
 const data = {
@@ -71,7 +79,9 @@ const data = {
   strands_id: strandsData.id,
   strands: strandsData,
   cryptic_id: minuteCrypticData.puzzleId,
-  cryptic: minuteCrypticData
+  cryptic: minuteCrypticData,
+  brackets_id: bracketCityData.shortCode,
+  brackets: bracketCityData
 };
 
 const oldRecord = await archive.getFirstListItem(`publication_date="${miniData.publicationDate}"`).catch(() => null);
