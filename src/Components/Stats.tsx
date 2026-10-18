@@ -367,7 +367,7 @@ export function Stats({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  type: "mini" | "daily" | "midi";
+  type: "mini" | "daily" | "midi" | "strands" | "custom";
   user?: UsersRecord;
 }) {
   return (
