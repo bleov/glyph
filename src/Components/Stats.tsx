@@ -231,9 +231,14 @@ function CustomPuzzleStats({ user, open, setOpen }: { user?: UsersRecord; open: 
 
   const mostPlayed = data.toSorted((a, b) => (b.completions ?? 0) - (a.completions ?? 0))[0];
 
+  const columns = useBreakpointValue({
+    xs: 1,
+    sm: 2
+  });
+
   return (
     <>
-      <StatGroup columns={2}>
+      <StatGroup columns={columns}>
         <Stat bordered>
           <Stat.Label>
             <HashIcon /> Published Puzzles
@@ -300,6 +305,11 @@ function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boole
 
   const hintlessPercent = Math.floor(((data?.completedHintless ?? 0) / Math.max(data?.complete!, 1)) * 100);
 
+  const columns = useBreakpointValue({
+    xs: 1,
+    sm: 2
+  });
+
   useEffect(() => {
     if (!loaded && open) {
       async function fetchData() {
@@ -326,7 +336,7 @@ function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boole
 
   return (
     <>
-      <StatGroup columns={2}>
+      <StatGroup columns={columns}>
         <Stat bordered>
           <Stat.Label>
             <TrophyIcon /> Puzzles Completed
@@ -337,7 +347,7 @@ function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boole
           <HStack spacing={16}>
             <ProgressCircle percent={hintlessPercent} w={50} strokeWidth={10} trailWidth={10} />
             <VStack>
-              <Stat.Label>Completed Hintless</Stat.Label>
+              <Stat.Label>Perfect Games</Stat.Label>
               <Stat.Value>{data?.completedHintless}</Stat.Value>
             </VStack>
           </HStack>
@@ -350,7 +360,7 @@ function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boole
         </Stat>
         <Stat bordered>
           <Stat.Label>
-            <LetterTextIcon /> Extra Words Found
+            <LetterTextIcon /> Hint Words Found
           </Stat.Label>
           <Stat.Value>{data?.hintsFound}</Stat.Value>
         </Stat>
@@ -377,7 +387,7 @@ export function Stats({
           <ChartNoAxesColumnIcon /> Stats
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ maxHeight: "400px" }}>
+      <Modal.Body style={{ maxHeight: "400px" }} className="stats-container">
         <Tabs defaultActiveKey={type}>
           <Tabs.Tab eventKey="mini" title="Mini" icon={<Image src="/icons/mini/favicon.svg" width={16} height={16} />}>
             <CrosswordStats type="mini" user={user} open={open} setOpen={setOpen} />

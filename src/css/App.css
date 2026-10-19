@@ -326,3 +326,13 @@ canvas {
     -webkit-user-select: text;
   }
 }
+
+.stats-container {
+  .rs-tabs .rs-nav {
+    position: sticky;
+    overflow-x: auto;
+    top: 0;
+    z-index: 2;
+    background-color: white;
+  }
+}
