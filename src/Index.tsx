@@ -15,7 +15,7 @@ import {
   useBreakpointValue
 } from "rsuite";
 import { Link, useLocation } from "react-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, type CSSProperties } from "react";
 
 import Account from "@/Components/Account";
 import Friends from "@/Components/Friends";
@@ -25,6 +25,9 @@ import { pb } from "./main";
 import { ArchiveIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import Notifications from "./Components/Notifications";
+import { Collections } from "./lib/pb-types";
+import { type typedUserTodayStatusResponse, type typedUserTodayStatusRecord } from "./lib/types";
+import { setDate } from "rsuite/esm/internals/utils/date";
 
 interface LinkCardProps {
   title: string;
@@ -35,11 +38,15 @@ interface LinkCardProps {
   badgeContent?: string;
   small?: boolean;
   children?: React.ReactNode;
+  className?: string;
 }
 
-function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, children }: LinkCardProps) {
+function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, children, className }: LinkCardProps) {
   const classList = ["link-card"];
 
+  if (className) {
+    classList.push(...className.split(" "));
+  }
   if (disabled) {
     classList.push("link-card-disabled");
   }
@@ -70,6 +77,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
 
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | "notifications" | null>(null);
+  const [todayStatus, setTodayStatus] = useState<typedUserTodayStatusRecord>();
   const location = useLocation();
   const columns = useBreakpointValue({ xs: 1, sm: 1, md: 2 });
 
@@ -103,6 +111,24 @@ export default function Index() {
     }
   }, [location]);
 
+  useEffect(() => {
+    let response: typedUserTodayStatusResponse;
+    if (pb.authStore.isValid && pb.authStore.record) {
+      async function fetchData() {
+        try {
+          response = await pb.collection(Collections.UserTodayStatus).getOne(pb.authStore.record!.id);
+        } catch (err) {
+          console.error(err);
+        }
+
+        setTodayStatus(response);
+        return;
+      }
+
+      fetchData();
+    }
+  }, [pb.authStore.isValid]);
+
   return (
     <main className="index">
       <Account open={modalState === "account"} setOpen={() => setModalState(null)} />
@@ -124,10 +150,33 @@ export default function Index() {
         </Center>
       </div>
       <CardGroup columns={columns} className={`game-cards${columns === 1 ? " vertical" : ""}`} spacing={10}>
-        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
-        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
-        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
         <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.mini!) ? " " : ""}
+          className={todayStatus?.mini === 1 ? "started" : todayStatus?.mini === 2 ? "finished" : ""}
+          title="The Mini"
+          description="Tiny crossword puzzles"
+          link="/mini"
+          imageSrc="/icons/mini/pwa-192x192.png"
+        />
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.midi!) ? " " : ""}
+          className={todayStatus?.midi === 1 ? "started" : todayStatus?.midi === 2 ? "finished" : ""}
+          title="The Midi"
+          description="Medium crossword puzzles"
+          link="/midi"
+          imageSrc="/icons/midi/pwa-192x192.png"
+        />
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.daily!) ? " " : ""}
+          className={todayStatus?.daily === 1 ? "started" : todayStatus?.daily === 2 ? "finished" : ""}
+          title="The Daily"
+          description="Large crossword puzzles"
+          link="/daily"
+          imageSrc="/icons/daily/pwa-192x192.png"
+        />
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.connections!) ? " " : ""}
+          className={todayStatus?.connections === 1 ? "started" : todayStatus?.connections === 2 ? "finished" : ""}
           title="Connections"
           description="Create groups of four"
           link="/connections/today"
@@ -141,7 +190,14 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard title="Wordle" description="Guess the 5-letter word" link="/wordle/today" imageSrc="/icons/wordle/pwa-192x192.png">
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.wordle!) ? " " : ""}
+          className={todayStatus?.wordle === 1 ? "started" : todayStatus?.wordle === 2 ? "finished" : ""}
+          title="Wordle"
+          description="Guess the 5-letter word"
+          link="/wordle/today"
+          imageSrc="/icons/wordle/pwa-192x192.png"
+        >
           <Center paddingRight={17}>
             <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
               <Link to={"/wordle/archive"}>
@@ -150,7 +206,14 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard title="Strands" description="Uncover hidden words" link="/strands/today" imageSrc="/icons/strands/pwa-192x192.png">
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.strands!) ? " " : ""}
+          className={todayStatus?.strands === 1 ? "started" : todayStatus?.strands === 2 ? "finished" : ""}
+          title="Strands"
+          description="Uncover hidden words"
+          link="/strands/today"
+          imageSrc="/icons/strands/pwa-192x192.png"
+        >
           <Center paddingRight={17}>
             <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
               <Link to={"/strands/archive"}>
@@ -159,7 +222,14 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png">
+        <LinkCard
+          badgeContent={[1, 2].includes(todayStatus?.cryptic!) ? " " : ""}
+          className={todayStatus?.cryptic === 1 ? "started" : todayStatus?.cryptic === 2 ? "finished" : ""}
+          title="Minute Cryptic"
+          description="Solve cryptic clues"
+          link="/cryptic/today"
+          imageSrc="/icons/cryptic/pwa-192x192.png"
+        >
           <Center paddingRight={17}>
             <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
               <Link to={"/cryptic/archive"}>

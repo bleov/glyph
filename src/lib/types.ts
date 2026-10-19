@@ -1,4 +1,7 @@
-import type { ArchiveRecord, ArchiveResponse } from "./pb-types";
+import type { ArchiveRecord, ArchiveResponse, UserTodayStatusRecord, UserTodayStatusResponse } from "./pb-types";
+
+export type typedUserTodayStatusRecord = UserTodayStatusRecord<number, number, number, number, number, number, number>;
+export type typedUserTodayStatusResponse = UserTodayStatusResponse<number, number, number, number, number, number, number>;
 
 export interface Crossword {
   assets?: CrosswordAsset[];

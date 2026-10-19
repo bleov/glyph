@@ -4,6 +4,18 @@
     transition: transform 0.15s;
   }
 
+  .link-card .rs-badge {
+    --rs-badge-one-char-size: 10px;
+  }
+
+  .link-card.finished .rs-badge {
+    background-color: var(--rs-green-500);
+  }
+
+  .link-card.started .rs-badge {
+    background-color: var(--rs-yellow-600);
+  }
+
   .rs-card-body,
   .rs-card-header {
     padding-block-start: 10px;
