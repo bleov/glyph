@@ -328,11 +328,18 @@ canvas {
 }
 
 .stats-container {
-  .rs-tabs .rs-nav {
-    position: sticky;
-    overflow-x: auto;
-    top: 0;
-    z-index: 2;
-    background-color: white;
+  .rs-tabs {
+    .rs-nav {
+      height: fit-content;
+      position: sticky;
+      overflow-x: auto;
+      top: 0;
+      z-index: 2;
+      background-color: white;
+    }
+
+    .rs-tabs-content {
+      height: 296px;
+    }
   }
 }
