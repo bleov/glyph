@@ -1,0 +1,14 @@
+services:
+  pocketbase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_POCKETBASE_URL: ""
+        VITE_PUBLIC_POSTHOG_KEY: ${VITE_PUBLIC_POSTHOG_KEY:-}
+        VITE_PUBLIC_POSTHOG_HOST: ${VITE_PUBLIC_POSTHOG_HOST:-}
+    restart: unless-stopped
+    volumes:
+      - ./pb_data:/pb/pb_data
+    ports:
+      - "${PORT:-8090}:8090"

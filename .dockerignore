@@ -1,0 +1,13 @@
+.git
+.github
+.vscode
+node_modules
+dist
+dist-ssr
+pb_data
+pb_public
+pb_static
+bot/puppeteer-data
+bot/import
+bot/out
+*.log
