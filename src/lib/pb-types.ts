@@ -34,6 +34,7 @@ export const Collections = {
 	Users: "users",
 	WordleLeaderboard: "wordle_leaderboard",
 	WordleState: "wordle_state",
+	WordleStats: "wordle_stats",
 } as const
 export type Collections = typeof Collections[keyof typeof Collections]
 
@@ -115,7 +116,9 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
-export type ArchiveRecord<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
+export type ArchiveRecord<Tbrackets = unknown, Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
+	brackets?: null | Tbrackets
+	brackets_id?: string
 	connections?: null | Tconnections
 	connections_id?: number
 	created: IsoAutoDateString
@@ -421,13 +424,19 @@ export type WordleStateRecord<Tstate = unknown> = {
 	user: RecordIdString
 }
 
+export type WordleStatsRecord<Tguess_distribution = unknown> = {
+	games_completed?: number
+	guess_distribution?: null | Tguess_distribution
+	id: string
+}
+
 // Response types include system fields and match responses from the PocketBase API
 export type AuthoriginsResponse<Texpand = unknown> = Required<AuthoriginsRecord> & BaseSystemFields<Texpand>
 export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRecord> & BaseSystemFields<Texpand>
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
-export type ArchiveResponse<Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tconnections, Tcryptic, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
+export type ArchiveResponse<Tbrackets = unknown, Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tbrackets, Tconnections, Tcryptic, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
 export type AverageRatingsResponse<Trating = unknown, Texpand = unknown> = Required<AverageRatingsRecord<Trating>> & BaseSystemFields<Texpand>
 export type ConnectionsLeaderboardResponse<Tguesses = unknown, Torder = unknown, Texpand = unknown> = Required<ConnectionsLeaderboardRecord<Tguesses, Torder>> & BaseSystemFields<Texpand>
 export type ConnectionsStateResponse<Tstate = unknown, Texpand = unknown> = Required<ConnectionsStateRecord<Tstate>> & BaseSystemFields<Texpand>
@@ -450,6 +459,7 @@ export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unkno
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 export type WordleLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<WordleLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type WordleStateResponse<Tstate = unknown, Texpand = unknown> = Required<WordleStateRecord<Tstate>> & BaseSystemFields<Texpand>
+export type WordleStatsResponse<Tguess_distribution = unknown, Texpand = unknown> = Required<WordleStatsRecord<Tguess_distribution>> & BaseSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 
@@ -482,6 +492,7 @@ export type CollectionRecords = {
 	users: UsersRecord
 	wordle_leaderboard: WordleLeaderboardRecord
 	wordle_state: WordleStateRecord
+	wordle_stats: WordleStatsRecord
 }
 
 export type CollectionResponses = {
@@ -513,6 +524,7 @@ export type CollectionResponses = {
 	users: UsersResponse
 	wordle_leaderboard: WordleLeaderboardResponse
 	wordle_state: WordleStateResponse
+	wordle_stats: WordleStatsResponse
 }
 
 // Utility types for create/update operations
