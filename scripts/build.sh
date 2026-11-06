@@ -2,7 +2,7 @@
 
 set -e
 
-bun install
+bun install --frozen-lockfile
 bunx --bun vite build
 rm -rfv ./pb_public
 mkdir ./pb_public

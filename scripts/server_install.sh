@@ -13,9 +13,9 @@ export PATH="$HOME/.bun/bin:$PATH"
 
 bun --version
 
-git clone https://github.com/bleov/minimini
-cd minimini
-bun install
+git clone https://github.com/bleov/glyph
+cd glyph
+bun install --frozen-lockfile
 cp .env.template .env
 chmod +x ./scripts/pb_init.sh
 ./scripts/pb_init.sh
