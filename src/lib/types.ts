@@ -1,4 +1,10 @@
-import type { ArchiveRecord, ArchiveResponse } from "./pb-types";
+import type {
+  ArchiveRecord,
+  ArchiveResponse,
+  CustomPuzzleDataResponse,
+  CustomPuzzlesResponse,
+  ShapesResponse
+} from "./pb-types";
 
 export interface Crossword {
   assets?: CrosswordAsset[];
@@ -93,6 +99,11 @@ export interface WordleState {
   completeRows: number[];
   letters: string[][];
 }
+
+export type MiniCrossword = Crossword;
+export type CrosswordShape = ShapesResponse<MiniCrossword>;
+export type CustomPuzzle = CustomPuzzlesResponse<unknown>;
+export type CustomPuzzleData = CustomPuzzleDataResponse<string, number, number, unknown>;
 
 export interface StrandsGame {
   status: string;

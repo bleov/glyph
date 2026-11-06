@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ChartNoAxesColumnIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import type { StrandsGame } from "@/lib/types";
+import type { UsersRecord } from "@/lib/pb-types";
 import { useState } from "react";
 import { Stats } from "@/Components/Stats";
 import { pb } from "@/main";
@@ -66,7 +67,9 @@ export default function StrandsResults({ open, onClose, onOpenLeaderboard, data,
           </Button>
         </ButtonGroup>
       </VStack>
-      {pb.authStore.record && <Stats open={statsOpen} setOpen={setStatsOpen} type="strands" user={pb.authStore.record} />}
+      {pb.authStore.record && (
+        <Stats open={statsOpen} setOpen={setStatsOpen} type="strands" user={pb.authStore.record as unknown as UsersRecord} />
+      )}
     </Modal>
   );
 }

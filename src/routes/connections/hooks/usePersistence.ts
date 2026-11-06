@@ -4,6 +4,7 @@ import throttle from "throttleit";
 import type { ConnectionsContextType } from "../Components/Connections";
 import { pb } from "@/main";
 import posthog from "posthog-js";
+import type { ConnectionsStateResponse } from "@/lib/pb-types";
 
 export default function usePersistence(context: ConnectionsContextType): () => void {
   const {
@@ -42,10 +43,10 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     const states = pb.collection("connections_state");
     if (!pb.authStore.isValid) return "";
     try {
-      const record = await states.getFirstListItem(`puzzle_id=${data.id}`);
+      const record = await states.getFirstListItem<ConnectionsStateResponse<typeof save>>(`puzzle_id=${data.id}`);
       const storageRecord: any = {};
-      Object.keys(save).forEach((key) => {
-        storageRecord[key] = record.state[key];
+      (Object.keys(save) as Array<keyof typeof save>).forEach((key) => {
+        storageRecord[key] = record.state?.[key];
       });
       await localforage.setItem(`connections-${data.id}`, storageRecord);
       recordIdRef.current = record.id;

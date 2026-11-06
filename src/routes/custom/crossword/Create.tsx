@@ -116,8 +116,9 @@ export default function Create() {
           } else {
             setRecord(record as CustomPuzzle);
             setDetails({ title: record.title, options: record.public ? ["public"] : [] });
-            if (record.expand?.shape) {
-              record.puzzle.body[0].board = record.expand.shape.data.body[0].board;
+            const expandedShape = (record.expand as { shape?: { data?: MiniCrossword } } | undefined)?.shape;
+            if (expandedShape?.data && record.puzzle) {
+              (record.puzzle as MiniCrossword).body[0].board = expandedShape.data.body[0].board;
             }
             setData(record.puzzle as MiniCrossword);
             shapeRef.current = record.shape || null;
@@ -440,6 +441,7 @@ export default function Create() {
                           if (
                             await dialog.confirm("Changing the puzzle shape will clear any existing edits.", { title: "Are you sure?" })
                           ) {
+                            if (!newShape.data) return;
                             setData(clearShape(newShape.data));
                             shapeRef.current = newShape.id;
                           }

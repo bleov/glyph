@@ -3,6 +3,7 @@ import localforage from "localforage";
 import { pb } from "@/main";
 import posthog from "posthog-js";
 import type { WordleGame } from "@/lib/types";
+import type { WordleStateResponse } from "@/lib/pb-types";
 
 export default function usePersistence(
   letters: string[][],
@@ -30,10 +31,10 @@ export default function usePersistence(
     const states = pb.collection("wordle_state");
     if (!pb.authStore.isValid) return "";
     try {
-      const record = await states.getFirstListItem(`puzzle_id=${data.id}`);
+      const record = await states.getFirstListItem<WordleStateResponse<typeof save>>(`puzzle_id=${data.id}`);
       const storageRecord: any = {};
-      Object.keys(save).forEach((key) => {
-        storageRecord[key] = record.state[key];
+      (Object.keys(save) as Array<keyof typeof save>).forEach((key) => {
+        storageRecord[key] = record.state?.[key];
       });
       await localforage.setItem(`wordle-${data.id}`, storageRecord);
       recordIdRef.current = record.id;

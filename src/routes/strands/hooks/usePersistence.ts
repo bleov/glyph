@@ -4,6 +4,7 @@ import throttle from "throttleit";
 import type { StrandsContextType } from "../Components/Strands";
 import { pb } from "@/main";
 import posthog from "posthog-js";
+import type { StrandsStateResponse } from "@/lib/pb-types";
 
 export default function usePersistence(context: StrandsContextType): () => void {
   const {
@@ -52,11 +53,11 @@ export default function usePersistence(context: StrandsContextType): () => void 
     if (!pb.authStore.isValid) return "";
 
     try {
-      const record = await states.getFirstListItem(`puzzle_id=${data.id}`);
+      const record = await states.getFirstListItem<StrandsStateResponse<typeof save>>(`puzzle_id=${data.id}`);
       const storageRecord: any = {};
 
-      Object.keys(save).forEach((key) => {
-        storageRecord[key] = record.state[key];
+      (Object.keys(save) as Array<keyof typeof save>).forEach((key) => {
+        storageRecord[key] = record.state?.[key];
       });
 
       await localforage.setItem(`strands-${data.id}`, storageRecord);
@@ -144,6 +145,7 @@ export default function usePersistence(context: StrandsContextType): () => void 
       if (pb.authStore.isValid) {
         const leaderboard = pb.collection("strands_leaderboard");
         const user = pb.authStore.record;
+        if (!user) return;
 
         leaderboard.create({
           user: user.id,

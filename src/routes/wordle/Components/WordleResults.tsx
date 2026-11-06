@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ChartNoAxesColumnIcon, TrophyIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { useParams } from "react-router";
 import type { WordleGame } from "@/lib/types";
+import type { UsersRecord } from "@/lib/pb-types";
 import { pb } from "@/main";
 import { useState } from "react";
 import { Stats } from "@/Components/Stats";
@@ -69,7 +70,9 @@ export default function WordleResults({ open, onClose, onOpenLeaderboard, data, 
           </Button>
         </ButtonGroup>
       </VStack>
-      {pb.authStore.record && <Stats open={statsOpen} setOpen={setStatsOpen} type="wordle" user={pb.authStore.record} />}
+      {pb.authStore.record && (
+        <Stats open={statsOpen} setOpen={setStatsOpen} type="wordle" user={pb.authStore.record as unknown as UsersRecord} />
+      )}
     </Modal>
   );
 }

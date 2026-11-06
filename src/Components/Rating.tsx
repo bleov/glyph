@@ -19,8 +19,8 @@ export default function Rating({ id }: { id: number }) {
     const averageRatings = pb.collection("average_ratings");
     const ratingData = await averageRatings.getFirstListItem(`puzzle_id='${id}'`);
     if (ratingData && ratingData.rating && ratingData.count) {
-      setAverage(ratingData.rating);
-      setCount(ratingData.count);
+      setAverage(Number(ratingData.rating));
+      setCount(Number(ratingData.count));
     }
   }
 
@@ -60,7 +60,7 @@ export default function Rating({ id }: { id: number }) {
         color="#FF9800"
         size="sm"
         onChange={rate}
-        onChangeActive={setHovered}
+        onChangeActive={(value) => setHovered(Number(value) || 0)}
         renderCharacter={(_, index) => (
           <Star
             onClickCapture={(event) => {

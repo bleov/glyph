@@ -218,7 +218,7 @@ function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; container
           <Text>by {data.author_name}</Text>
         )}
         <Text>
-          <TrophyIcon /> {data.completions} <StarIcon /> {data.avg_rating.toFixed(1)}
+          <TrophyIcon /> {data.completions} <StarIcon /> {(data.avg_rating ?? 0).toFixed(1)}
         </Text>
       </Card.Body>
       <Card.Footer>
