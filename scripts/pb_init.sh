@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PB_VERSION="0.40.5"
+PB_VERSION="0.41.1"
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
 
-PB_URL="https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_${OS}_${ARCH}.zip"
+PB_URL="https://ganigeorgiev.com/meta/pocketbase/pocketbase/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_${OS}_${ARCH}.zip"
 PB_ZIP="pocketbase_${PB_VERSION}_${OS}_${ARCH}.zip"
 
 # Download pocketbase
