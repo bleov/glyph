@@ -3,7 +3,7 @@ import { useContext, type Dispatch, type SetStateAction } from "react";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ConnectionsContext } from "./Connections";
 import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useParams } from "react-router";
 
 interface ConnectionsResultsProps {
@@ -15,6 +15,7 @@ interface ConnectionsResultsProps {
 export default function ConnectionsResults({ open, onClose, onOpenLeaderboard }: ConnectionsResultsProps) {
   const { data, resultText } = useContext(ConnectionsContext)!;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const params = useParams();
 
@@ -46,9 +47,11 @@ export default function ConnectionsResults({ open, onClose, onOpenLeaderboard }:
             appearance="default"
             startIcon={<ArrowLeftIcon />}
             onClick={() => {
+              if (location.pathname.includes("custom")) {
+                return navigate("/custom");
+              }
               if (params.date && params.date !== "today") {
-                navigate(`/connections/archive`);
-                return;
+                return navigate(`/connections/archive`);
               }
               navigate("/");
             }}

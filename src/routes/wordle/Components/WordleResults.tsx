@@ -1,7 +1,7 @@
 import Rating from "@/Components/Rating";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ArrowLeftIcon, ChartNoAxesColumnIcon, TrophyIcon } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useParams } from "react-router";
 import type { WordleGame } from "@/lib/types";
 import { pb } from "@/main";
@@ -19,6 +19,7 @@ interface WordleResultsProps {
 export default function WordleResults({ open, onClose, onOpenLeaderboard, data, resultText }: WordleResultsProps) {
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
 
   const [statsOpen, setStatsOpen] = useState(false);
 
@@ -55,9 +56,11 @@ export default function WordleResults({ open, onClose, onOpenLeaderboard, data, 
             appearance="default"
             startIcon={<ArrowLeftIcon />}
             onClick={() => {
+              if (location.pathname.includes("custom")) {
+                return navigate("/custom");
+              }
               if (params.date && params.date !== "today") {
-                navigate(`/wordle/archive`);
-                return;
+                return navigate(`/wordle/archive`);
               }
               navigate("/");
             }}
