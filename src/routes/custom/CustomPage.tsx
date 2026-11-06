@@ -54,6 +54,23 @@ const defaultSortValues = {
   Title: "title"
 };
 
+const sortOrders = {
+  Descending: "-",
+  Ascending: "+"
+};
+
+function getStoredSortValue(type: string, sortValues: Record<string, string>) {
+  const savedSortValue = sessionStorage.getItem(`custom-sort-value-${type}`);
+  return savedSortValue && Object.values(sortValues).includes(savedSortValue)
+    ? savedSortValue
+    : Object.values(sortValues)[0] || "completions";
+}
+
+function getStoredSortOrder(type: string) {
+  const savedSortOrder = sessionStorage.getItem(`custom-sort-order-${type}`);
+  return savedSortOrder && Object.values(sortOrders).includes(savedSortOrder) ? savedSortOrder : "-";
+}
+
 function CreateCard() {
   const [createLoading, setCreateLoading] = useState(false);
   const navigate = useNavigate();
@@ -222,29 +239,28 @@ function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; container
 }
 
 function SortOptions({
+  type,
   setSort,
   sortValues,
   disabled = false
 }: {
+  type: string;
   setSort: (sort: string) => void;
   sortValues?: Record<string, string>;
   disabled?: boolean;
 }) {
-  const [sortValue, setSortValue] = useState<string>(Object.values(sortValues ?? defaultSortValues)[0] || "completions");
-  const [sortOrder, setSortOrder] = useState<string>("-");
-
   if (!sortValues) {
     sortValues = defaultSortValues;
   }
 
-  const sortOrders = {
-    Descending: "-",
-    Ascending: "+"
-  };
+  const [sortValue, setSortValue] = useState<string>(() => getStoredSortValue(type, sortValues));
+  const [sortOrder, setSortOrder] = useState<string>(() => getStoredSortOrder(type));
 
   useEffect(() => {
     setSort(`${sortOrder}${sortValue}`);
-  }, [sortValue, sortOrder]);
+    sessionStorage.setItem(`custom-sort-value-${type}`, sortValue);
+    sessionStorage.setItem(`custom-sort-order-${type}`, sortOrder);
+  }, [sortValue, sortOrder, setSort, type]);
 
   return (
     <Stack direction="row" spacing={5}>
@@ -275,13 +291,18 @@ function SortOptions({
 }
 
 function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
+  let sortValues: Record<string, string> = defaultSortValues;
+  if (type === "user") {
+    sortValues = {
+      "Date Updated": "updated",
+      "Date Created": "created",
+      Title: "title",
+      Completions: "completions"
+    };
+  }
+
   const [data, setData] = useState<CustomPuzzleData[]>([]);
-  const [sort, setSort] = useState(() => {
-    if (type === "user") {
-      return "-updated";
-    }
-    return "-completions";
-  });
+  const [sort, setSort] = useState(() => `${getStoredSortOrder(type)}${getStoredSortValue(type, sortValues)}`);
   const [loading, setLoading] = useState(false);
   const [loadingFailed, setLoadingFailed] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -358,16 +379,6 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
     puzzles = results.map((result) => result.item);
   }
 
-  let sortValues: Record<string, string> = defaultSortValues;
-  if (type === "user") {
-    sortValues = {
-      "Date Updated": "updated",
-      "Date Created": "created",
-      Title: "title",
-      Completions: "completions"
-    };
-  }
-
   if (loadingFailed) {
     return (
       <VStack alignItems={"center"} justifyContent={"center"} marginTop={30}>
@@ -389,7 +400,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         className="custom-puzzle-search-container"
       >
         <Input placeholder="Find puzzles" value={searchValue} onChange={setSearchValue}></Input>
-        <SortOptions setSort={setSort} sortValues={sortValues} disabled={searchValue.trim() !== ""} />
+        <SortOptions type={type} setSort={setSort} sortValues={sortValues} disabled={searchValue.trim() !== ""} />
       </Stack>
       <Grid fluid>
         <Row gutter={10} width={"100%"}>
