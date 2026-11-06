@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"bunx --bun vite --host --port 3000\" \"./scripts/pb_dev.sh\" --names \"vite,pb\" --kill-others --success first",
     "build": "bunx --bun tsc -b && bunx --bun vite build",
-    "lint": "bunx --bun eslint .",
+    "lint": "bunx --bun oxlint .",
     "preview": "bunx --bun vite preview",
     "typegen": "bunx --bun pocketbase-typegen --out ./src/lib/pb-types.ts"
   },
@@ -35,7 +35,6 @@
     "throttleit": "^3.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@types/bun": "^1.4.4",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
@@ -43,14 +42,10 @@
     "@vitejs/plugin-react": "^6.2.1",
     "concurrently": "^10.0.6",
     "dotenv": "^18.0.9",
-    "eslint": "^10.14.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.7",
-    "globals": "^17.14.0",
+    "oxlint": "1.92.0",
     "pocketbase-typegen": "^1.6.0",
     "prettier": "^3.9.10",
     "typescript": "~7.0.2",
-    "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5"
   }
 }
