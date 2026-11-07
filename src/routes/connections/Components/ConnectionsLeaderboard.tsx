@@ -1,12 +1,10 @@
-import { LogInIcon, TrophyIcon, UsersIcon } from "lucide-react";
+import { TrophyIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { Button, Center, Loader, Modal } from "rsuite";
+import { Center, Loader, Modal } from "rsuite";
 import { Table } from "rsuite/Table";
 import { GlobalState } from "@/lib/GlobalState";
 import type { ConnectionsGame } from "@/lib/types";
 import { pb } from "@/main";
-import Nudge from "@/Components/Nudge";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
 import posthog from "posthog-js";
 import type { ConnectionsLeaderboardRecord } from "@/lib/pb-types";
@@ -28,7 +26,6 @@ export default function ConnectionsLeaderboard({
   const [data, setData] = useState<ConnectionsLeaderboardRecord[]>([]);
 
   const { user } = useContext(GlobalState);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -45,7 +42,7 @@ export default function ConnectionsLeaderboard({
           expand: "user"
         })) as unknown as { items: ConnectionsLeaderboardRecord<number[][], number[]>[] };
 
-        const pointData = leaderboardData.items.map((item, i) => {
+        const pointData = leaderboardData.items.map((item) => {
           const purplePosition = item.order!.findIndex((index) => index === 3);
           let orderPoints = 0;
           if (!item.order!.includes(-1)) {

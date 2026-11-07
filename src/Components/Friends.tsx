@@ -158,6 +158,7 @@ function FriendCode() {
             setResult("Invalid friend code");
           }
         } catch (err) {
+          console.error(err);
           setResult("An unexpected error occurred");
         } finally {
           setLoading(false);

@@ -1,4 +1,3 @@
-import { CrosswordAppState } from "@/routes/crossword/state";
 import { LogInIcon, MonitorIcon, RotateCcwIcon, SmartphoneIcon, StarIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";

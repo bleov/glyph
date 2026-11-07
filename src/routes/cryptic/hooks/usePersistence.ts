@@ -43,6 +43,7 @@ export default function usePersistence(
       recordIdRef.current = record.id;
       return record.id;
     } catch (err) {
+      console.error(err);
       return "";
     }
   }
@@ -61,12 +62,9 @@ export default function usePersistence(
       complete: completeRef.current
     };
     if (recordIdRef.current) {
-      states
-        .update(recordIdRef.current, record)
-        .then((res) => {})
-        .catch((err) => {
-          console.error("Cloud save failed", err);
-        });
+      states.update(recordIdRef.current, record).catch((err) => {
+        console.error("Cloud save failed", err);
+      });
     } else {
       states
         .create(record)

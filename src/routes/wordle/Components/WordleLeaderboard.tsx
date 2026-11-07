@@ -8,7 +8,7 @@ import posthog from "posthog-js";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
 import WordlePreview from "./WordlePreview";
 import { DEFAULT_ROWS } from "./Wordle";
-import type { UsersRecord, WordleLeaderboardRecord, WordleLeaderboardResponse } from "@/lib/pb-types";
+import type { UsersRecord, WordleLeaderboardResponse } from "@/lib/pb-types";
 
 type ExpandedWordleLeaderboardRecord = WordleLeaderboardResponse<
   WordleState,

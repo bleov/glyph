@@ -9,7 +9,7 @@ interface StrandsSVGProps {
 }
 
 export default function StrandsSVG({ selectedCells, revealedCells, spangramCells, rows, cols }: StrandsSVGProps) {
-  const makePath = (cells: number[][], label: string) => {
+  const makePath = (cells: number[][]) => {
     const segments = cells.map(([row, col], i) => {
       const x = (col + 0.5) * (313 / cols);
       const y = (row + 0.5) * (422 / rows);
@@ -21,13 +21,13 @@ export default function StrandsSVG({ selectedCells, revealedCells, spangramCells
     return path;
   };
 
-  const selectedPath = makePath(selectedCells, "selected");
-  const spangramPath = makePath(spangramCells, "spangram");
+  const selectedPath = makePath(selectedCells);
+  const spangramPath = makePath(spangramCells);
 
   return (
     <Box as="svg" width="100%" height="100%" viewBox="0 0 324 422" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
       {revealedCells.map((cellGroup, i) => {
-        const path = makePath(cellGroup, `revealed-${i}`);
+        const path = makePath(cellGroup);
         if (!path) return null;
 
         return <path key={i} d={path} stroke="var(--clue-bg)" fill="none" strokeWidth={12} strokeLinecap="round" />;

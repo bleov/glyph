@@ -21,13 +21,11 @@ export default function usePersistence(context: StrandsContextType): () => void 
     setFoundHints,
     revealedHintCells,
     setRevealedHintCells,
-    constructedWord,
     setConstructedWord,
     hintsUsed,
     setHintsUsed,
     gameHistory,
     setGameHistory,
-    loading,
     setLoading
   } = context;
 
@@ -95,7 +93,7 @@ export default function usePersistence(context: StrandsContextType): () => void 
         })
         .catch(() => {});
     }
-  }, [data.id, data.printDate]);
+  }, [data.id, data.printDate, data.themeWords.length]);
 
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 1000), [cloudSave]);
 

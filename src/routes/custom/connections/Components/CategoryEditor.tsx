@@ -1,7 +1,7 @@
 import type { ConnectionsCategory } from "@/lib/types";
 import { categoryColorNames, categoryColors, categoryDifficulties } from "@/routes/connections/Components/ConnectionsCategory";
 import { useEffect, useState } from "react";
-import { Box, Card, Dropdown, HStack, Input, Stack, Text, VStack } from "rsuite";
+import { Box, Dropdown, Input, Stack, VStack } from "rsuite";
 
 interface CategoryEditorProps {
   category: ConnectionsCategory;

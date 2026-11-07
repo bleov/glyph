@@ -1,7 +1,7 @@
 import type { CrypticGame } from "@/lib/types";
 import CrypticClue from "./CrypticClue";
 import CrypticInput from "./CrypticInput";
-import { Button, ButtonToolbar, Center, Loader, Modal, Text, useDialog, VStack } from "rsuite";
+import { Button, ButtonToolbar, Center, Loader, Modal, Text, VStack } from "rsuite";
 import { useState } from "react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import CrytpicKeyboard from "./CrypticKeyboard";

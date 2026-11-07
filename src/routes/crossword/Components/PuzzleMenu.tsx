@@ -96,6 +96,7 @@ export default function PuzzleMenu({
             try {
               await pb.collection("leaderboard").getFirstListItem(`puzzle_id="${data.id}" && user="${user.id}"`);
             } catch (err) {
+              console.warn(err);
               dialog.alert("You must complete this puzzle at least once before resetting your progress.", { title: "Error" });
               return;
             }

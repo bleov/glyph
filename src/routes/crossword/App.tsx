@@ -31,7 +31,7 @@ import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
 import { Stats } from "../../Components/Stats";
 import Nudge from "@/Components/Nudge";
-import type { CustomPuzzleDataResponse, CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
+import type { CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const [data, setData] = useState<CrosswordType | null>(null);

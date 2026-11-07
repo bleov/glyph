@@ -1,4 +1,4 @@
-import type { CrypticClue, CrypticClue as CrypticClueType, CrypticHint } from "@/lib/types";
+import type { CrypticClue as CrypticClueType, CrypticHint } from "@/lib/types";
 import { Fragment } from "react/jsx-runtime";
 import { Text } from "rsuite";
 

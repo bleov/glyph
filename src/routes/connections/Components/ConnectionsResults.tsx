@@ -1,5 +1,5 @@
 import Rating from "@/Components/Rating";
-import { useContext, type Dispatch, type SetStateAction } from "react";
+import { useContext } from "react";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ConnectionsContext } from "./Connections";
 import { ArrowLeftIcon, TrophyIcon } from "lucide-react";

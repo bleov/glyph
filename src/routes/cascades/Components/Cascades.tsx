@@ -18,7 +18,7 @@ export function DragPreview() {
   if (!preview.display) {
     return null;
   }
-  const { itemType, item, style }: any = preview;
+  const { itemType, item }: any = preview;
   if (itemType === "CASCADE_TILE") {
     return (
       <div className="cascade-tile-container tile-preview-container">
@@ -100,7 +100,7 @@ export function TileSpace({ column, exiting }: TileSpaceProps) {
 
   const letter = inputRow[column];
   const droppable = letter === "";
-  const [{ canDrop, isOver }, drop] = useDrop(() => ({
+  const [{}, drop] = useDrop(() => ({
     accept: ["CASCADE_TILE", "INPUT_TILE"],
     drop: () => ({ column }),
     collect: (monitor) => ({
@@ -160,7 +160,7 @@ export function TileSpace({ column, exiting }: TileSpaceProps) {
 }
 
 function DiscardButton() {
-  const [{ canDrop, isOver }, drop] = useDrop(() => ({
+  const [{}, drop] = useDrop(() => ({
     accept: ["CASCADE_TILE", "INPUT_TILE"],
     drop: () => ({}),
     collect: (monitor) => ({

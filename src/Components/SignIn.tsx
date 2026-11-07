@@ -1,7 +1,6 @@
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Loader, Modal, useDialog } from "rsuite";
 import { pb } from "../main";
-import { GlobalState } from "../lib/GlobalState";
 import { Button, ButtonGroup, Form, VStack, PasswordInput, Text } from "rsuite";
 import { EyeClosedIcon, EyeIcon, LogInIcon, UserPlusIcon } from "lucide-react";
 
@@ -19,7 +18,6 @@ export default function SignIn({ open, setOpen }: SignInProps) {
   const [passwordValidation, setPasswordValidation] = useState("");
   const [error, setError] = useState("");
 
-  const { setUser } = useContext(GlobalState);
   const dialog = useDialog();
 
   function handleError(err: any) {

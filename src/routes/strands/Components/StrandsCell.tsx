@@ -14,8 +14,6 @@ interface StrandsCellProps {
 }
 
 export default function StrandsCell({
-  row,
-  col,
   letter,
   isSelected,
   isRevealed,

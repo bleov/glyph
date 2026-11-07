@@ -23,7 +23,6 @@ import SignIn from "@/Components/SignIn";
 import AccountButtons from "@/Components/AccountButtons";
 import { pb } from "./main";
 import { ArchiveIcon } from "lucide-react";
-import { useNavigate } from "react-router";
 import Notifications from "./Components/Notifications";
 
 interface LinkCardProps {

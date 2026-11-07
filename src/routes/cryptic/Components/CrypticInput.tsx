@@ -1,6 +1,6 @@
 import type { CrypticPuzzlePiece } from "@/lib/types";
 import { useEffect, useState, type CSSProperties, type Dispatch, type MouseEventHandler, type SetStateAction } from "react";
-import { Box, Center, HStack } from "rsuite";
+import { Center, HStack } from "rsuite";
 
 function CrypticInputBox({
   selected,

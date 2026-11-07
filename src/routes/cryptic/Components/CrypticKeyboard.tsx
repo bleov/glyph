@@ -1,5 +1,5 @@
 import { KeyboardReact } from "react-simple-keyboard";
-import { Box, Button, Center } from "rsuite";
+import { Box } from "rsuite";
 
 interface CrytpicKeyboardProps {
   handleKeyDown: (event: KeyboardEvent, virtual: boolean) => void;

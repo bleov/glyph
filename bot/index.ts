@@ -2,8 +2,6 @@ import PocketBase from "pocketbase";
 
 import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame, BracketCityGame } from "../src/lib/types";
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const HOST = atob("aHR0cHM6Ly9ueXRpbWVzLmNvbQ==");
 const MINI_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "mini.json"].join("/");
 const DAILY_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "daily.json"].join("/");

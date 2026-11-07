@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
-import { useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useContext, useEffect, type Dispatch, type SetStateAction } from "react";
 import { useStopwatch } from "react-timer-hook";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";

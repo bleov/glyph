@@ -1,6 +1,5 @@
 import { TrophyIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { Center, Loader, Modal } from "rsuite";
 import { Table } from "rsuite/Table";
 import { GlobalState } from "@/lib/GlobalState";

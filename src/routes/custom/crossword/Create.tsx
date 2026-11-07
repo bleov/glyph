@@ -1,41 +1,14 @@
 import { GlobalState } from "@/lib/GlobalState";
-import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
+import type { CrosswordShape, CustomPuzzle, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
 import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
-import {
-  Box,
-  Button,
-  ButtonToolbar,
-  Center,
-  Checkbox,
-  CheckboxGroup,
-  Col,
-  Form,
-  Grid,
-  Heading,
-  HStack,
-  Input,
-  Link,
-  Modal,
-  Row,
-  Text,
-  useDialog,
-  VStack
-} from "rsuite";
-import ShapePreview from "./Components/ShapePreview";
-import { useBeforeUnload, useParams } from "react-router";
-import AnswerInput from "./Components/AnswerInput";
 import posthog from "posthog-js";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useBeforeUnload, useParams } from "react-router";
+import { Box, Button, ButtonToolbar, Center, Col, Grid, Heading, HStack, Input, Link, Modal, Row, Text, useDialog, VStack } from "rsuite";
 import DetailsEditor from "../Components/DetailsEditor";
-
-function getTodayDateString() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+import AnswerInput from "./Components/AnswerInput";
+import ShapePreview from "./Components/ShapePreview";
 
 export default function Create() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);

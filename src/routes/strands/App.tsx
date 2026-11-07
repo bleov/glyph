@@ -53,7 +53,7 @@ export default function App() {
     if (!data) {
       fetchData();
     }
-  }, []);
+  }, [data, fetchData]);
 
   if (error) {
     return (

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { KeyboardReact } from "react-simple-keyboard";
 import { Box, Button, Center } from "rsuite";
 

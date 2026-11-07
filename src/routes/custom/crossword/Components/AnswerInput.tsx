@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, HStack, Input } from "rsuite";
+import { HStack, Input } from "rsuite";
 
 interface AnswerInputProps {
   value: string;
@@ -60,7 +60,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
           onKeyDown={(e) => {
             handleKeyDown(e as unknown as KeyboardEvent, i);
           }}
-          onFocus={(e) => {
+          onFocus={() => {
             if (active !== i) {
               setActive(i);
             }

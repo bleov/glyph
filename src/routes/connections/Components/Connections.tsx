@@ -1,6 +1,6 @@
 import type { ConnectionsCard, ConnectionsGame } from "@/lib/types";
 import { createContext, useEffect, useLayoutEffect, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
-import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar, useToaster, Message, Loader } from "rsuite";
+import { Box, VStack, HStack, Button, ButtonToolbar, useToaster, Message, Loader } from "rsuite";
 import { ConnectionsCard as ConnectionsCardElement } from "./ConnectionsCard";
 import { ConnectionsMistakes } from "./ConnectionsMistakes";
 import { ConnectionsCategory } from "./ConnectionsCategory";

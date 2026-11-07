@@ -1,6 +1,6 @@
 import { BellIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Badge, Button, ButtonGroup } from "rsuite";
+import { Badge, Button } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
 import posthog from "posthog-js";
 import { pb } from "@/main";

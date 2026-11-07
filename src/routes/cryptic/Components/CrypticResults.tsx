@@ -1,4 +1,3 @@
-import Rating from "@/Components/Rating";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ArrowLeftIcon, ExternalLinkIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader, Rate, Text } from "rsuite";
 import Star from "@rsuite/icons/Star";
 import { pb } from "../main";
@@ -15,14 +15,14 @@ export default function Rating({ id }: { id: number }) {
 
   const descriptors = ["Rate this puzzle's difficulty", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"];
 
-  async function fetchRating() {
+  const fetchRating = useCallback(async () => {
     const averageRatings = pb.collection("average_ratings");
     const ratingData = await averageRatings.getFirstListItem(`puzzle_id='${id}'`);
     if (ratingData && ratingData.rating && ratingData.count) {
       setAverage(Number(ratingData.rating));
       setCount(Number(ratingData.count));
     }
-  }
+  }, []);
 
   function rate(e: number) {
     if (loading || voted) return;
@@ -49,7 +49,7 @@ export default function Rating({ id }: { id: number }) {
         fetchRating();
       }
     });
-  }, []);
+  }, [id]);
 
   return (
     <div className="rating-container">

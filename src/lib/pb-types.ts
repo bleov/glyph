@@ -351,7 +351,7 @@ export type StrandsStatsRecord<Tcomplete = unknown, TcompletedHintless = unknown
 	wordsFound?: null | TwordsFound
 }
 
-export type UserDailyStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown> = {
+export type UserDailyStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown> = {
 	average_time?: null | Taverage_time
 	highest_time?: null | Thighest_time
 	highest_time_id?: null | Thighest_time_id
@@ -361,9 +361,10 @@ export type UserDailyStatsRecord<Taverage_time = unknown, Thighest_time = unknow
 	num_cheated?: null | Tnum_cheated
 	num_completed?: number
 	num_desktop?: null | Tnum_desktop
+	username?: null | Tusername
 }
 
-export type UserMidiStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown> = {
+export type UserMidiStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown> = {
 	average_time?: null | Taverage_time
 	highest_time?: null | Thighest_time
 	highest_time_id?: null | Thighest_time_id
@@ -373,9 +374,10 @@ export type UserMidiStatsRecord<Taverage_time = unknown, Thighest_time = unknown
 	num_cheated?: null | Tnum_cheated
 	num_completed?: number
 	num_desktop?: null | Tnum_desktop
+	username?: null | Tusername
 }
 
-export type UserMiniStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown> = {
+export type UserMiniStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown> = {
 	average_time?: null | Taverage_time
 	highest_time?: null | Thighest_time
 	highest_time_id?: null | Thighest_time_id
@@ -385,6 +387,7 @@ export type UserMiniStatsRecord<Taverage_time = unknown, Thighest_time = unknown
 	num_cheated?: null | Tnum_cheated
 	num_completed?: number
 	num_desktop?: null | Tnum_desktop
+	username?: null | Tusername
 }
 
 export type UsersRecord = {
@@ -453,9 +456,9 @@ export type ShapesResponse<Tdata = unknown, Texpand = unknown> = Required<Shapes
 export type StrandsLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type StrandsStateResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsStateRecord<Tstate>> & BaseSystemFields<Texpand>
 export type StrandsStatsResponse<Tcomplete = unknown, TcompletedHintless = unknown, ThintsFound = unknown, ThintsUsed = unknown, TwordsFound = unknown, Texpand = unknown> = Required<StrandsStatsRecord<Tcomplete, TcompletedHintless, ThintsFound, ThintsUsed, TwordsFound>> & BaseSystemFields<Texpand>
-export type UserDailyStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserDailyStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
-export type UserMidiStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMidiStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
-export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMiniStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
+export type UserDailyStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown, Texpand = unknown> = Required<UserDailyStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop, Tusername>> & BaseSystemFields<Texpand>
+export type UserMidiStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown, Texpand = unknown> = Required<UserMidiStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop, Tusername>> & BaseSystemFields<Texpand>
+export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Tusername = unknown, Texpand = unknown> = Required<UserMiniStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop, Tusername>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 export type WordleLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<WordleLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type WordleStateResponse<Tstate = unknown, Texpand = unknown> = Required<WordleStateRecord<Tstate>> & BaseSystemFields<Texpand>

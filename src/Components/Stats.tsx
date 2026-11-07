@@ -21,7 +21,7 @@ import {
   TrophyIcon,
   TurtleIcon
 } from "lucide-react";
-import type { AuthRecord, RecordModel } from "pocketbase";
+import type { RecordModel } from "pocketbase";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { HStack, Image, Loader, Modal, ProgressCircle, Rate, Stat, StatGroup, Tabs, useBreakpointValue, VStack } from "rsuite";
@@ -308,7 +308,7 @@ type expandedWordleStatsResponse = WordleStatsResponse<{
   "6": number;
 }>;
 
-function WordleStats({ user, open, setOpen }: { user?: UsersRecord; open: boolean; setOpen: (open: boolean) => void }) {
+function WordleStats({ user, open }: { user?: UsersRecord; open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<expandedWordleStatsResponse>();
   const [loaded, setLoaded] = useState(false);
 
@@ -376,7 +376,7 @@ function WordleStats({ user, open, setOpen }: { user?: UsersRecord; open: boolea
   );
 }
 
-function StrandsStats({ user, open, setOpen }: { user?: UsersRecord; open: boolean; setOpen: (open: boolean) => void }) {
+function StrandsStats({ user, open }: { user?: UsersRecord; open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<StrandsStatsResponse<number, number, number, number, number>>();
   const [loaded, setLoaded] = useState(false);
 

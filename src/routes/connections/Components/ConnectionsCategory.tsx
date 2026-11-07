@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Box, Center, HStack, Text, VStack } from "rsuite";
+import { Box, Center, Text, VStack } from "rsuite";
 import { ConnectionsContext } from "./Connections";
 
 export const categoryColors = ["#F9DF6D", "#A0C35A", "#B0C4EF", "#BA81C5"];

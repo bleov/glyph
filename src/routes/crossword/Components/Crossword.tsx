@@ -51,11 +51,6 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const incorrectShown = useRef<boolean>(false);
   const toaster = useToaster();
   const replay = useReplayRecorder();
-  const renderedClues = useMemo(() => {
-    return body.clues.map((clue) => {
-      return renderClue(clue);
-    });
-  }, [data]);
   const replayTick = useRef<number>(0);
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -220,18 +215,6 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       }
     }
     return clue.cells[0];
-  }
-
-  function getRenderedClue(index: number): string {
-    if (type === "custom") {
-      return body.clues[index].text[0].plain;
-    }
-    if (renderedClues[index]) {
-      return renderedClues[index];
-    } else if (body.clues[index]) {
-      return renderClue(body.clues[index]);
-    }
-    return "";
   }
 
   function getCurrentClueIndex(): number {

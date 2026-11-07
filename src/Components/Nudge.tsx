@@ -1,4 +1,4 @@
-import { Box, Card, HStack, Text, VStack } from "rsuite";
+import { Box, Card, Text, VStack } from "rsuite";
 import type { ReactElement } from "rsuite/esm/internals/types";
 
 interface NudgeProps {

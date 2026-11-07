@@ -24,7 +24,7 @@ export default function CreateRouter() {
           }
         });
     }
-  }, []);
+  }, [params.id]);
 
   if (type === "connections") {
     return <ConnectionsCreator />;

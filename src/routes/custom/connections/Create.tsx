@@ -1,10 +1,10 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { ConnectionsGame, CustomPuzzle } from "@/lib/types";
 import { pb } from "@/main";
-import { LinkIcon, PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
-import { useContext, useEffect, useState, type SetStateAction } from "react";
+import { PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { useBeforeUnload, useParams } from "react-router";
-import { Button, Center, Text, VStack, ButtonToolbar, Modal, Form, CheckboxGroup, Checkbox, Box } from "rsuite";
+import { Button, Center, Text, VStack, ButtonToolbar, Box } from "rsuite";
 import CategoryEditor from "./Components/CategoryEditor";
 import posthog from "posthog-js";
 import DetailsEditor from "../Components/DetailsEditor";

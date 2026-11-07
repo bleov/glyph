@@ -1,5 +1,5 @@
 import type { WordleState } from "@/lib/types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Box, Center, HStack, Text, VStack } from "rsuite";
 
 interface WordlePreviewProps {

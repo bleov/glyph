@@ -1,7 +1,6 @@
 import { pb } from "@/main";
 import { lazy, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import type { ConnectionsGame } from "@/lib/types";
 
 const ConnectionsApp = lazy(() => import("../connections/App"));
 const CrosswordApp = lazy(() => import("../crossword/App"));
@@ -25,7 +24,7 @@ export default function GameRouter() {
           }
         });
     }
-  }, []);
+  }, [params.id]);
 
   if (type === "connections") {
     return <ConnectionsApp custom={true} />;

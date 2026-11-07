@@ -2,7 +2,6 @@ import Rating from "@/Components/Rating";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ArrowLeftIcon, ChartNoAxesColumnIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useParams } from "react-router";
 import type { StrandsGame } from "@/lib/types";
 import type { UsersRecord } from "@/lib/pb-types";
 import { useState } from "react";
@@ -19,7 +18,6 @@ interface StrandsResultsProps {
 
 export default function StrandsResults({ open, onClose, onOpenLeaderboard, data, resultText }: StrandsResultsProps) {
   const navigate = useNavigate();
-  const params = useParams();
 
   const [statsOpen, setStatsOpen] = useState(false);
 

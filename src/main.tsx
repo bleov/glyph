@@ -65,7 +65,7 @@ function Main() {
     if (user && !userRefreshedRef.current) {
       pb.collection("users")
         .authRefresh()
-        .then((newUser) => {
+        .then(() => {
           console.log("Refreshed auth store");
           setUser(pb.authStore.record);
           userRefreshedRef.current = true;
