@@ -39,7 +39,7 @@ export default function usePersistence(
       await localforage.setItem(`wordle-${data.id}`, storageRecord);
       recordIdRef.current = record.id;
       return record.id;
-    } catch (err) {
+    } catch {
       return "";
     }
   }

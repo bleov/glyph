@@ -51,7 +51,7 @@ export default function usePersistence(context: ConnectionsContextType): () => v
       await localforage.setItem(`connections-${data.id}`, storageRecord);
       recordIdRef.current = record.id;
       return record.id;
-    } catch (err) {
+    } catch {
       return "";
     }
   }

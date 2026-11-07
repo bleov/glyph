@@ -160,7 +160,7 @@ export function TileSpace({ column, exiting }: TileSpaceProps) {
 }
 
 function DiscardButton() {
-  const [{}, drop] = useDrop(() => ({
+  const [, drop] = useDrop(() => ({
     accept: ["CASCADE_TILE", "INPUT_TILE"],
     drop: () => ({}),
     collect: (monitor) => ({
@@ -237,7 +237,7 @@ export default function Cascades() {
             <HStack alignSelf={"center"}>
               {Array.from({ length: columns }).map((_, column) => {
                 return (
-                  <VStack className={`column-${column}`}>
+                  <VStack className={`column-${column}`} key={column}>
                     {Array.from({ length: rows }).map((_, row) => {
                       return <CascadeTile key={column} row={row} column={column} />;
                     })}

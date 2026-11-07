@@ -59,7 +59,6 @@ export function usePersistence() {
 
       function onSaveError(err: any) {
         console.error(err);
-        ``;
         posthog.capture("cloud_save_error", { puzzle: data.id, puzzleDate: data.publicationDate, error: err.message });
       }
 

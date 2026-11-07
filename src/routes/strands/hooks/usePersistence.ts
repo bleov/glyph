@@ -62,7 +62,7 @@ export default function usePersistence(context: StrandsContextType): () => void 
       recordIdRef.current = record.id;
 
       return record.id;
-    } catch (err) {
+    } catch {
       return "";
     }
   }

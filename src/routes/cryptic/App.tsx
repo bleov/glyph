@@ -8,7 +8,7 @@ import type { CrypticGame, typedArchiveResponse } from "@/lib/types";
 import Cryptic from "./Components/Cryptic";
 import "@/css/Cryptic.css";
 
-export default function App({}: { custom?: boolean }) {
+export default function App() {
   const [data, setData] = useState<CrypticGame | null>(null);
   const [error, setError] = useState<string | null>(null);
 

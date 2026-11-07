@@ -64,11 +64,11 @@ export default function WordlePreview({ state, rows, columns, solution }: Wordle
     <Box className="wordle-preview">
       <VStack spacing={1}>
         {state.letters.map((row, rowI) => (
-          <HStack spacing={1}>
+          <HStack spacing={1} key={rowI}>
             {row.map((col, colI) => {
               const state = states[rowI][colI];
               return (
-                <Center className={`wordle-tile mini ${state}`} style={{ width: 16 * scale, height: 16 * scale }}>
+                <Center className={`wordle-tile mini ${state}`} style={{ width: 16 * scale, height: 16 * scale }} key={rowI + "_" + colI}>
                   <Text style={{ scale }}>{col}</Text>
                 </Center>
               );

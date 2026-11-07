@@ -352,7 +352,7 @@ function WordleStats({ user, open }: { user?: UsersRecord; open: boolean; setOpe
           <Stat.Value>
             <VStack style={{ width: "100%", fontSize: "0.925rem" }}>
               {Object.entries(data?.guess_distribution ?? {}).map(([guess, count]) => (
-                <HStack style={{ width: "70%" }}>
+                <HStack style={{ width: "70%" }} key={guess}>
                   <span>{guess}</span>
                   <div
                     style={{
