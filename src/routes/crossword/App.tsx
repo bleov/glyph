@@ -30,7 +30,6 @@ import Timer from "./Components/Timer";
 import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
 import { Stats } from "../../Components/Stats";
-import Nudge from "@/Components/Nudge";
 import type { CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
@@ -51,11 +50,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const navigate = useNavigate();
   const params = useParams();
   const { user } = useContext(GlobalState);
-
-  const today = data?.publicationDate ? new Date(data.publicationDate) : new Date();
-  const difficultDays = [2, 3, 4, 5, 6];
-
-  console.log(today.getDay());
 
   const appState = useMemo(
     () => ({
@@ -358,16 +352,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
                 </Button>
               )}
             </ButtonGroup>
-            {difficultDays.includes(today.getDay()) && type === "daily" && (
-              <Center width={"100%"}>
-                <Nudge
-                  title="Ready for a challenge?"
-                  body="The Daily's difficulty increases throughout the week."
-                  color="var(--rs-orange-500)"
-                  className="icon-bg custom-puzzle-nudge"
-                />
-              </Center>
-            )}
             <ButtonGroup justified>
               <Button
                 startIcon={<ArrowLeftIcon />}
