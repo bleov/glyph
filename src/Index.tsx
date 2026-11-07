@@ -14,7 +14,7 @@ import {
   Tooltip,
   useBreakpointValue
 } from "rsuite";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 
 import Account from "@/Components/Account";
@@ -68,9 +68,31 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
 }
 
 export default function Index() {
-  const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | "notifications" | null>(null);
+  type ModalState = "account" | "friends" | "sign-in" | "notifications" | null;
+  const [manualModalState, setManualModalState] = useState<ModalState>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const columns = useBreakpointValue({ xs: 1, sm: 1, md: 2 });
+
+  const hashModalState: ModalState = (() => {
+    switch (location.hash) {
+      case "#friends":
+        return pb.authStore.isValid ? "friends" : null;
+      case "#account":
+        return pb.authStore.isValid ? "account" : null;
+      case "#sign-in":
+        return pb.authStore.isValid ? null : "sign-in";
+      default:
+        return null;
+    }
+  })();
+  const modalState = hashModalState ?? manualModalState;
+  const closeModal = () => {
+    setManualModalState(null);
+    if (location.hash) {
+      navigate(`${location.pathname}${location.search}`, { replace: true });
+    }
+  };
 
   useEffect(() => {
     document.title = "Glyph – Daily word games";
@@ -80,34 +102,12 @@ export default function Index() {
     document.getElementById("site-manifest")?.setAttribute("href", `/pwa/index.webmanifest`);
   }, []);
 
-  useEffect(() => {
-    switch (location.hash) {
-      case "#friends":
-        if (pb.authStore.isValid) {
-          setModalState("friends");
-        }
-        break;
-      case "#account":
-        if (pb.authStore.isValid) {
-          setModalState("account");
-        }
-        break;
-      case "#sign-in":
-        if (!pb.authStore.isValid) {
-          setModalState("sign-in");
-        }
-        break;
-      default:
-        break;
-    }
-  }, [location]);
-
   return (
     <main className="index">
-      <Account open={modalState === "account"} setOpen={() => setModalState(null)} />
-      <Friends open={modalState === "friends"} setOpen={() => setModalState(null)} />
-      <SignIn open={modalState === "sign-in"} setOpen={() => setModalState(null)} />
-      <Notifications open={modalState === "notifications"} setOpen={() => setModalState(null)} />
+      <Account open={modalState === "account"} setOpen={closeModal} />
+      <Friends open={modalState === "friends"} setOpen={closeModal} />
+      <SignIn open={modalState === "sign-in"} setOpen={closeModal} />
+      <Notifications open={modalState === "notifications"} setOpen={closeModal} />
 
       <div className="title-container">
         <Heading level={1} className="merriweather-display">
@@ -118,7 +118,7 @@ export default function Index() {
         </Heading>
         <Center>
           <ButtonGroup className="account-buttons">
-            <AccountButtons modalState={modalState} setModalState={setModalState} appearance="default" />
+            <AccountButtons modalState={modalState} setModalState={setManualModalState} appearance="default" />
           </ButtonGroup>
         </Center>
       </div>
