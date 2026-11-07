@@ -81,7 +81,6 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
               style={{ display: "contents" }}
               onSubmit={(e) => {
                 e.preventDefault();
-
                 checkAnswer(answer.toLowerCase().trim());
               }}
             >
@@ -89,6 +88,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
                 placeholder="type any answer..."
                 className="input-element"
                 value={answer}
+                autoComplete="off"
                 onChange={(value) => {
                   setAnswer(value);
                   if (incorrectBannerShown) setIncorrectBannerShown(false);
