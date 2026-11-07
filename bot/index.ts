@@ -58,8 +58,6 @@ const bracketCityData: BracketCityGame = await fetchJSON(
   "https://8huadblp0h.execute-api.us-east-2.amazonaws.com/puzzles/" + bracketCityDate
 );
 
-console.log(bracketCityData);
-
 console.log("Creating archive record...");
 
 const data = {
