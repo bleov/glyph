@@ -3,7 +3,7 @@ import { pb } from "@/main";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Center, Content, Loader, Text } from "rsuite";
+import { Center, Container, Loader, Text } from "rsuite";
 import BracketCity from "./components/BracketCity";
 import "@/css/Brackets.css";
 
@@ -76,8 +76,8 @@ export default function App({ custom = false }: { custom?: boolean }) {
   }
 
   return (
-    <Content className="brackets" fontFamily={"monospace"}>
+    <Container className="brackets" fontFamily={"monospace"}>
       {data ? <BracketCity data={data} /> : <Loader center />}
-    </Content>
+    </Container>
   );
 }

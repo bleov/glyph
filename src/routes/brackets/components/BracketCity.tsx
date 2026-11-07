@@ -1,7 +1,7 @@
 import type { BracketCityGame } from "@/lib/types";
-import { Box, Button, HStack, Input, Text, VStack } from "rsuite";
+import { Box, Button, Content, Footer, HStack, Input, Text, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
-import { createContext, useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
 
 const PuzzleContext = createContext<{
   activePeeks: string[];
@@ -66,14 +66,12 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
 
   return (
     <>
-      <Box>
-        <Box className="puzzle">
-          <PuzzleContext.Provider
-            value={{ activePeeks, setActivePeeks, puzzleData: data, answersRevealed, setAnswersRevealed, bank, setBank }}
-          >
-            <Puzzle puzzle={activePuzzle} />
-          </PuzzleContext.Provider>
-        </Box>
+      <Content className="puzzle">
+        <PuzzleContext.Provider
+          value={{ activePeeks, setActivePeeks, puzzleData: data, answersRevealed, setAnswersRevealed, bank, setBank }}
+        >
+          <Puzzle puzzle={activePuzzle} />
+        </PuzzleContext.Provider>
         <Box className="input-form">
           <Text className="input-label">Answer</Text>
           <HStack>
@@ -100,26 +98,28 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
             </form>
           </HStack>
         </Box>
-      </Box>
-      {incorrectBannerShown && <Box className="incorrect-modal">Incorrect!</Box>}
-      {bank.length > 0 && <Text className="bank-label">Answer Bank: </Text>}
-      <VStack className="bank">
-        {bank.toReversed().map((item, index) => {
-          const clueObject = Object.entries(data.solutions).find(([_, val]) => val.toLowerCase() === item);
+      </Content>
+      <Footer>
+        {incorrectBannerShown && <Box className="incorrect-modal">Incorrect!</Box>}
+        {bank.length > 0 && <Text className="bank-label">Answer Bank: </Text>}
+        <VStack className="bank">
+          {bank.toReversed().map((item, index) => {
+            const clueObject = Object.entries(data.solutions).find(([_, val]) => val.toLowerCase() === item);
 
-          if (!clueObject) return null;
-          const [clue, solution] = clueObject;
+            if (!clueObject) return null;
+            const [clue, solution] = clueObject;
 
-          return (
-            <Box className="bank-item">
-              <HStack>
-                <Text>[{clue}] = </Text>
-                <Text className="highlighted-bank-item">{solution}</Text>
-              </HStack>
-            </Box>
-          );
-        })}
-      </VStack>
+            return (
+              <Box className="bank-item">
+                <HStack>
+                  <Text>[{clue}] = </Text>
+                  <Text className="highlighted-bank-item">{solution}</Text>
+                </HStack>
+              </Box>
+            );
+          })}
+        </VStack>
+      </Footer>
     </>
   );
 }
