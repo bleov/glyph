@@ -1,9 +1,7 @@
 import type { BracketCityGame } from "@/lib/types";
-import { Box, Button, Content, Footer, Header, HStack, IconButton, Input, Text, VStack } from "rsuite";
+import { Box, Button, Content, Footer, Header, HStack, Input, Text, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
-import { ArrowLeftIcon } from "lucide-react";
-import { Link } from "react-router";
 
 const PuzzleContext = createContext<{
   activePeeks: string[];
@@ -29,7 +27,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   let activePuzzleString = data.initialPuzzle;
 
   for (const bankWord of bank) {
-    const bankClue = Object.entries(data.solutions).find(([_, val]) => val.toLowerCase() === bankWord);
+    const bankClue = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === bankWord);
     if (bankClue) {
       const [clue, solution] = bankClue;
       activePuzzleString = activePuzzleString.replace(`[${clue}]`, solution);
@@ -41,7 +39,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   const complete = activePuzzle.length === 1;
 
   function checkAnswer(answer: string) {
-    const answerClue = Object.entries(data.solutions).find(([_, val]) => val.toLowerCase() === answer);
+    const answerClue = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === answer);
     setIncorrectBannerShown(false);
 
     const incorrect = () => {
@@ -72,9 +70,6 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
       <Header>
         <HStack justify={"space-between"}>
           <HStack spacing={5}>
-            {/*<Link to={"/"}>
-              <IconButton className="back-btn" appearance="subtle" size="sm" icon={<ArrowLeftIcon />} />
-            </Link>*/}
             <Text weight="bold" size={"md"} display={"inline-block"}>
               {today.toLocaleDateString()}
             </Text>
@@ -119,14 +114,14 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
         {incorrectBannerShown && <Box className="incorrect-modal">Incorrect!</Box>}
         {bank.length > 0 && <Text className="bank-label">Answer Bank: </Text>}
         <VStack className="bank">
-          {bank.toReversed().map((item, index) => {
-            const clueObject = Object.entries(data.solutions).find(([_, val]) => val.toLowerCase() === item);
+          {bank.toReversed().map((item) => {
+            const clueObject = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === item);
 
             if (!clueObject) return null;
             const [clue, solution] = clueObject;
 
             return (
-              <Box className="bank-item">
+              <Box className="bank-item" key={clue + solution}>
                 <HStack>
                   <Text>[{clue}] = </Text>
                   <Text className="highlighted-bank-item">{solution}</Text>
@@ -159,6 +154,7 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
 
     return (
       <Text
+        key={index}
         className={`puzzle-node ${node.length === 1 ? "active-node" : ""}`}
         onClick={() => {
           if (node.length !== 1) return;

@@ -1,13 +1,13 @@
 import type { typedArchiveResponse, BracketCityGame } from "@/lib/types";
 import { pb } from "@/main";
 import posthog from "posthog-js";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Center, Container, Loader, Text } from "rsuite";
 import BracketCity from "./components/BracketCity";
 import "@/css/Brackets.css";
 
-export default function App({ custom = false }: { custom?: boolean }) {
+export default function App() {
   const [data, setData] = useState<BracketCityGame | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
     document.getElementById("site-manifest")?.setAttribute("href", `/pwa/brackets.webmanifest`);
   }, []);
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     try {
       if (params.date === "today") {
         const todayData = await pb.send("/api/today/brackets", {
@@ -52,13 +52,13 @@ export default function App({ custom = false }: { custom?: boolean }) {
         setError("Failed to load puzzle.");
       }
     }
-  }
+  }, [params.date, isArchive, params.today]);
 
   useEffect(() => {
     if (!data) {
       fetchData();
     }
-  }, []);
+  }, [data, fetchData]);
 
   if (error) {
     return (
