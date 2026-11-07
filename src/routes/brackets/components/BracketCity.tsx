@@ -1,7 +1,9 @@
 import type { BracketCityGame } from "@/lib/types";
-import { Box, Button, Content, Footer, HStack, Input, Text, VStack } from "rsuite";
+import { Box, Button, Content, Footer, Header, HStack, IconButton, Input, Text, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
+import { ArrowLeftIcon } from "lucide-react";
+import { Link } from "react-router";
 
 const PuzzleContext = createContext<{
   activePeeks: string[];
@@ -22,6 +24,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   const [answersRevealed, setAnswersRevealed] = useState<number>(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState<number>(0);
   const [incorrectBannerShown, setIncorrectBannerShown] = useState(false);
+  const [today] = useState(() => new Date());
 
   let activePuzzleString = data.initialPuzzle;
 
@@ -66,6 +69,19 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
 
   return (
     <>
+      <Header>
+        <HStack justify={"space-between"}>
+          <HStack spacing={5}>
+            {/*<Link to={"/"}>
+              <IconButton className="back-btn" appearance="subtle" size="sm" icon={<ArrowLeftIcon />} />
+            </Link>*/}
+            <Text weight="bold" size={"md"} display={"inline-block"}>
+              {today.toLocaleDateString()}
+            </Text>
+          </HStack>
+          <Text size={"md"}>{data.author}</Text>
+        </HStack>
+      </Header>
       <Content className="puzzle">
         <PuzzleContext.Provider
           value={{ activePeeks, setActivePeeks, puzzleData: data, answersRevealed, setAnswersRevealed, bank, setBank }}

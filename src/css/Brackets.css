@@ -15,7 +15,7 @@
   --incorrect-bg: #cc3d00;
 
   height: 100%;
-  max-width: min(100vw, 900px);
+  max-width: min(90vw, 900px);
   margin-inline: auto;
 
   * {
@@ -58,12 +58,12 @@
   }
 
   .input-form {
-    margin-top: 16px;
+    margin-block-start: 16px;
 
     .input-label {
       text-transform: uppercase;
       font-size: 12px;
-      margin-bottom: 10px;
+      margin-block-end: 10px;
     }
 
     .input-element {
@@ -95,18 +95,18 @@
     padding: 20px;
     border-radius: 4px;
     text-align: center;
-    margin-top: 10px;
+    margin-block-start: 10px;
     font-size: 1.2rem;
   }
 
   .bank-label {
-    padding-top: 16px;
+    padding-block-start: 16px;
     font-size: 18px;
   }
 
   .bank {
     gap: 10px;
-    padding-bottom: 10px;
+    padding-block-end: 10px;
 
     .bank-item {
       border: dotted 2px #555;
@@ -119,5 +119,11 @@
         background-color: var(--correct-bg);
       }
     }
+  }
+
+  header {
+    border-block-end: 1px dashed black;
+    padding-block: 16px;
+    margin-block-end: 16px;
   }
 }
