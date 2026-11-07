@@ -1,0 +1,103 @@
+.brackets {
+  --active-bg: #5a70c4;
+  --active-active-bg: #4a5fad;
+  --correct-bg: #99ebdd;
+  --active-color: #fff;
+  --submit-bg: #2c2825;
+  --submit-active-bg: #444240;
+  --incorrect-bg: #cc3d00;
+
+  * {
+    font-family: "Courier Prime", Courier, monospace !important;
+    box-sizing: border-box;
+  }
+
+  .puzzle {
+    line-height: 1.75lh;
+  }
+
+  .puzzle-node {
+    font-size: 20px;
+    display: inline;
+
+    &.active-node {
+      padding: 4px;
+      border-radius: 4px;
+      color: var(--active-color);
+      background-color: var(--active-bg);
+      font-weight: bold;
+      transition: background-color 0.3s;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--active-active-bg);
+      }
+
+      p {
+        color: var(--active-color);
+      }
+    }
+  }
+
+  .input-form {
+    margin-top: 10px;
+
+    .input-label {
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .input-element {
+      height: 60px;
+      font-size: 20px;
+
+      &::placeholder {
+        font-family: "Courier Prime", Courier, monospace;
+      }
+    }
+
+    .input-submission {
+      height: 60px;
+      background-color: var(--submit-bg);
+      color: #fff;
+      font-weight: bold;
+      padding: 20px 40px;
+
+      &:hover {
+        background-color: var(--submit-active-bg);
+      }
+    }
+  }
+
+  .incorrect-modal {
+    background-color: var(--incorrect-bg);
+    color: #fff;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.2rem;
+  }
+
+  .bank-label {
+    font-size: 18px;
+  }
+
+  .bank {
+    gap: 10px;
+
+    .bank-item {
+      border: dotted 2px #555;
+      padding: 20px;
+      font-size: 18px;
+      border-radius: 4px;
+      width: 100%;
+
+      .highlighted-bank-item {
+        background-color: var(--correct-bg);
+      }
+    }
+  }
+}
