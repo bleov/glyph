@@ -1,17 +1,19 @@
 import type { BracketCityGame } from "@/lib/types";
-import { Box, Button, Content, Footer, Header, HStack, Input, Text, VStack } from "rsuite";
+import { Box, Button, Content, Footer, Header, HStack, Input, Loader, Text, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
-import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
+import usePersistence from "../hooks/usePersistence";
 
-const PuzzleContext = createContext<{
+export interface PuzzleContextType {
   activePeeks: string[];
   setActivePeeks: Dispatch<SetStateAction<string[]>>;
-  answersRevealed: number;
-  setAnswersRevealed: Dispatch<SetStateAction<number>>;
   bank: string[];
   setBank: Dispatch<SetStateAction<string[]>>;
+  hintsUsedRef: RefObject<number>;
   puzzleData: BracketCityGame;
-} | null>(null);
+}
+
+const PuzzleContext = createContext<PuzzleContextType | null>(null);
 
 export default function BracketCity({ data }: { data: BracketCityGame }) {
   const [answer, setAnswer] = useState("");
@@ -19,9 +21,10 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   // TODO: implement highlighting of last correct answer
   const [lastCorrect, setLastCorrect] = useState<string>("");
   const [activePeeks, setActivePeeks] = useState<string[]>([]);
-  const [answersRevealed, setAnswersRevealed] = useState<number>(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState<number>(0);
   const [incorrectBannerShown, setIncorrectBannerShown] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const hintsUsedRef = useRef<number>(0);
   const [today] = useState(() => new Date());
 
   let activePuzzleString = data.initialPuzzle;
@@ -65,6 +68,21 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
     incorrect();
   }
 
+  const puzzleContextValue: PuzzleContextType = {
+    activePeeks,
+    setActivePeeks,
+    puzzleData: data,
+    bank,
+    setBank,
+    hintsUsedRef
+  };
+  usePersistence(puzzleContextValue, complete, data, setLoading);
+
+  console.log(complete);
+  if (loading) {
+    return <Loader center />;
+  }
+
   return (
     <>
       <Header>
@@ -78,9 +96,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
         </HStack>
       </Header>
       <Content className="puzzle">
-        <PuzzleContext.Provider
-          value={{ activePeeks, setActivePeeks, puzzleData: data, answersRevealed, setAnswersRevealed, bank, setBank }}
-        >
+        <PuzzleContext.Provider value={puzzleContextValue}>
           <Puzzle puzzle={activePuzzle} />
         </PuzzleContext.Provider>
         <Box className="input-form">
@@ -140,7 +156,7 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
 
   if (!context) throw new Error("No context provider");
 
-  const { activePeeks, setActivePeeks, puzzleData, answersRevealed, setAnswersRevealed, bank, setBank } = context;
+  const { activePeeks, setActivePeeks, puzzleData, bank, setBank, hintsUsedRef } = context;
 
   return puzzle.map((node, index) => {
     if (typeof node === "string") {
@@ -163,11 +179,12 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
 
           if (!activePeeks.includes(value)) {
             setActivePeeks([...activePeeks, value]);
+            hintsUsedRef.current++;
             return;
           }
 
           setBank([...bank, solution.toLowerCase()]);
-          setAnswersRevealed(answersRevealed + 1);
+          hintsUsedRef.current++;
         }}
       >
         [<Puzzle key={index} puzzle={node} />]

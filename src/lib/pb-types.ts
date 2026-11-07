@@ -13,6 +13,8 @@ export const Collections = {
 	Superusers: "_superusers",
 	Archive: "archive",
 	AverageRatings: "average_ratings",
+	BracketsLeaderboard: "brackets_leaderboard",
+	BracketsState: "brackets_state",
 	ConnectionsLeaderboard: "connections_leaderboard",
 	ConnectionsState: "connections_state",
 	CrypticLeaderboard: "cryptic_leaderboard",
@@ -145,6 +147,27 @@ export type AverageRatingsRecord<Trating = unknown> = {
 	id: string
 	puzzle_id?: number
 	rating?: null | Trating
+}
+
+export type BracketsLeaderboardRecord = {
+	created: IsoAutoDateString
+	hint_count?: number
+	id: string
+	puzzle_date?: string
+	puzzle_id: string
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
+export type BracketsStateRecord<Tstate = unknown> = {
+	complete?: boolean
+	created: IsoAutoDateString
+	id: string
+	puzzle_date?: string
+	puzzle_id: string
+	state?: null | Tstate
+	updated: IsoAutoDateString
+	user: RecordIdString
 }
 
 export type ConnectionsLeaderboardRecord<Tguesses = unknown, Torder = unknown> = {
@@ -441,6 +464,8 @@ export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemF
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
 export type ArchiveResponse<Tbrackets = unknown, Tconnections = unknown, Tcryptic = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tbrackets, Tconnections, Tcryptic, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
 export type AverageRatingsResponse<Trating = unknown, Texpand = unknown> = Required<AverageRatingsRecord<Trating>> & BaseSystemFields<Texpand>
+export type BracketsLeaderboardResponse<Texpand = unknown> = Required<BracketsLeaderboardRecord> & BaseSystemFields<Texpand>
+export type BracketsStateResponse<Tstate = unknown, Texpand = unknown> = Required<BracketsStateRecord<Tstate>> & BaseSystemFields<Texpand>
 export type ConnectionsLeaderboardResponse<Tguesses = unknown, Torder = unknown, Texpand = unknown> = Required<ConnectionsLeaderboardRecord<Tguesses, Torder>> & BaseSystemFields<Texpand>
 export type ConnectionsStateResponse<Tstate = unknown, Texpand = unknown> = Required<ConnectionsStateRecord<Tstate>> & BaseSystemFields<Texpand>
 export type CrypticLeaderboardResponse<Thint_order = unknown, Texpand = unknown> = Required<CrypticLeaderboardRecord<Thint_order>> & BaseSystemFields<Texpand>
@@ -474,6 +499,8 @@ export type CollectionRecords = {
 	_superusers: SuperusersRecord
 	archive: ArchiveRecord
 	average_ratings: AverageRatingsRecord
+	brackets_leaderboard: BracketsLeaderboardRecord
+	brackets_state: BracketsStateRecord
 	connections_leaderboard: ConnectionsLeaderboardRecord
 	connections_state: ConnectionsStateRecord
 	cryptic_leaderboard: CrypticLeaderboardRecord
@@ -506,6 +533,8 @@ export type CollectionResponses = {
 	_superusers: SuperusersResponse
 	archive: ArchiveResponse
 	average_ratings: AverageRatingsResponse
+	brackets_leaderboard: BracketsLeaderboardResponse
+	brackets_state: BracketsStateResponse
 	connections_leaderboard: ConnectionsLeaderboardResponse
 	connections_state: ConnectionsStateResponse
 	cryptic_leaderboard: CrypticLeaderboardResponse

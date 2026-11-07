@@ -41,7 +41,7 @@ export default function App() {
           setData(archiveData.brackets as unknown as BracketCityGame);
           posthog.capture("load_archive_brackets");
         } else {
-          setError("failed to load puzzle.");
+          setError("Failed to load puzzle.");
         }
       }
     } catch (err) {
