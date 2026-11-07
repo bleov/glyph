@@ -150,7 +150,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   useEffect(() => {
     if (!data?.id) return;
 
-    setAlreadyCompleted(false);
     const restoreSave = async () => {
       setCloudLoading(true);
 
