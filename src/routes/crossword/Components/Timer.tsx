@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
-import { useContext, useEffect, type Dispatch, type SetStateAction } from "react";
+import { useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useStopwatch } from "react-timer-hook";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
@@ -19,8 +19,11 @@ interface TimerProps {
 }
 
 export default function Timer({ onPause, running, setTime, puzzle, restoredTime, isPaused, setPaused }: TimerProps) {
-  const restoredTimeDate = new Date();
-  restoredTimeDate.setSeconds(restoredTimeDate.getSeconds() + (restoredTime || 0));
+  const [restoredTimeDate] = useState(() => {
+    const date = new Date();
+    date.setSeconds(date.getSeconds() + (restoredTime || 0));
+    return date;
+  });
   const { seconds, minutes, start, pause, totalSeconds, totalMilliseconds } = useStopwatch({
     autoStart: false,
     interval: 100,
