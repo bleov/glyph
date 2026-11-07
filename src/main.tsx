@@ -33,7 +33,7 @@ const ConnectionsApp = lazy(() => import("./routes/connections/App.tsx"));
 const WordleApp = lazy(() => import("./routes/wordle/App.tsx"));
 const StrandsApp = lazy(() => import("./routes/strands/App.tsx"));
 const CrypticApp = lazy(() => import("./routes/cryptic/App.tsx"));
-const BracketCityApp = lazy(() => import("./routes/bracket-city/App.tsx"));
+const BracketCityApp = lazy(() => import("./routes/brackets/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 

@@ -77,7 +77,7 @@ routerAdd("GET", "/api/today/cryptic", (e) => {
   }
 });
 
-routerAdd("GET", "/api/today/bracket-city", (e) => {
+routerAdd("GET", "/api/today/brackets", (e) => {
   const util = require(`${__hooks}/util.js`);
 
   try {

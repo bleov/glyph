@@ -25,7 +25,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
   async function fetchData() {
     try {
       if (params.date === "today") {
-        const todayData = await pb.send("/api/today/bracket-city", {
+        const todayData = await pb.send("/api/today/brackets", {
           method: "GET"
         });
         setData(todayData);
