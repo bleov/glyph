@@ -1,7 +1,7 @@
 import type { BracketCityGame } from "@/lib/types";
 import { Box, Button, HStack, Input, Text, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
-import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 const PuzzleContext = createContext<{
   activePeeks: string[];
@@ -85,7 +85,15 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
                 checkAnswer(answer.toLowerCase().trim());
               }}
             >
-              <Input placeholder="type any answer..." className="input-element" value={answer} onChange={setAnswer}></Input>
+              <Input
+                placeholder="type any answer..."
+                className="input-element"
+                value={answer}
+                onChange={(value) => {
+                  setAnswer(value);
+                  if (incorrectBannerShown) setIncorrectBannerShown(false);
+                }}
+              ></Input>
               <Button type="submit" className="input-submission">
                 [enter]
               </Button>
