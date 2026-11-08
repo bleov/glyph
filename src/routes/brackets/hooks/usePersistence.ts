@@ -43,7 +43,7 @@ export default function usePersistence(
     }
   }
 
-  const cloudSave = () => {
+  const cloudSave = useCallback(() => {
     if (!pb.authStore.isValid) return;
     const user = pb.authStore.record;
     if (!user) return;
@@ -70,7 +70,7 @@ export default function usePersistence(
           console.error("Cloud save failed", err);
         });
     }
-  };
+  }, [data.shortCode, data.puzzleDate, save]);
 
   const submitScore = useCallback(() => {
     if (!pb.authStore.isValid) return;
@@ -90,7 +90,7 @@ export default function usePersistence(
 
   function applySave(save: any) {
     context.setActivePeeks(save.activePeeks);
-    context.hintsUsedRef = save.hintsUsed;
+    context.hintsUsedRef.current = save.hintsUsed;
     context.setBank(save.bank);
     setTimeout(() => {
       saveReadyRef.current = true;
@@ -127,12 +127,12 @@ export default function usePersistence(
   useEffect(() => {
     if (!saveReadyRef.current) return;
     cloudSave();
-  }, [save]);
+  }, [save, cloudSave]);
 
   useEffect(() => {
     if (complete) {
       submitScore();
       posthog.capture("brackets_complete", { puzzleId: data.shortCode });
     }
-  }, [complete]);
+  }, [complete, submitScore, data.shortCode]);
 }
