@@ -181,7 +181,15 @@ export default function Index() {
           description="Crack nested clues"
           link="/brackets/today"
           imageSrc="/icons/bracket-city/pwa-192x192.png"
-        />
+        >
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/brackets/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
         <LinkCard
           title="Custom Puzzles"
           description="Create and share puzzles"

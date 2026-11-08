@@ -3,9 +3,10 @@ import { pb } from "@/main";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Center, Container, Loader, Text } from "rsuite";
+import { Center, Container, Content, Loader, Text } from "rsuite";
 import BracketCity from "./components/BracketCity";
 import "@/css/Brackets.css";
+import ArchivePage from "@/Components/ArchivePage";
 
 export default function App() {
   const [data, setData] = useState<BracketCityGame | null>(null);
@@ -71,8 +72,7 @@ export default function App() {
   }
 
   if (isArchive) {
-    // return <Content className="brackets">{<ArchivePage type="brackets" />}</Content>;
-    console.log("implement please");
+    return <Content className="connections">{<ArchivePage type="brackets" />}</Content>;
   }
 
   return (
