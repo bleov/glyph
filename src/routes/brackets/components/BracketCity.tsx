@@ -3,6 +3,7 @@ import { Box, Button, Content, Footer, Header, HStack, Input, Loader, Text, VSta
 import parse, { type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import usePersistence from "../hooks/usePersistence";
+import { getVariants } from "../data/variants";
 
 export interface PuzzleContextType {
   activePeeks: string[];
@@ -42,8 +43,18 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   const complete = activePuzzle.length === 1;
 
   function checkAnswer(answer: string) {
-    const answerClue = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === answer);
-    setIncorrectBannerShown(false);
+    const variants = getVariants(answer);
+
+    let isCorrect = false;
+    let correctAnswerClue: [string, string] | undefined;
+    for (const variant of variants) {
+      const answerClue = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === variant);
+      if (answerClue && activePuzzleString.includes(`[${answerClue[0]}]`)) {
+        correctAnswerClue = answerClue;
+        isCorrect = true;
+        break;
+      }
+    }
 
     const incorrect = () => {
       setIncorrectAnswers((prev) => prev + 1);
@@ -51,21 +62,14 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
       setAnswer("");
     };
 
-    if (!answerClue) {
-      incorrect();
-      return;
-    }
-
-    // is one of the active answers
-    if (activePuzzleString.includes(`[${answerClue[0]}]`)) {
+    if (isCorrect) {
       setIncorrectBannerShown(false);
-      setBank((prev) => [...prev, answer]);
+      setBank((prev) => [...prev, correctAnswerClue![1].toLowerCase()]);
       setLastCorrect(answer);
       setAnswer("");
-      return;
+    } else {
+      incorrect();
     }
-
-    incorrect();
   }
 
   const puzzleContextValue: PuzzleContextType = {
@@ -78,7 +82,6 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   };
   usePersistence(puzzleContextValue, complete, data, setLoading);
 
-  console.log(complete);
   if (loading) {
     return <Loader center />;
   }
