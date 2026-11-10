@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame, BracketCityGame } from "../src/lib/types";
+import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame, BracketCityGame, KrillionGame } from "../src/lib/types";
 
 const HOST = atob("aHR0cHM6Ly9ueXRpbWVzLmNvbQ==");
 const MINI_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "mini.json"].join("/");
@@ -58,6 +58,11 @@ const bracketCityData: BracketCityGame = await fetchJSON(
   "https://8huadblp0h.execute-api.us-east-2.amazonaws.com/puzzles/" + bracketCityDate
 );
 
+console.log("Fetching Krillion data...");
+const krillionResponse = await fetch(`https://krillion.io/api/reveal?date=${miniData.publicationDate}`);
+const krillionBlob = await krillionResponse.blob();
+const krillionFile = new File([krillionBlob], `krillion-${miniData.publicationDate}.json`, { type: "application/json" });
+
 console.log(bracketCityData);
 
 console.log("Creating archive record...");
@@ -79,7 +84,8 @@ const data = {
   cryptic_id: minuteCrypticData.puzzleId,
   cryptic: minuteCrypticData,
   brackets_id: bracketCityData.shortCode,
-  brackets: bracketCityData
+  brackets: bracketCityData,
+  krillion: krillionFile
 };
 
 const oldRecord = await archive.getFirstListItem(`publication_date="${miniData.publicationDate}"`).catch(() => null);
