@@ -9,6 +9,7 @@ export default function sketch(p5: P5CanvasInstance) {
   const panDurationMs = 3000;
 
   let prompt: KrillionPrompt | null = null;
+  let titleVisible = true;
 
   p5.setup = function () {
     p5.createCanvas(window.innerWidth, window.innerHeight);
@@ -135,10 +136,13 @@ export default function sketch(p5: P5CanvasInstance) {
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#f2fcfe", 0.6, 0, true); // surface wave stroke
     drawWave(0, waveStart + 90, wavePeriod, 2, 5, "#052948", 0.2);
     drawWave(0, waveStart + 240, wavePeriod, 2, 5, "#01132b", 0.1);
-    drawTitle();
+
+    if (titleVisible) drawTitle();
+
     drawFish(100, waveStart + 60);
 
     drawPrompt(p5.max(waveStart + 25, 25));
+
     drawCountdown();
 
     if (window.krillion) {
@@ -150,6 +154,9 @@ export default function sketch(p5: P5CanvasInstance) {
       };
       window.krillion.setPrompt = (newPrompt: KrillionPrompt | null) => {
         prompt = newPrompt;
+      };
+      window.krillion.setTitleVisible = (visible: boolean) => {
+        titleVisible = visible;
       };
     }
   };
