@@ -20,7 +20,6 @@ export default function usePersistence(
     };
   }, [context.activePeeks, context.hintsUsedRef, context.bank]);
 
-  const completeRef = useRef(complete);
   const saveReadyRef = useRef(false);
   const recordIdRef = useRef<string | null>(null);
 
@@ -54,7 +53,7 @@ export default function usePersistence(
       puzzle_id: data.shortCode,
       puzzle_date: data.puzzleDate,
       state: save,
-      complete: completeRef.current
+      complete
     };
     if (recordIdRef.current) {
       states.update(recordIdRef.current, record).catch((err) => {
