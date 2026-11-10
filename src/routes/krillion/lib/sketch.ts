@@ -1,7 +1,10 @@
+import type { KrillionPrompt } from "@/lib/types";
 import type { P5CanvasInstance } from "@p5-wrapper/react";
 
 export default function sketch(p5: P5CanvasInstance) {
-  let pan = window.krillion.pan;
+  let pan = 0;
+  let panTarget = 0;
+  let prompt: KrillionPrompt | null = null;
 
   p5.setup = function () {
     p5.createCanvas(window.innerWidth, window.innerHeight);
@@ -68,7 +71,7 @@ export default function sketch(p5: P5CanvasInstance) {
     }
 
     p5.fill("#1085c7");
-    p5.textAlign("center");
+    p5.textAlign("center", "bottom");
     p5.textSize(20);
     p5.text("THE DAILY DIVE", p5.width / 2, textY + 40);
     p5.textSize(12);
@@ -85,8 +88,29 @@ export default function sketch(p5: P5CanvasInstance) {
     p5.triangle(x - 8, y, x - 18, y - 5, x - 18, y + 5); // tail
   }
 
+  function drawPrompt(y: number) {
+    const boxWidth = p5.max(300, p5.width * 0.5);
+    const padding = 16;
+
+    if (!prompt) return;
+    const promptText = prompt.text;
+    const textX = p5.width / 2 - boxWidth / 2 + padding;
+    const textY = y + padding;
+    const textWidth = boxWidth - padding * 2;
+
+    p5.textFont("monospace");
+    p5.textSize(20);
+    p5.textAlign("left", "top");
+    const textBounds = p5.textBounds(promptText, textX, textY, textWidth);
+    const boxHeight = textBounds.h + padding * 2;
+    p5.fill("#04132B");
+    p5.rect(p5.width / 2 - boxWidth / 2, y, boxWidth, boxHeight, 10);
+    p5.fill("#f2fcfe");
+    p5.text(promptText, textX, textY, textWidth);
+  }
+
   p5.draw = () => {
-    pan = window.krillion.pan;
+    pan += (panTarget - pan) * 0.05;
 
     p5.background("#f2fcfe");
     let waveStart = p5.max(230, p5.height * 0.4) - pan;
@@ -96,9 +120,18 @@ export default function sketch(p5: P5CanvasInstance) {
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#f2fcfe", 0.6, 0, true); // surface wave stroke
     drawWave(0, waveStart + 90, wavePeriod, 2, 5, "#052948", 0.2);
     drawWave(0, waveStart + 240, wavePeriod, 2, 5, "#01132b", 0.1);
-    drawTitle();
+    if (!prompt) drawTitle();
     drawFish(100, waveStart + 60);
 
-    window.krillion.promptY = p5.max(100, waveStart + 100);
+    drawPrompt(p5.max(waveStart + 25, 150));
+
+    if (window.krillion) {
+      window.krillion.setPan = (newPan: number) => {
+        panTarget = newPan;
+      };
+      window.krillion.setPrompt = (newPrompt: KrillionPrompt | null) => {
+        prompt = newPrompt;
+      };
+    }
   };
 }
