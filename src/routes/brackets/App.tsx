@@ -18,7 +18,6 @@ export default function App() {
   useEffect(() => {
     document.title = "Bracket City – Glyph";
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/brackets/favicon.ico`);
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/brackets/favicon.svg`);
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/brackets/apple-touch-icon.png`);
     document.getElementById("site-manifest")?.setAttribute("href", `/pwa/brackets.webmanifest`);
   }, []);

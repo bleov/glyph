@@ -176,12 +176,7 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard
-          title="Bracket City"
-          description="Crack nested clues"
-          link="/brackets/today"
-          imageSrc="/icons/bracket-city/pwa-192x192.png"
-        >
+        <LinkCard title="Bracket City" description="Crack nested clues" link="/brackets/today" imageSrc="/icons/brackets/pwa-192x192.png">
           <Center paddingRight={17}>
             <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
               <Link to={"/brackets/archive"}>
