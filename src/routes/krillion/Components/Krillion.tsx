@@ -4,9 +4,9 @@ import sketch from "../lib/sketch";
 import { Button } from "rsuite";
 import { ChevronDownIcon } from "lucide-react";
 import { pb } from "@/main";
-import type { KrillionGame, KrillionPrompt } from "@/lib/types";
+import type { KrillionAnswer, KrillionGame, KrillionPrompt } from "@/lib/types";
 import KrillionInput from "./KrillionInput";
-import Fuse from "fuse.js";
+import { answerDistance, normalizeAnswer } from "../lib/answerDistance";
 
 declare global {
   interface Window {
@@ -18,10 +18,13 @@ declare global {
   }
 }
 
+const MAX_ANSWER_EDITS = 2;
+const FUZZY_SCORE_PENALTY = 10;
+
 export default function Krillion() {
   const [data, setData] = useState<KrillionGame | null>(null);
   const [loading, setLoading] = useState(false);
-  const [prompt, setPrompt] = useState<KrillionPrompt>();
+  const [promptIndex, setPromptIndex] = useState<number>(-1);
   const [inputVisible, setInputVisible] = useState(false);
   const [pan, setPan] = useState<number>(0);
 
@@ -39,7 +42,7 @@ export default function Krillion() {
         const fileText = await fileBlob.text();
         const fileJSON = JSON.parse(fileText);
         setData(fileJSON);
-        setPrompt(fileJSON.prompts[0]);
+        setPromptIndex(0);
         setPan(200);
         setTimeout(() => {
           if (window.krillion?.setTitleVisible) window.krillion.setTitleVisible(false);
@@ -53,31 +56,52 @@ export default function Krillion() {
     }
   }
 
+  function nextPrompt(answer: KrillionAnswer) {
+    if (!data) return;
+    if (promptIndex + 1 < data.prompts.length) {
+      setPromptIndex((prev) => prev + 1);
+      setPan((prev) => {
+        return prev + answer.score * 10;
+      });
+    } else {
+      setPromptIndex(-1);
+      setInputVisible(false);
+      setPan(0);
+      if (window.krillion?.setTitleVisible) window.krillion.setTitleVisible(true);
+    }
+  }
+
   function checkAnswer(answer: string) {
-    if (!data || !prompt) return;
-    const matches = [];
-    for (const promptAnswer of prompt.answers) {
-      const answerWords = answer
-        .split(" ")
-        .map((word) => word.trim().toLowerCase())
-        .filter((word) => word.length > 0);
-      const promptAnswerWords = promptAnswer.answer
-        .split(" ")
-        .map((word) => word.trim().toLowerCase())
-        .filter((word) => word.length > 0);
-      // if (Math.abs(answerWords.length - promptAnswerWords.length) > 1) continue;
-      if (answerWords.length === promptAnswerWords.length) continue;
-      const matches = [];
-      for (const answerWord in answerWords) {
-        for (const promptAnswerWord in promptAnswerWords) {
-          if (answerWord === promptAnswerWord) continue;
-          const match = Fuse.match(answerWord, promptAnswerWord);
-          if (match.isMatch && match.score < 0.1) matches.push([promptAnswer, match]);
-        }
-      }
-      if (matches.length === answerWords.length) {
-        console.log(matches);
-      }
+    if (!data || promptIndex < 0) return;
+    const prompt = data.prompts[promptIndex];
+    if (!prompt) return;
+    const exactAnswer = prompt.answers.find((promptAnswer) => answerDistance(answer, promptAnswer.answer, 0) === 0);
+    if (exactAnswer) {
+      console.log(exactAnswer);
+      nextPrompt(exactAnswer);
+      return;
+    }
+
+    const matchingAnswer = prompt.answers
+      .map((promptAnswer) => {
+        const normalizedExpectedAnswer = normalizeAnswer(promptAnswer.answer);
+        const maxEdits =
+          promptAnswer.score >= 100 || normalizedExpectedAnswer.length <= 4 ? 0 : promptAnswer.score >= 80 ? 1 : MAX_ANSWER_EDITS;
+        const distance = answerDistance(answer, promptAnswer.answer, maxEdits);
+
+        return distance && maxEdits > 0
+          ? {
+              promptAnswer,
+              weightedScore: promptAnswer.score - distance * FUZZY_SCORE_PENALTY
+            }
+          : null;
+      })
+      .filter((match): match is { promptAnswer: (typeof prompt.answers)[number]; weightedScore: number } => match !== null)
+      .sort((left, right) => right.weightedScore - left.weightedScore)[0]?.promptAnswer;
+
+    if (matchingAnswer) {
+      console.log(matchingAnswer);
+      nextPrompt(matchingAnswer);
     }
   }
 
@@ -92,19 +116,19 @@ export default function Krillion() {
       if (window.krillion.setPan) {
         window.krillion.setPan(pan);
       }
-      if (window.krillion.setPrompt) {
-        if (!prompt) {
+      if (window.krillion.setPrompt && data) {
+        if (promptIndex >= data.prompts.length) {
           return window.krillion.setPrompt(null);
         }
-        window.krillion.setPrompt(prompt);
+        window.krillion.setPrompt(data.prompts[promptIndex]);
       }
     }
-  }, [pan, prompt]);
+  }, [data, pan, promptIndex]);
 
   return (
     <>
       <P5Canvas sketch={sketch} />
-      {prompt && inputVisible && <KrillionInput prompt={prompt} onSubmit={checkAnswer} />}
+      {data && promptIndex > -1 && inputVisible && <KrillionInput prompt={data.prompts[promptIndex]} onSubmit={checkAnswer} />}
       {!data && (
         <Button
           className="descend-btn"

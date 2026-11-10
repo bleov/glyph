@@ -15,7 +15,7 @@ export default function KrillionInput({ prompt, onSubmit }: { prompt: KrillionPr
         <HStack width={"100%"}>
           <Text>25</Text>
           <Input value={answer} onChange={setAnswer} placeholder="enter an answer..." autoComplete="off" autoCorrect="off" />
-          <Button>DIVE</Button>
+          <Button type="submit">DIVE</Button>
         </HStack>
         <Progress percent={100} showInfo={false} />
       </VStack>

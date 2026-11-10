@@ -120,7 +120,7 @@ export default function sketch(p5: P5CanvasInstance) {
 
     p5.textSize(30);
     p5.fill("#f2fcfe");
-    p5.text(remainingSeconds, p5.width / 2, p5.height - 100);
+    p5.text(remainingSeconds, p5.width / 2, p5.height - 80);
   }
 
   p5.draw = () => {
