@@ -81,6 +81,7 @@ export default function usePersistence(
       user: user.id,
       puzzle_id: data.shortCode,
       puzzle_date: data.puzzleDate,
+      peek_count: save.activePeeks.length,
       hint_count: save.hintsUsed
     };
     void leaderboard.create(record).catch(() => {});
