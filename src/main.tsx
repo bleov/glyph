@@ -21,6 +21,7 @@ import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
 import "./css/Connections.css";
+import "@/css/Krillion.css";
 import CreateRouter from "./routes/custom/CreateRouter.tsx";
 import CustomPage from "./routes/custom/CustomPage.tsx";
 import GameRouter from "./routes/custom/GameRouter.tsx";
@@ -33,6 +34,7 @@ const ConnectionsApp = lazy(() => import("./routes/connections/App.tsx"));
 const WordleApp = lazy(() => import("./routes/wordle/App.tsx"));
 const StrandsApp = lazy(() => import("./routes/strands/App.tsx"));
 const CrypticApp = lazy(() => import("./routes/cryptic/App.tsx"));
+const KrillionApp = lazy(() => import("./routes/krillion/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -112,6 +114,9 @@ function Main() {
 
             <Route path="/cryptic" element={<Navigate to="/cryptic/today" replace />} />
             <Route path="/cryptic/:date" element={<CrypticApp />} />
+
+            <Route path="/krillion" element={<Navigate to="/krillion/today" replace />} />
+            <Route path="/krillion/today" element={<KrillionApp />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

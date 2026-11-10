@@ -1,5 +1,11 @@
 /// <reference path="../pb_data/types.d.ts" />
 
+routerAdd("GET", "/api/today", (e) => {
+  const util = require(`${__hooks}/util.js`);
+
+  return e.json(200, { date: util.getTodayDateString() });
+});
+
 routerAdd("GET", "/api/today/mini", (e) => {
   const util = require(`${__hooks}/util.js`);
 

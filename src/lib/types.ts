@@ -1,10 +1,4 @@
-import type {
-  ArchiveRecord,
-  ArchiveResponse,
-  CustomPuzzleDataResponse,
-  CustomPuzzlesResponse,
-  ShapesResponse
-} from "./pb-types";
+import type { ArchiveRecord, ArchiveResponse, CustomPuzzleDataResponse, CustomPuzzlesResponse, ShapesResponse } from "./pb-types";
 
 export interface Crossword {
   assets?: CrosswordAsset[];
