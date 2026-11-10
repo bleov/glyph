@@ -3,7 +3,11 @@ import type { P5CanvasInstance } from "@p5-wrapper/react";
 
 export default function sketch(p5: P5CanvasInstance) {
   let pan = 0;
+  let panStart = 0;
   let panTarget = 0;
+  let panStartTime = 0;
+  const panDurationMs = 3000;
+
   let prompt: KrillionPrompt | null = null;
 
   p5.setup = function () {
@@ -60,6 +64,7 @@ export default function sketch(p5: P5CanvasInstance) {
 
     p5.textSize(50);
     p5.textFont("monospace");
+    p5.textAlign("center", "bottom");
     for (let i = 0; i < title.length; i++) {
       const letter = title.substring(i, i + 1);
       let yOffset = p5.map(p5.sin(p5.frameCount * 2.5 + i * 20), -1, 1, -4, 4);
@@ -71,7 +76,6 @@ export default function sketch(p5: P5CanvasInstance) {
     }
 
     p5.fill("#1085c7");
-    p5.textAlign("center", "bottom");
     p5.textSize(20);
     p5.text("THE DAILY DIVE", p5.width / 2, textY + 40);
     p5.textSize(12);
@@ -109,8 +113,19 @@ export default function sketch(p5: P5CanvasInstance) {
     p5.text(promptText, textX, textY, textWidth);
   }
 
+  function drawCountdown() {
+    const remainingSeconds = Math.ceil((panDurationMs - (p5.millis() - panStartTime)) / 1000);
+    if (remainingSeconds <= 0 || pan === panTarget) return;
+
+    p5.textSize(30);
+    p5.fill("#f2fcfe");
+    p5.text(remainingSeconds, p5.width / 2, p5.height - 100);
+  }
+
   p5.draw = () => {
-    pan += (panTarget - pan) * 0.05;
+    const progress = p5.constrain((p5.millis() - panStartTime) / panDurationMs, 0, 1);
+    const easedProgress = progress < 0.5 ? 2 * progress ** 2 : 1 - (-2 * progress + 2) ** 2 / 2;
+    pan = p5.lerp(panStart, panTarget, easedProgress);
 
     p5.background("#f2fcfe");
     let waveStart = p5.max(230, p5.height * 0.4) - pan;
@@ -120,14 +135,18 @@ export default function sketch(p5: P5CanvasInstance) {
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#f2fcfe", 0.6, 0, true); // surface wave stroke
     drawWave(0, waveStart + 90, wavePeriod, 2, 5, "#052948", 0.2);
     drawWave(0, waveStart + 240, wavePeriod, 2, 5, "#01132b", 0.1);
-    if (!prompt) drawTitle();
+    drawTitle();
     drawFish(100, waveStart + 60);
 
-    drawPrompt(p5.max(waveStart + 25, 150));
+    drawPrompt(p5.max(waveStart + 25, 25));
+    drawCountdown();
 
     if (window.krillion) {
       window.krillion.setPan = (newPan: number) => {
+        if (newPan === panTarget) return;
+        panStart = pan;
         panTarget = newPan;
+        panStartTime = p5.millis();
       };
       window.krillion.setPrompt = (newPrompt: KrillionPrompt | null) => {
         prompt = newPrompt;
