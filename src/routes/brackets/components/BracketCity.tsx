@@ -185,7 +185,6 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
             if (!(await dialog.confirm("You sure you want to peek at the first letter of this answer?", { title: "Peek?" }))) return;
 
             setActivePeeks([...activePeeks, value]);
-            hintsUsedRef.current++;
             return;
           }
 
