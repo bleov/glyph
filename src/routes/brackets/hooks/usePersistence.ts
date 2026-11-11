@@ -16,9 +16,10 @@ export default function usePersistence(
     return {
       activePeeks: context.activePeeks,
       hintsUsed: context.hintsUsedRef.current,
-      bank: context.bank
+      bank: context.bank,
+      incorrectAnswers: context.incorrectAnswers
     };
-  }, [context.activePeeks, context.hintsUsedRef, context.bank]);
+  }, [context.activePeeks, context.hintsUsedRef, context.bank, context.incorrectAnswers]);
 
   const saveReadyRef = useRef(false);
   const recordIdRef = useRef<string | null>(null);
@@ -82,7 +83,8 @@ export default function usePersistence(
       puzzle_id: data.shortCode,
       puzzle_date: data.puzzleDate,
       peek_count: save.activePeeks.length,
-      hint_count: save.hintsUsed
+      hint_count: save.hintsUsed,
+      incorrect_count: save.incorrectAnswers
     };
     void leaderboard.create(record).catch(() => {});
     posthog.capture("brackets_leaderboard_submit");

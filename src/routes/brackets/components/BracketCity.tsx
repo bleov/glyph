@@ -12,6 +12,7 @@ export interface PuzzleContextType {
   setBank: Dispatch<SetStateAction<string[]>>;
   hintsUsedRef: RefObject<number>;
   puzzleData: BracketCityGame;
+  incorrectAnswers: number;
 }
 
 const PuzzleContext = createContext<PuzzleContextType | null>(null);
@@ -78,7 +79,8 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
     puzzleData: data,
     bank,
     setBank,
-    hintsUsedRef
+    hintsUsedRef,
+    incorrectAnswers
   };
   usePersistence(puzzleContextValue, complete, data, setLoading);
 
