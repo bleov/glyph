@@ -1,15 +1,45 @@
 import type { KrillionPrompt } from "@/lib/types";
 import type { P5CanvasInstance } from "@p5-wrapper/react";
+import { easeInOutBack, easeInOutQuad, easeInOutSine, easeInSine, easeOutBack, easeOutSine } from "./tween";
 
 export default function sketch(p5: P5CanvasInstance) {
+  function vw(percentage: number): number {
+    return (p5.width || window.innerWidth) * (percentage / 100);
+  }
+  function vh(percentage: number): number {
+    return (p5.height || window.innerHeight) * (percentage / 100);
+  }
+  function right(px: number): number {
+    return (p5.width || window.innerWidth) - px;
+  }
+  function bottom(px: number): number {
+    return (p5.height || window.innerHeight) - px;
+  }
+
   let pan = 0;
   let panStart = 0;
   let panTarget = 0;
   let panStartTime = 0;
   const panDurationMs = 3000;
 
+  let krillX = vw(80);
+  let krillY = 360;
+  let krillXStart = krillX;
+  let krillYStart = krillY;
+  let krillXTarget = vw(80);
+  let krillYTarget = 360;
+  let krillMoveStartTime = 0;
+  let krillMoveDurationMs = 1000;
+  let krillMoveEasing = easeInOutQuad;
+
   let prompt: KrillionPrompt | null = null;
   let titleVisible = true;
+  let sinking = false;
+
+  let krill: any = null;
+  p5.loadImage("/assets/krillion/krill.png").then((img) => {
+    krill = img;
+  });
 
   p5.setup = function () {
     p5.createCanvas(window.innerWidth, window.innerHeight);
@@ -60,7 +90,7 @@ export default function sketch(p5: P5CanvasInstance) {
     let title = "KRILLION";
     let charWidth = 34;
     let totalWidth = charWidth * (title.length - 1);
-    let startX = p5.width / 2 - totalWidth / 2;
+    let startX = vw(50) - totalWidth / 2;
     let textY = 100 - pan;
 
     p5.textSize(50);
@@ -78,13 +108,13 @@ export default function sketch(p5: P5CanvasInstance) {
 
     p5.fill("#1085c7");
     p5.textSize(20);
-    p5.text("THE DAILY DIVE", p5.width / 2, textY + 40);
+    p5.text("THE DAILY DIVE", vw(50), textY + 40);
     p5.textSize(12);
     let instructions = "7 prompts · 25 seconds each · rarer answers sink deeper";
     if (p5.width < 450) {
       instructions = "7 prompts · 25 seconds each \nrarer answers sink deeper";
     }
-    p5.text(instructions, p5.width / 2, textY + 70);
+    p5.text(instructions, vw(50), textY + 70);
   }
 
   function drawFish(x: number, y: number) {
@@ -93,13 +123,13 @@ export default function sketch(p5: P5CanvasInstance) {
     p5.triangle(x - 8, y, x - 18, y - 5, x - 18, y + 5); // tail
   }
 
-  function drawPrompt(y: number) {
-    const boxWidth = p5.max(300, p5.width * 0.5);
+  function drawPrompt(y: number): number {
+    const boxWidth = p5.max(300, vw(50));
     const padding = 16;
 
-    if (!prompt) return;
+    if (!prompt) return 0;
     const promptText = prompt.text;
-    const textX = p5.width / 2 - boxWidth / 2 + padding;
+    const textX = vw(50) - boxWidth / 2 + padding;
     const textY = y + padding;
     const textWidth = boxWidth - padding * 2;
 
@@ -109,9 +139,11 @@ export default function sketch(p5: P5CanvasInstance) {
     const textBounds = p5.textBounds(promptText, textX, textY, textWidth);
     const boxHeight = textBounds.h + padding * 2;
     p5.fill("#04132B");
-    p5.rect(p5.width / 2 - boxWidth / 2, y, boxWidth, boxHeight, 10);
+    p5.rect(vw(50) - boxWidth / 2, y, boxWidth, boxHeight, 10);
     p5.fill("#f2fcfe");
     p5.text(promptText, textX, textY, textWidth);
+
+    return boxHeight;
   }
 
   function drawCountdown() {
@@ -120,30 +152,79 @@ export default function sketch(p5: P5CanvasInstance) {
 
     p5.textSize(30);
     p5.fill("#f2fcfe");
-    p5.text(remainingSeconds, p5.width / 2, p5.height - 80);
+    p5.text(remainingSeconds, vw(50), bottom(50));
+  }
+
+  function drawDepthMarkers(startY: number) {
+    const depths = [10, 30, 60, 85, 100];
+    const depthNames = ["Plankton", "Schooler", "Rare", "Deep Cut", "One in a Krillion"];
+
+    // @ts-ignore
+    p5.drawingContext.setLineDash([10, 10]);
+
+    depths.forEach((depth, i) => {
+      const y = startY + (depth - 10) * 10;
+      p5.stroke(170, 299, 243, 85);
+      p5.fill(242, 252, 254, 100);
+      p5.line(vw(15), y, right(vw(15)), y);
+      p5.noStroke();
+      p5.textSize(12);
+      p5.textAlign("left", "center");
+      const textWidth = p5.textWidth(depthNames[i]);
+      p5.text(depthNames[i], right(textWidth + vw(15)), y - 15);
+    });
+
+    // @ts-ignore
+    p5.drawingContext.setLineDash([]);
+  }
+
+  function moveKrill(x: number, y: number) {
+    krillXStart = krillX;
+    krillYStart = krillY;
+    krillXTarget = x;
+    krillYTarget = y;
+    krillMoveStartTime = p5.millis();
+  }
+
+  function drawKrill() {
+    if (!krill) return;
+
+    const progress = p5.constrain((p5.millis() - krillMoveStartTime) / krillMoveDurationMs, 0, 1);
+    const easedProgress = krillMoveEasing(progress);
+    krillX = p5.lerp(krillXStart, krillXTarget, easedProgress);
+    krillY = p5.lerp(krillYStart, krillYTarget, easedProgress);
+
+    const krillWidth = 70;
+    const krillHeight = 70;
+    p5.image(krill, krillX, krillY, krillWidth, krillHeight);
   }
 
   p5.draw = () => {
+    sinking = panTarget > pan;
     const progress = p5.constrain((p5.millis() - panStartTime) / panDurationMs, 0, 1);
-    const easedProgress = progress < 0.5 ? 2 * progress ** 2 : 1 - (-2 * progress + 2) ** 2 / 2;
+    const easedProgress = easeInOutQuad(progress);
     pan = p5.lerp(panStart, panTarget, easedProgress);
 
     p5.background("#f2fcfe");
-    let waveStart = p5.max(230, p5.height * 0.4) - pan;
+    const initalWaveStart = p5.max(230, vh(40));
+    let waveStart = initalWaveStart - pan;
     let wavePeriod = p5.max(p5.width + 5, 1000);
     drawWave(0, waveStart, wavePeriod, 2, 5, "#aae5f3", 0.3, 50); // bg wave
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#0a4d77", 0.6); // surface wave
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#f2fcfe", 0.6, 0, true); // surface wave stroke
     drawWave(0, waveStart + 90, wavePeriod, 2, 5, "#052948", 0.2);
-    drawWave(0, waveStart + 240, wavePeriod, 2, 5, "#01132b", 0.1);
+    drawWave(0, waveStart + 330, wavePeriod, 2, 5, "#01132b", 0.1);
+    // drawFish(100, waveStart + 60);
+
+    const promptY = p5.max(waveStart + 25, 25);
+    const promptBoxHeight = drawPrompt(promptY);
+    const depthMarkersStart = promptY + promptBoxHeight + 50;
+    if (prompt) drawDepthMarkers(depthMarkersStart);
+    drawKrill();
+
+    if (sinking) drawCountdown();
 
     if (titleVisible) drawTitle();
-
-    drawFish(100, waveStart + 60);
-
-    drawPrompt(p5.max(waveStart + 25, 25));
-
-    drawCountdown();
 
     if (window.krillion) {
       window.krillion.setPan = (newPan: number) => {
@@ -154,6 +235,20 @@ export default function sketch(p5: P5CanvasInstance) {
       };
       window.krillion.setPrompt = (newPrompt: KrillionPrompt | null) => {
         prompt = newPrompt;
+        if (prompt && prompt.id === "p1") {
+          // first prompt
+          moveKrill(krillX, krillY - 200);
+          setTimeout(() => {
+            moveKrill(krillX, promptY - 150);
+            setTimeout(() => {
+              krillMoveEasing = easeInOutBack;
+              moveKrill(vw(4), bottom(vh(20)));
+            }, 1000);
+          }, 1000);
+        } else {
+          krillMoveEasing = easeInOutSine;
+          moveKrill(vw(4), bottom(vh(20)));
+        }
       };
       window.krillion.setTitleVisible = (visible: boolean) => {
         titleVisible = visible;

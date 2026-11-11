@@ -58,11 +58,15 @@ export default function Krillion() {
 
   function nextPrompt(answer: KrillionAnswer) {
     if (!data) return;
+    setInputVisible(false);
     if (promptIndex + 1 < data.prompts.length) {
       setPromptIndex((prev) => prev + 1);
       setPan((prev) => {
         return prev + answer.score * 10;
       });
+      setTimeout(() => {
+        setInputVisible(true);
+      }, 3000);
     } else {
       setPromptIndex(-1);
       setInputVisible(false);
