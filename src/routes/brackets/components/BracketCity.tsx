@@ -1,5 +1,5 @@
 import type { BracketCityGame } from "@/lib/types";
-import { Box, Button, Content, Footer, Header, HStack, Input, Loader, Text, VStack } from "rsuite";
+import { Box, Button, Content, Footer, Header, HStack, Input, Loader, Text, useDialog, VStack } from "rsuite";
 import parse, { type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import usePersistence from "../hooks/usePersistence";
@@ -156,6 +156,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
 
 function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
   const context = useContext(PuzzleContext);
+  const dialog = useDialog();
 
   if (!context) throw new Error("No context provider");
 
@@ -175,17 +176,20 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
       <Text
         key={index}
         className={`puzzle-node ${node.length === 1 ? "active-node" : ""}`}
-        onClick={() => {
+        onClick={async () => {
           if (node.length !== 1) return;
           const value = node[0] as string;
           const solution = puzzleData.solutions[value];
 
           if (!activePeeks.includes(value)) {
+            if (!(await dialog.confirm("You sure you want to peek at the first letter of this answer?", { title: "Peek?" }))) return;
+
             setActivePeeks([...activePeeks, value]);
             hintsUsedRef.current++;
             return;
           }
 
+          if (!(await dialog.confirm("You sure you want to reveal this answer?", { title: "Reveal Word?" }))) return;
           setBank([...bank, solution.toLowerCase()]);
           hintsUsedRef.current++;
         }}
