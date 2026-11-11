@@ -1,6 +1,8 @@
 import type { KrillionPrompt } from "@/lib/types";
 import type { P5CanvasInstance } from "@p5-wrapper/react";
 import { easeInOutBack, easeInOutQuad, easeInOutSine, easeInSine, easeOutBack, easeOutSine } from "./tween";
+import Kelp1 from "../data/Kelp1.json";
+import Kelp2 from "../data/Kelp2.json";
 
 export default function sketch(p5: P5CanvasInstance) {
   function vw(percentage: number): number {
@@ -93,6 +95,7 @@ export default function sketch(p5: P5CanvasInstance) {
     let startX = vw(50) - totalWidth / 2;
     let textY = 100 - pan;
 
+    p5.noStroke();
     p5.textSize(50);
     p5.textFont("monospace");
     p5.textAlign("center", "bottom");
@@ -162,6 +165,7 @@ export default function sketch(p5: P5CanvasInstance) {
     // @ts-ignore
     p5.drawingContext.setLineDash([10, 10]);
 
+    p5.strokeWeight(1);
     depths.forEach((depth, i) => {
       const y = startY + (depth - 10) * 10;
       p5.stroke(170, 299, 243, 85);
@@ -199,6 +203,23 @@ export default function sketch(p5: P5CanvasInstance) {
     p5.image(krill, krillX, krillY, krillWidth, krillHeight);
   }
 
+  function drawKelp1(y: number) {
+    p5.beginShape();
+    p5.fill("#052948");
+    for (const point of Kelp1) {
+      p5.vertex(point[0] / 2 - 150, y + point[1] / 2);
+    }
+    p5.endShape(p5.CLOSE);
+  }
+  function drawKelp2(y: number) {
+    p5.beginShape();
+    p5.fill("#052948");
+    for (const point of Kelp2) {
+      p5.vertex(p5.width - point[0] / 2, y + point[1] / 2);
+    }
+    p5.endShape(p5.CLOSE);
+  }
+
   p5.draw = () => {
     sinking = panTarget > pan;
     const progress = p5.constrain((p5.millis() - panStartTime) / panDurationMs, 0, 1);
@@ -214,7 +235,9 @@ export default function sketch(p5: P5CanvasInstance) {
     drawWave(0, waveStart + 10, wavePeriod, 2, 10, "#f2fcfe", 0.6, 0, true); // surface wave stroke
     drawWave(0, waveStart + 90, wavePeriod, 2, 5, "#052948", 0.2);
     drawWave(0, waveStart + 330, wavePeriod, 2, 5, "#01132b", 0.1);
-    // drawFish(100, waveStart + 60);
+    drawKelp1(900 - pan);
+    drawKelp2(900 - pan);
+    drawWave(0, waveStart + 1030, wavePeriod, 2, 5, "#010c1e", 0.1);
 
     const promptY = p5.max(waveStart + 25, 25);
     const promptBoxHeight = drawPrompt(promptY);
@@ -237,12 +260,12 @@ export default function sketch(p5: P5CanvasInstance) {
         prompt = newPrompt;
         if (prompt && prompt.id === "p1") {
           // first prompt
-          moveKrill(krillX, krillY - 200);
+          moveKrill(vw(80), krillY - 200);
           setTimeout(() => {
-            moveKrill(krillX, promptY - 150);
+            moveKrill(vw(80), promptY - 150);
             setTimeout(() => {
               krillMoveEasing = easeInOutBack;
-              moveKrill(vw(4), bottom(vh(20)));
+              moveKrill(vw(5), bottom(225));
             }, 1000);
           }, 1000);
         } else {
