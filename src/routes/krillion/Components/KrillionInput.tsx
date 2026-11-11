@@ -11,14 +11,16 @@ export default function KrillionInput({ prompt, onSubmit }: { prompt: KrillionPr
         onSubmit(answer);
       }}
     >
-      <VStack>
-        <HStack width={"100%"}>
-          <Text>25</Text>
+      <HStack width={"100%"} spacing={8}>
+        <Text marginBottom={12}>25</Text>
+        <VStack width={"100%"} spacing={2}>
           <Input value={answer} onChange={setAnswer} placeholder="enter an answer..." autoComplete="off" autoCorrect="off" />
-          <Button type="submit">DIVE</Button>
-        </HStack>
-        <Progress percent={100} showInfo={false} />
-      </VStack>
+          <Progress percent={100} showInfo={false} strokeWidth={5} />
+        </VStack>
+        <Button marginBottom={12} type="submit">
+          DIVE
+        </Button>
+      </HStack>
     </Form>
   );
 }
