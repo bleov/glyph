@@ -40,7 +40,7 @@ export default function BracketCityLeaderboard({
           filter: pb.filter("puzzle_id = {:puzzle_id}", {
             puzzle_id: puzzleData.shortCode
           }),
-          sort: "+computed_score",
+          sort: "-computed_score",
           expand: "user"
         });
 
