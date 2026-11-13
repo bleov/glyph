@@ -17,7 +17,7 @@ onRecordCreate((e) => {
 
   const computedScore = baseScore - totalPenalty;
 
-  e.record.set("computed_score", computedScore);
+  e.record.set("computed_score", Math.min(Math.max(computedScore, 0), 100));
 
   e.next();
 }, "brackets_leaderboard");
