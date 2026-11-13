@@ -1,10 +1,4 @@
-import type {
-  ArchiveRecord,
-  ArchiveResponse,
-  CustomPuzzleDataResponse,
-  CustomPuzzlesResponse,
-  ShapesResponse
-} from "./pb-types";
+import type { ArchiveRecord, ArchiveResponse, CustomPuzzleDataResponse, CustomPuzzlesResponse, ShapesResponse } from "./pb-types";
 
 export interface Crossword {
   assets?: CrosswordAsset[];
@@ -206,4 +200,24 @@ export interface BracketCityGame {
   };
   initialPuzzle: string;
   solutions: Record<string, string>;
+}
+
+export type KrillionTier = "plankton" | "schooler" | "rare" | "deepcut" | "krillion";
+
+export interface KrillionAnswer {
+  answer: string;
+  tier: KrillionTier;
+  score: number;
+  quip?: string;
+}
+
+export interface KrillionPrompt {
+  id: string;
+  text: string;
+  answers: KrillionAnswer[];
+}
+
+export interface KrillionGame {
+  date: string;
+  prompts: KrillionPrompt[];
 }

@@ -30,6 +30,17 @@ interface CrosswordProps {
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+const letterSet = new Set(letters);
+const hardcoreOption = "hardcore";
+const localPuzzleDataKeys = ["state", "time", "selected", "autocheck", "complete", "cheated"] as const;
+
+function isHardcore(options: (string | number)[]) {
+  return options.includes(hardcoreOption);
+}
+
+function puzzleStorageKey(id: string | number, key: (typeof localPuzzleDataKeys)[number]) {
+  return `${key}-${id}`;
+}
 
 export default function Crossword({ data, startTouched, timeRef, stateDocId, alreadyCompleted }: CrosswordProps) {
   const body = data.body[0];
@@ -58,23 +69,29 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const { user } = useContext(GlobalState);
   const { paused, type, options, setModalState, complete, setComplete, setData } = useContext(CrosswordAppState);
 
-  function toast(message: string, duration: number = 1500) {
-    toaster.push(<Message>{message}</Message>, {
-      placement: "topCenter",
-      duration,
-      container: document.documentElement
-    });
-  }
+  const toast = useCallback(
+    (message: string, duration: number = 1500) => {
+      toaster.push(<Message>{message}</Message>, {
+        placement: "topCenter",
+        duration,
+        container: document.documentElement
+      });
+    },
+    [toaster]
+  );
 
-  function exit(destination: string = "welcome") {
-    setComplete(false);
-    stateDocId.current = "";
-    setData(null);
-    setModalState(destination);
-  }
+  const exit = useCallback(
+    (destination: string = "welcome") => {
+      setComplete(false);
+      stateDocId.current = "";
+      setData(null);
+      setModalState(destination);
+    },
+    [setComplete, setData, setModalState, stateDocId]
+  );
 
   useEffect(() => {
-    if (options.includes("hardcore")) {
+    if (isHardcore(options)) {
       replay.start();
     }
   }, [options]);
@@ -94,7 +111,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   useEffect(() => {
     if (replay.isRecording() && complete) {
       replay.end();
-    } else if (complete && !options.includes("hardcore")) {
+    } else if (complete && !isHardcore(options)) {
       // hardcore was invalided
       replay.cancel();
     }
@@ -117,61 +134,70 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     return () => ro.disconnect();
   }, []);
 
-  function typeLetter(letter: string, cellIndex: number) {
-    if (!boardRef.current) return;
-    if (complete || readOnly) return;
-    const square = boardRef.current.querySelector(`g[data-index='${cellIndex}']`);
-    if (!square) return;
-    const guess = square.querySelector(".guess");
-    if (!guess) return;
-    if (autoCheck && "answer" in body.cells[cellIndex] && boardState[cellIndex] && checkCell(cellIndex)) {
-      return;
-    }
-    setBoardState((prev) => {
-      const newState = { ...prev };
-      if (letter === "") {
-        delete newState[cellIndex];
-      } else {
-        newState[cellIndex] = letter;
+  const getCellsInDirection = useCallback(
+    (start: number, dir: "across" | "down") => {
+      if (!body.cells[start].clues) return [start];
+      const cells: number[] = [];
+      body.cells[start].clues.forEach((clueIndex) => {
+        const clue = body.clues[clueIndex];
+        if (clue.direction.toLowerCase() === dir) {
+          cells.push(...clue.cells);
+        }
+      });
+      if (cells.length === 0) {
+        return [start];
       }
-      if (!readOnly) {
-        localforage.setItem(`state-${data.id}`, newState);
-      }
-      return newState;
-    });
-    replay.record("modify_cell", cellIndex, letter);
-  }
+      return cells;
+    },
+    [body.cells, body.clues]
+  );
 
-  function getCellsInDirection(start: number, dir: "across" | "down") {
-    if (!body.cells[start].clues) return [start];
-    const cells: number[] = [];
-    body.cells[start].clues.forEach((clueIndex) => {
-      const clue = body.clues[clueIndex];
-      if (clue.direction.toLowerCase() === dir) {
-        cells.push(...clue.cells);
+  const checkCell = useCallback(
+    (cellIndex: number): boolean => {
+      const cell = body.cells[cellIndex];
+      if (cell == null) return false;
+      const state = boardState[cellIndex]?.toUpperCase();
+      if (state == null) return false;
+      if (cell.moreAnswers?.valid) {
+        if (new Set(cell.moreAnswers.valid).has(state)) {
+          return true;
+        }
       }
-    });
-    if (cells.length === 0) {
-      return [start];
-    }
-    return cells;
-  }
-
-  function checkCell(cellIndex: number): boolean {
-    const cell = body.cells[cellIndex];
-    if (cell == null) return false;
-    const state = boardState[cellIndex]?.toUpperCase();
-    if (state == null) return false;
-    if (cell.moreAnswers?.valid) {
-      if (cell.moreAnswers.valid.includes(state.toUpperCase())) {
+      if (cell.answer && cell.answer.toUpperCase() === state) {
         return true;
       }
-    }
-    if (cell.answer && cell.answer.toUpperCase() === state) {
-      return true;
-    }
-    return false;
-  }
+      return false;
+    },
+    [body.cells, boardState]
+  );
+
+  const typeLetter = useCallback(
+    (letter: string, cellIndex: number) => {
+      if (!boardRef.current) return;
+      if (complete || readOnly) return;
+      const square = boardRef.current.querySelector(`g[data-index='${cellIndex}']`);
+      if (!square) return;
+      const guess = square.querySelector(".guess");
+      if (!guess) return;
+      if (autoCheck && "answer" in body.cells[cellIndex] && boardState[cellIndex] && checkCell(cellIndex)) {
+        return;
+      }
+      setBoardState((prev) => {
+        const newState = { ...prev };
+        if (letter === "") {
+          delete newState[cellIndex];
+        } else {
+          newState[cellIndex] = letter;
+        }
+        if (!readOnly) {
+          localforage.setItem(puzzleStorageKey(data.id, "state"), newState);
+        }
+        return newState;
+      });
+      replay.record("modify_cell", cellIndex, letter);
+    },
+    [autoCheck, body.cells, boardState, checkCell, complete, data.id, readOnly, replay]
+  );
 
   const checkBoard = useCallback(() => {
     let totalCells = 0;
@@ -189,7 +215,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       }
     });
     return { totalCells, totalFilled, totalCorrect };
-  }, [body.cells, boardState]);
+  }, [body.cells, boardState, checkCell]);
 
   useEffect(() => {
     const selectedClue = document.querySelector(".selected-clue");
@@ -201,71 +227,83 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   useEffect(() => {
     if (readOnly) return;
     if (autoCheck) {
-      localforage.setItem(`cheated-${data.id}`, true);
+      localforage.setItem(puzzleStorageKey(data.id, "cheated"), true);
       posthog.capture("enabled_autocheck", { puzzle: data.id, puzzleDate: data.publicationDate, time: timeRef.current });
     }
-    localforage.setItem(`autocheck-${data.id}`, autoCheck);
+    localforage.setItem(puzzleStorageKey(data.id, "autocheck"), autoCheck);
   }, [autoCheck]);
 
-  function getFirstEmptyCell(clue: CrosswordClue) {
-    for (let i = 0; i < clue.cells.length; i++) {
-      const cellIndex = clue.cells[i];
-      if (!boardState[cellIndex]) {
-        return cellIndex;
+  const getFirstEmptyCell = useCallback(
+    (clue: CrosswordClue) => {
+      for (let i = 0; i < clue.cells.length; i++) {
+        const cellIndex = clue.cells[i];
+        if (!boardState[cellIndex]) {
+          return cellIndex;
+        }
       }
-    }
-    return clue.cells[0];
-  }
+      return clue.cells[0];
+    },
+    [boardState]
+  );
 
-  function getCurrentClueIndex(): number {
+  const getCurrentClueIndex = useCallback((): number => {
     if (selected === null) return 0;
     return body.clues.findIndex((clue) => clue.cells.includes(selected) && clue.direction.toLowerCase() === direction);
-  }
+  }, [body.clues, direction, selected]);
 
-  function isClueComplete(clueIndex: number): boolean {
-    const clue = body.clues[clueIndex];
-    let result = true;
-    clue.cells.forEach((cellIndex) => {
-      if (!boardState[cellIndex]) {
-        result = false;
-      }
-    });
-    return result;
-  }
+  const isClueComplete = useCallback(
+    (clueIndex: number): boolean => {
+      const clue = body.clues[clueIndex];
+      let result = true;
+      clue.cells.forEach((cellIndex) => {
+        if (!boardState[cellIndex]) {
+          result = false;
+        }
+      });
+      return result;
+    },
+    [body.clues, boardState]
+  );
 
-  function getNextClueIndex(previous: boolean = false): number | null {
-    const currentClue = getCurrentClueIndex();
-    if (currentClue === null) return null;
-    let i = currentClue;
-    let iterations = 0;
-    while (iterations < body.clues.length) {
-      let nextClueIndex = -1;
-      if (previous) {
-        nextClueIndex = (i - 1 + body.clues.length) % body.clues.length;
-      } else {
-        nextClueIndex = (i + 1) % body.clues.length;
+  const getNextClueIndex = useCallback(
+    (previous: boolean = false): number | null => {
+      const currentClue = getCurrentClueIndex();
+      if (currentClue === null) return null;
+      let i = currentClue;
+      let iterations = 0;
+      while (iterations < body.clues.length) {
+        let nextClueIndex = -1;
+        if (previous) {
+          nextClueIndex = (i - 1 + body.clues.length) % body.clues.length;
+        } else {
+          nextClueIndex = (i + 1) % body.clues.length;
+        }
+        const filled = isClueComplete(nextClueIndex);
+        if (!filled) {
+          return nextClueIndex;
+        }
+        if (previous) {
+          i--;
+        } else {
+          i++;
+        }
+        iterations++;
       }
-      const filled = isClueComplete(nextClueIndex);
-      if (!filled) {
-        return nextClueIndex;
-      }
-      if (previous) {
-        i--;
-      } else {
-        i++;
-      }
-      iterations++;
-    }
-    return null;
-  }
+      return null;
+    },
+    [body.clues.length, getCurrentClueIndex, isClueComplete]
+  );
 
-  function setActiveClue(clueIndex: number): void {
-    const clue = body.clues[clueIndex];
-    setSelected(getFirstEmptyCell(clue));
-    setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
-  }
+  const setActiveClue = useCallback(
+    (clueIndex: number): void => {
+      const clue = body.clues[clueIndex];
+      setSelected(getFirstEmptyCell(clue));
+      setDirection(clue.direction.toLowerCase() === "across" ? "across" : "down");
+    },
+    [body.clues, getFirstEmptyCell]
+  );
 
-  function next() {
+  const next = useCallback(() => {
     if (selected === null) return;
     const currentClue = getCurrentClueIndex();
     if (currentClue === -1) return;
@@ -273,56 +311,65 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     if (nextClueIndex !== null) {
       setActiveClue(nextClueIndex);
     }
-  }
+  }, [body.clues.length, getCurrentClueIndex, selected, setActiveClue]);
 
-  function previous(start: boolean = false) {
-    if (selected === null) return;
-    const currentClue = getCurrentClueIndex();
-    if (currentClue === -1) return;
-    const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
-    if (prevClue) {
-      if (start) {
-        setSelected(getFirstEmptyCell(prevClue));
+  const previous = useCallback(
+    (start: boolean = false) => {
+      if (selected === null) return;
+      const currentClue = getCurrentClueIndex();
+      if (currentClue === -1) return;
+      const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
+      if (prevClue) {
+        if (start) {
+          setSelected(getFirstEmptyCell(prevClue));
+        } else {
+          setSelected(prevClue.cells[prevClue.cells.length - 1]);
+        }
+        setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
+      }
+    },
+    [body.clues, getCurrentClueIndex, getFirstEmptyCell, selected]
+  );
+
+  const nextEditableClue = useCallback(
+    (previous: boolean = false) => {
+      const currentClue = getCurrentClueIndex();
+      if (currentClue === -1) return;
+      const nextClueIndex = getNextClueIndex(previous);
+      if (nextClueIndex !== null) {
+        setActiveClue(nextClueIndex);
       } else {
-        setSelected(prevClue.cells[prevClue.cells.length - 1]);
+        next();
       }
-      setDirection(prevClue.direction.toLowerCase() === "across" ? "across" : "down");
-    }
-  }
+    },
+    [getCurrentClueIndex, getNextClueIndex, next]
+  );
 
-  function nextEditableClue(previous: boolean = false) {
-    const currentClue = getCurrentClueIndex();
-    if (currentClue === -1) return;
-    const nextClueIndex = getNextClueIndex(previous);
-    if (nextClueIndex !== null) {
-      setActiveClue(nextClueIndex);
-    } else {
-      next();
-    }
-  }
-
-  function arrowKey(key: string, dir: "across" | "down") {
-    if (selected === null) return;
-    if (direction !== dir) {
-      setDirection(dir);
-      return;
-    }
-
-    const highlightedCells = getCellsInDirection(selected, dir);
-    const localIndex = highlightedCells.indexOf(selected);
-
-    if (key === "ArrowRight" || key === "ArrowDown") {
-      if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
-        setSelected(highlightedCells[localIndex + 1]);
+  const arrowKey = useCallback(
+    (key: string, dir: "across" | "down") => {
+      if (selected === null) return;
+      if (direction !== dir) {
+        setDirection(dir);
+        return;
       }
-    } else if (key === "ArrowLeft" || key === "ArrowUp") {
-      if (localIndex > 0) {
-        setSelected(highlightedCells[localIndex - 1]);
-      }
-    }
-  }
 
-  function nextCell() {
+      const highlightedCells = getCellsInDirection(selected, dir);
+      const localIndex = highlightedCells.indexOf(selected);
+
+      if (key === "ArrowRight" || key === "ArrowDown") {
+        if (localIndex >= 0 && localIndex < highlightedCells.length - 1) {
+          setSelected(highlightedCells[localIndex + 1]);
+        }
+      } else if (key === "ArrowLeft" || key === "ArrowUp") {
+        if (localIndex > 0) {
+          setSelected(highlightedCells[localIndex - 1]);
+        }
+      }
+    },
+    [direction, getCellsInDirection, selected]
+  );
+
+  const nextCell = useCallback(() => {
     if (selected === null) return;
     const highlightedCells = getCellsInDirection(selected, direction);
     const localIndex = highlightedCells.indexOf(selected);
@@ -332,20 +379,20 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       // jump to the next editable clue if at the end of the current one
       nextEditableClue();
     }
-  }
+  }, [direction, getCellsInDirection, nextEditableClue, selected]);
 
   useEffect(() => {
     Promise.all([
-      localforage.getItem(`state-${data.id}`),
-      localforage.getItem(`autocheck-${data.id}`),
-      localforage.getItem(`selected-${data.id}`)
+      localforage.getItem(puzzleStorageKey(data.id, "state")),
+      localforage.getItem(puzzleStorageKey(data.id, "autocheck")),
+      localforage.getItem(puzzleStorageKey(data.id, "selected"))
     ]).then(([savedState, savedAutoCheck, savedSelected]) => {
       let selectionRestored = false;
       if (savedState && typeof savedState === "object") {
         setBoardState(savedState as { [key: number]: string });
       }
       if (savedAutoCheck !== null && typeof savedAutoCheck === "boolean") {
-        if (!options.includes("hardcore")) {
+        if (!isHardcore(options)) {
           setAutoCheck(savedAutoCheck);
         }
       }
@@ -368,7 +415,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   useEffect(() => {
     if (readOnly) return;
-    localforage.setItem(`selected-${data.id}`, [selected, direction]);
+    localforage.setItem(puzzleStorageKey(data.id, "selected"), [selected, direction]);
   }, [selected, direction, data.id]);
 
   let globalSelectedClue: CrosswordClue | null = null;
@@ -393,62 +440,63 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       };
     }
   }
-
-  function prepareReplay() {
+  const prepareReplay = useCallback(() => {
     setReadOnly(true);
     setBoardState({});
     setDirection("across");
-  }
+  }, []);
 
-  function playReplay(encodedReplay: string) {
-    const replay = decodeReplay(encodedReplay.replaceAll("\r", ""));
+  const playReplay = useCallback(
+    (encodedReplay: string) => {
+      const replay = decodeReplay(encodedReplay.replaceAll("\r", ""));
 
-    console.log(replay);
-    setModalType(null);
-    prepareReplay();
+      setModalType(null);
+      prepareReplay();
 
-    replayTick.current = 0;
-    const tick = () => {
-      replayTick.current += 50;
-      const tickEvents = replay.events.filter((event) => event[1] <= replayTick.current);
-      let replayComplete = false;
-      tickEvents.forEach((event) => {
-        if (event[0] === replayEvents.complete) {
-          replayComplete = true;
-          return;
-        }
-        if (event[0] === replayEvents.select_cell) {
-          const selectedCell = event[2] === "" ? null : Number(event[2]);
-          if (selectedCell === null || Number.isInteger(selectedCell)) {
-            setSelected(selectedCell);
+      replayTick.current = 0;
+      const tick = () => {
+        replayTick.current += 50;
+        const tickEvents = replay.events.filter((event) => event[1] <= replayTick.current);
+        let replayComplete = false;
+        tickEvents.forEach((event) => {
+          if (event[0] === replayEvents.complete) {
+            replayComplete = true;
+            return;
           }
-        }
-        if (event[0] === replayEvents.change_direction) {
-          setDirection(event[2] === "a" ? "across" : "down");
-        }
-        if (event[0] === replayEvents.modify_cell) {
-          const cellIndex = Number(event[2]);
-          setBoardState((prev) => {
-            const newState = { ...prev };
-            if (event[3] === "") {
-              delete newState[cellIndex];
-            } else {
-              if (typeof event[3] === "string" && /^[A-Za-z0-9]*$/.test(event[3])) newState[cellIndex] = event[3];
+          if (event[0] === replayEvents.select_cell) {
+            const selectedCell = event[2] === "" ? null : Number(event[2]);
+            if (selectedCell === null || Number.isInteger(selectedCell)) {
+              setSelected(selectedCell);
             }
-            return newState;
-          });
+          }
+          if (event[0] === replayEvents.change_direction) {
+            setDirection(event[2] === "a" ? "across" : "down");
+          }
+          if (event[0] === replayEvents.modify_cell) {
+            const cellIndex = Number(event[2]);
+            setBoardState((prev) => {
+              const newState = { ...prev };
+              if (event[3] === "") {
+                delete newState[cellIndex];
+              } else {
+                if (typeof event[3] === "string" && /^[A-Za-z0-9]*$/.test(event[3])) newState[cellIndex] = event[3];
+              }
+              return newState;
+            });
+          }
+        });
+        replay.events = replay.events.filter((event) => event[1] > replayTick.current);
+        if (replayComplete) {
+          clearInterval(tickInterval);
+          setReadOnly(false);
+          setModalType("leaderboard");
         }
-      });
-      replay.events = replay.events.filter((event) => event[1] > replayTick.current);
-      if (replayComplete) {
-        clearInterval(tickInterval);
-        setReadOnly(false);
-        setModalType("leaderboard");
-      }
-    };
+      };
 
-    const tickInterval = setInterval(tick, 50);
-  }
+      const tickInterval = setInterval(tick, 50);
+    },
+    [prepareReplay, setModalType]
+  );
 
   const crosswordContextValue = useMemo<CrosswordContextValue>(() => {
     const value = {
@@ -511,12 +559,16 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, [
     alreadyCompleted,
     autoCheck,
+    arrowKey,
     boardState,
     body,
     checkBoard,
+    checkCell,
     complete,
     data,
     direction,
+    exit,
+    getCellsInDirection,
     globalSelectedClue,
     keyboardOpen,
     modalType,
@@ -527,18 +579,27 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     paused,
     prefersReducedMotion,
     previous,
+    replay,
     rebusMode,
     rebusText,
     boardHeight,
     selected,
+    setSelected,
+    setDirection,
+    setModalType,
     setComplete,
+    setKeyboardOpen,
+    setAutoCheck,
+    setRebusMode,
+    setRebusText,
     stateDocId,
     timeRef,
+    toast,
+    typeLetter,
     type,
     user,
     overlayURL,
-    toast,
-    replay,
+    setOverlayURL,
     readOnly,
     playReplay
   ]);
@@ -631,16 +692,11 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
       relatedClues = body.clues[selectedClueId].relatives as number[];
     }
   }
+  const activeClueSet = new Set(activeClues);
+  const relatedClueSet = new Set(relatedClues);
 
   async function clearLocalPuzzleData(id = data.id): Promise<void> {
-    await Promise.all([
-      localforage.removeItem(`state-${id}`),
-      localforage.removeItem(`time-${id}`),
-      localforage.removeItem(`selected-${id}`),
-      localforage.removeItem(`autocheck-${id}`),
-      localforage.removeItem(`complete-${id}`),
-      localforage.removeItem(`cheated-${id}`)
-    ]);
+    await Promise.all(localPuzzleDataKeys.map((key) => localforage.removeItem(puzzleStorageKey(id, key))));
     return;
   }
 
@@ -655,7 +711,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
             const text = e
               .split("")
               .map((c) => {
-                if (letters.includes(c)) {
+                if (letterSet.has(c)) {
                   return c.toUpperCase();
                 } else {
                   return "";
@@ -678,7 +734,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
             <div className="board-content" ref={boardRef} dangerouslySetInnerHTML={{ __html: body.board }}></div>
           </div>
           <HStack justifyContent={"center"} className="toggle-container">
-            {!options.includes("hardcore") ? (
+            {!isHardcore(options) ? (
               <>
                 <Toggle
                   checked={autoCheck}
@@ -720,7 +776,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
                     return (
                       <li
                         key={clueIndex}
-                        className={`clue ${activeClues.includes(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClues.includes(clueIndex) ? "related-clue" : ""} ${isClueComplete(clueIndex) ? "completed-clue" : ""}`}
+                        className={`clue ${activeClueSet.has(clueIndex) ? "active-clue" : ""} ${activeClues[selectedClue] === clueIndex ? "selected-clue" : ""} ${relatedClueSet.has(clueIndex) ? "related-clue" : ""} ${isClueComplete(clueIndex) ? "completed-clue" : ""}`}
                         onClick={() => {
                           if (readOnly) return;
                           const targetCell = getFirstEmptyCell(clue);
