@@ -136,10 +136,10 @@ export default function BracketCityLeaderboard({
                   <Table.HeaderCell>Hints</Table.HeaderCell>
                   <Table.Cell dataKey="hint_count" />
                 </Table.Column>
-                <Table.Column width={50} align="center" verticalAlign="center">
+                {/* <Table.Column width={50} align="center" verticalAlign="center">
                   <Table.HeaderCell>Errors</Table.HeaderCell>
                   <Table.Cell dataKey="incorrect_count" />
-                </Table.Column>
+                </Table.Column> */}
               </Table>
               {user.friends.length === 0 && (
                 <Center marginTop={10}>
