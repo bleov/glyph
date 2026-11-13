@@ -63,8 +63,6 @@ const krillionResponse = await fetch(`https://krillion.io/api/reveal?date=${mini
 const krillionBlob = await krillionResponse.blob();
 const krillionFile = new File([krillionBlob], `krillion-${miniData.publicationDate}.json`, { type: "application/json" });
 
-console.log(bracketCityData);
-
 console.log("Creating archive record...");
 
 const data = {

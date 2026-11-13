@@ -76,3 +76,14 @@ routerAdd("GET", "/api/today/cryptic", (e) => {
     return e.json(404, { error: "Not Found" });
   }
 });
+
+routerAdd("GET", "/api/today/brackets", (e) => {
+  const util = require(`${__hooks}/util.js`);
+
+  try {
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
+    return e.json(200, record.get("brackets"));
+  } catch (err) {
+    return e.json(404, { error: "Not Found" });
+  }
+});
