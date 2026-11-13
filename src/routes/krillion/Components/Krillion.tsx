@@ -14,6 +14,8 @@ declare global {
       setPan?: (pan: number) => void;
       setPrompt?: (prompt: KrillionPrompt | null) => void;
       setTitleVisible?: (visible: boolean) => void;
+      dive?: (answer: string) => void;
+      diveComplete?: () => void;
     };
   }
 }
@@ -60,13 +62,16 @@ export default function Krillion() {
     if (!data) return;
     setInputVisible(false);
     if (promptIndex + 1 < data.prompts.length) {
+      if (window.krillion?.dive) window.krillion.dive(answer.answer);
       setPromptIndex((prev) => prev + 1);
-      setPan((prev) => {
-        return prev + answer.score * 10;
-      });
       setTimeout(() => {
-        setInputVisible(true);
-      }, 3000);
+        setPan((prev) => {
+          return prev + answer.score * 10;
+        });
+        setTimeout(() => {
+          setInputVisible(true);
+        }, 3000);
+      }, 500);
     } else {
       setPromptIndex(-1);
       setInputVisible(false);
