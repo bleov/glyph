@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge, Button, Calendar, Center, Heading, HStack, IconButton, Loader, VStack } from "rsuite";
 import type { typedArchiveRecord } from "@/lib/types";
 import { pb } from "@/main";
@@ -91,6 +91,13 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
     }
   }
 
+  const getTitle = useCallback(() => {
+    if (type === "brackets") {
+      return "Bracket City Archive";
+    }
+    return type.substring(0, 1).toUpperCase() + type.substring(1) + " Archive";
+  }, [type]);
+
   return (
     <VStack>
       <HStack paddingLeft={10}>
@@ -98,8 +105,7 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
           <IconButton icon={<ArrowLeftIcon />} appearance="subtle" />
         </Link>
         <Heading level={3} textAlign={"left"} fontWeight={"normal"}>
-          {type.substring(0, 1).toUpperCase()}
-          {type.substring(1)} Archive
+          {getTitle()}
         </Heading>
       </HStack>
       <Calendar
