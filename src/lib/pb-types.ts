@@ -150,9 +150,12 @@ export type AverageRatingsRecord<Trating = unknown> = {
 }
 
 export type BracketsLeaderboardRecord = {
+	computed_score?: number
 	created: IsoAutoDateString
 	hint_count?: number
 	id: string
+	incorrect_count?: number
+	peek_count?: number
 	puzzle_date?: string
 	puzzle_id: string
 	updated: IsoAutoDateString
