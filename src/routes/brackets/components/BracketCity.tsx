@@ -1,6 +1,6 @@
 import type { BracketCityGame } from "@/lib/types";
 import { Box, Button, Content, Footer, Header, HStack, Input, Loader, Text, useDialog, VStack } from "rsuite";
-import parse, { type BracketCityNode } from "../parsePuzzle";
+import parse, { buildActivePuzzle, type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import usePersistence from "../hooks/usePersistence";
 import { getVariants } from "../data/variants";
@@ -15,6 +15,9 @@ export interface PuzzleContextType {
   hintsUsedRef: RefObject<number>;
   puzzleData: BracketCityGame;
   incorrectAnswers: number;
+  lastCorrect: string | null;
+  setLastCorrect: Dispatch<SetStateAction<string | null>>;
+  highlight: { start: number; end: number } | null;
 }
 
 const PuzzleContext = createContext<PuzzleContextType | null>(null);
@@ -22,8 +25,7 @@ const PuzzleContext = createContext<PuzzleContextType | null>(null);
 export default function BracketCity({ data }: { data: BracketCityGame }) {
   const [answer, setAnswer] = useState("");
   const [bank, setBank] = useState<string[]>([]);
-  // TODO: implement highlighting of last correct answer
-  const [lastCorrect, setLastCorrect] = useState<string>("");
+  const [lastCorrect, setLastCorrect] = useState<string | null>(null);
   const [activePeeks, setActivePeeks] = useState<string[]>([]);
   const [incorrectAnswers, setIncorrectAnswers] = useState<number>(0);
   const [incorrectBannerShown, setIncorrectBannerShown] = useState(false);
@@ -32,17 +34,8 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   const [today] = useState(() => new Date());
   const [modalState, setModalState] = useState<"leaderboard" | "results" | null>(null);
 
-  let activePuzzleString = data.initialPuzzle;
-
-  for (const bankWord of bank) {
-    const bankClue = Object.entries(data.solutions).find(([, val]) => val.toLowerCase() === bankWord);
-    if (bankClue) {
-      const [clue, solution] = bankClue;
-      activePuzzleString = activePuzzleString.replace(`[${clue}]`, solution);
-    }
-  }
-
-  const activePuzzle = parse(activePuzzleString) as BracketCityNode[];
+  const { puzzle: activePuzzleString, highlight } = buildActivePuzzle(data.initialPuzzle, data.solutions, bank, lastCorrect);
+  const activePuzzle = parse(activePuzzleString);
 
   const complete = activePuzzle.length === 1;
 
@@ -69,7 +62,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
     if (isCorrect) {
       setIncorrectBannerShown(false);
       setBank((prev) => [...prev, correctAnswerClue![1].toLowerCase()]);
-      setLastCorrect(answer);
+      setLastCorrect(correctAnswerClue![0]);
       setAnswer("");
     } else {
       incorrect();
@@ -83,7 +76,10 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
     bank,
     setBank,
     hintsUsedRef,
-    incorrectAnswers
+    incorrectAnswers,
+    lastCorrect,
+    setLastCorrect,
+    highlight
   };
   usePersistence(puzzleContextValue, complete, data, setLoading);
 
@@ -197,25 +193,40 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
 
   if (!context) throw new Error("No context provider");
 
-  const { activePeeks, setActivePeeks, puzzleData, bank, setBank, hintsUsedRef } = context;
+  const { activePeeks, setActivePeeks, puzzleData, bank, setBank, hintsUsedRef, highlight, setLastCorrect } = context;
 
   return puzzle.map((node, index) => {
-    if (typeof node === "string") {
+    if (!Array.isArray(node)) {
+      const startIndex = highlight ? Math.max(0, highlight.start - node.start) : 0;
+      const endIndex = highlight ? Math.min(node.text.length, highlight.end - node.start) : 0;
+
+      const text = node.text;
+
       return (
         <Text className="puzzle-node" key={index}>
-          {node}
-          {activePeeks.includes(node) && <span> ({puzzleData.solutions[node][0].toUpperCase()})</span>}
+          {endIndex > startIndex ? (
+            <>
+              {text.slice(0, startIndex)}
+              <span className="last-correct">{text.slice(startIndex, endIndex)}</span>
+              {text.slice(endIndex)}
+            </>
+          ) : (
+            text
+          )}
+          {activePeeks.includes(text) && <span> ({puzzleData.solutions[text][0].toUpperCase()})</span>}
         </Text>
       );
     }
 
+    const clue = node.length === 1 && !Array.isArray(node[0]) ? node[0].text : null;
+
     return (
       <Text
         key={index}
-        className={`puzzle-node ${node.length === 1 ? "active-node" : ""}`}
+        className={`puzzle-node ${clue !== null ? "active-node" : ""}`}
         onClick={async () => {
-          if (node.length !== 1) return;
-          const value = node[0] as string;
+          if (clue === null) return;
+          const value = clue;
           const solution = puzzleData.solutions[value];
 
           if (!activePeeks.includes(value)) {
@@ -227,6 +238,9 @@ function Puzzle({ puzzle }: { puzzle: BracketCityNode[] }) {
 
           if (!(await dialog.confirm("You sure you want to reveal this answer?", { title: "Reveal Word?" }))) return;
           setBank([...bank, solution.toLowerCase()]);
+
+          setLastCorrect(clue);
+
           hintsUsedRef.current++;
         }}
       >

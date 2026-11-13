@@ -17,9 +17,10 @@ export default function usePersistence(
       activePeeks: context.activePeeks,
       hintsUsed: context.hintsUsedRef.current,
       bank: context.bank,
-      incorrectAnswers: context.incorrectAnswers
+      incorrectAnswers: context.incorrectAnswers,
+      lastCorrect: context.lastCorrect
     };
-  }, [context.activePeeks, context.hintsUsedRef, context.bank, context.incorrectAnswers]);
+  }, [context.activePeeks, context.hintsUsedRef, context.bank, context.incorrectAnswers, context.lastCorrect]);
 
   const saveReadyRef = useRef(false);
   const recordIdRef = useRef<string | null>(null);
@@ -94,6 +95,7 @@ export default function usePersistence(
     context.setActivePeeks(save.activePeeks);
     context.hintsUsedRef.current = save.hintsUsed;
     context.setBank(save.bank);
+    context.setLastCorrect(save.lastCorrect ?? null);
     setTimeout(() => {
       saveReadyRef.current = true;
       setLoading(false);

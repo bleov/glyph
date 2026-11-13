@@ -57,6 +57,13 @@
     }
   }
 
+  .last-correct {
+    background-color: var(--correct-bg);
+    color: #343434;
+    border-radius: 3px;
+    padding: 1px 2px;
+  }
+
   .input-form {
     margin-block-start: 16px;
 
