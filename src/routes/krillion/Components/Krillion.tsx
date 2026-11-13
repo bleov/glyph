@@ -20,6 +20,15 @@ declare global {
   }
 }
 
+export const TIER_NAMES = {
+  plankton: "Plankton",
+  tooclever: "Too Clever",
+  schooler: "Schooler",
+  rare: "Rare",
+  deepcut: "Deep Cut",
+  krillion: "One in a Krillion"
+};
+
 const MAX_ANSWER_EDITS = 2;
 const FUZZY_SCORE_PENALTY = 10;
 

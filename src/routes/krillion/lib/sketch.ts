@@ -162,8 +162,8 @@ export default function sketch(p5: P5CanvasInstance) {
   }
 
   function drawDepthMarkers(startY: number) {
-    const depths = [10, 30, 60, 85, 100];
-    const depthNames = ["Plankton", "Schooler", "Rare", "Deep Cut", "One in a Krillion"];
+    const depths = [10, 15, 30, 60, 85, 100];
+    const depthNames = ["Plankton", "Too Clever", "Schooler", "Rare", "Deep Cut", "One in a Krillion"];
 
     // @ts-ignore
     p5.drawingContext.setLineDash([10, 10]);
@@ -210,6 +210,11 @@ export default function sketch(p5: P5CanvasInstance) {
     p5.text(answerText, textX, textY, textWidth);
 
     return boxHeight;
+  }
+
+  function drawResult() {
+    if (!answer) return;
+    const line1 = answer;
   }
 
   function dive(enteredAnswer: string) {
