@@ -4,7 +4,7 @@ import { pb } from "@/main";
 import { ArrowLeftIcon, ExternalLinkIcon, TrophyIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
+import { Box, Button, ButtonGroup, Center, Heading, Image, Modal, Text, VStack } from "rsuite";
 
 interface BracketsResultsProps {
   open: boolean;
@@ -28,6 +28,12 @@ export default function BracketsResults({ open, onClose, onOpenLeaderboard, data
           <Heading level={2} className="merriweather-display">
             Puzzle Solved!
           </Heading>
+          <Box width={310} textAlign={"center"}>
+            <Text fontWeight={"bold"} display={"inline"}>
+              {data.completionText}
+            </Text>
+            <Text display={"inline"}> {data.puzzleSolution}</Text>
+          </Box>
         </VStack>
         {/* <Rating id={data.shortCode.toString()} /> */}
         <ButtonGroup vertical block width={"100%"}>
