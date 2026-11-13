@@ -38,14 +38,14 @@ export default function BracketCityLeaderboard({
         const leaderboard = pb.collection("brackets_leaderboard");
         const leaderboardData = await leaderboard.getList<ExpandedBracketsLeaderboardRecord>(1, 50, {
           filter: pb.filter("puzzle_id = {:puzzle_id}", {
-            puzzle_id: puzzleData.shortCode,
-            sort: "+computed_score",
-            expand: "user"
-          })
+            puzzle_id: puzzleData.shortCode
+          }),
+          sort: "+computed_score",
+          expand: "user"
         });
 
         if (!cancelled) {
-          setData(leaderboardData.items.toSorted((a, b) => a.computed_score - b.computed_score));
+          setData(leaderboardData.items.map((item, index) => ({ ...item, rank: index + 1 })));
           posthog.capture("view_brackets_leaderboard", { puzzleId: puzzleData.shortCode });
         }
       } catch (err) {
@@ -123,6 +123,22 @@ export default function BracketCityLeaderboard({
                 <Table.Column flexGrow={2} align="left" verticalAlign="center">
                   <Table.HeaderCell>Username</Table.HeaderCell>
                   <Table.Cell dataKey="expand.user.username" className="leaderboard-username" />
+                </Table.Column>
+                <Table.Column width={60} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Score</Table.HeaderCell>
+                  <Table.Cell dataKey="computed_score" />
+                </Table.Column>
+                <Table.Column width={50} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Peeks</Table.HeaderCell>
+                  <Table.Cell dataKey="peek_count" />
+                </Table.Column>
+                <Table.Column width={50} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Hints</Table.HeaderCell>
+                  <Table.Cell dataKey="hint_count" />
+                </Table.Column>
+                <Table.Column width={50} align="center" verticalAlign="center">
+                  <Table.HeaderCell>Errors</Table.HeaderCell>
+                  <Table.Cell dataKey="incorrect_count" />
                 </Table.Column>
               </Table>
               {user.friends.length === 0 && (
