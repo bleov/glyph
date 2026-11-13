@@ -179,7 +179,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
       />
       <BracketCityLeaderboard
         open={modalState === "leaderboard"}
-        setOpen={(open) => setModalState(open ? "leaderboard" : null)}
+        setOpen={(open) => setModalState(open ? "leaderboard" : "results")}
         puzzleData={data}
       />
     </>
