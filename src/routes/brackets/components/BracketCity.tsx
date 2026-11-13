@@ -105,6 +105,11 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
       </Header>
       <Content className="puzzle">
         <PuzzleContext.Provider value={puzzleContextValue}>
+          {complete && (
+            <Text display={"inline"} fontWeight={"bold"} className="puzzle-node">
+              {data.completionText + " "}
+            </Text>
+          )}
           <Puzzle puzzle={activePuzzle} />
         </PuzzleContext.Provider>
         <Box className="input-form">
