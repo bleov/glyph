@@ -4,6 +4,8 @@ import parse, { type BracketCityNode } from "../parsePuzzle";
 import { createContext, useContext, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import usePersistence from "../hooks/usePersistence";
 import { getVariants } from "../data/variants";
+import BracketsResults from "./BracketCityResults";
+import BracketCityLeaderboard from "./BracketCityLeaderboard";
 
 export interface PuzzleContextType {
   activePeeks: string[];
@@ -28,6 +30,7 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
   const [loading, setLoading] = useState(true);
   const hintsUsedRef = useRef<number>(0);
   const [today] = useState(() => new Date());
+  const [modalState, setModalState] = useState<"leaderboard" | "results" | null>(null);
 
   let activePuzzleString = data.initialPuzzle;
 
@@ -105,30 +108,46 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
           <Puzzle puzzle={activePuzzle} />
         </PuzzleContext.Provider>
         <Box className="input-form">
-          <Text className="input-label">Answer</Text>
-          <HStack>
-            <form
-              style={{ display: "contents" }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                checkAnswer(answer.toLowerCase().trim());
-              }}
-            >
-              <Input
-                placeholder="type any answer..."
-                className="input-element"
-                value={answer}
-                autoComplete="off"
-                onChange={(value) => {
-                  setAnswer(value);
-                  if (incorrectBannerShown) setIncorrectBannerShown(false);
+          {complete ? (
+            <>
+              <Text className="input-label">Congratulations!</Text>
+              <Button
+                className="input-submission"
+                onClick={() => {
+                  setModalState("results");
                 }}
-              ></Input>
-              <Button type="submit" className="input-submission">
-                [enter]
+              >
+                View Results
               </Button>
-            </form>
-          </HStack>
+            </>
+          ) : (
+            <>
+              <Text className="input-label">Answer</Text>
+              <HStack>
+                <form
+                  style={{ display: "contents" }}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    checkAnswer(answer.toLowerCase().trim());
+                  }}
+                >
+                  <Input
+                    placeholder="type any answer..."
+                    className="input-element"
+                    value={answer}
+                    autoComplete="off"
+                    onChange={(value) => {
+                      setAnswer(value);
+                      if (incorrectBannerShown) setIncorrectBannerShown(false);
+                    }}
+                  ></Input>
+                  <Button type="submit" className="input-submission">
+                    [enter]
+                  </Button>
+                </form>
+              </HStack>
+            </>
+          )}
         </Box>
       </Content>
       <Footer>
@@ -152,6 +171,17 @@ export default function BracketCity({ data }: { data: BracketCityGame }) {
           })}
         </VStack>
       </Footer>
+      <BracketsResults
+        open={modalState === "results"}
+        onClose={() => setModalState(null)}
+        onOpenLeaderboard={() => setModalState("leaderboard")}
+        data={data}
+      />
+      <BracketCityLeaderboard
+        open={modalState === "leaderboard"}
+        setOpen={(open) => setModalState(open ? "leaderboard" : null)}
+        puzzleData={data}
+      />
     </>
   );
 }
