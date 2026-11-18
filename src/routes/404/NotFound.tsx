@@ -8,6 +8,7 @@ export default function NotFound() {
       <Heading fontSize={100}>404</Heading>
       <VStack spacing={20} alignItems={"center"} width={"100%"}>
         <Heading>"What?" –Joe Biden</Heading>
+        <img src="public/icons/secret/yeah.png"></img>
         <Link to="/">
           <Button startIcon={<HouseIcon />}>Home</Button>
         </Link>
