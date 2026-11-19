@@ -361,6 +361,7 @@ function WordleStats({ user, open }: { user?: UsersRecord; open: boolean; setOpe
                       color: "white",
                       textAlign: "right",
                       minWidth: "1ch",
+                      boxSizing: "border-box",
                       width: (count / Math.max(...Object.values(data?.guess_distribution ?? {}))) * 100 + "%"
                     }}
                   >
