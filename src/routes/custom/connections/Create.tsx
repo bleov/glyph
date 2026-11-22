@@ -1,7 +1,7 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { ConnectionsGame, CustomPuzzle } from "@/lib/types";
 import { pb } from "@/main";
-import { PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
+import { LayoutGridIcon, PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useBeforeUnload, useParams } from "react-router";
 import { Button, Center, Text, VStack, ButtonToolbar, Box } from "rsuite";
@@ -9,6 +9,7 @@ import CategoryEditor from "./Components/CategoryEditor";
 import posthog from "posthog-js";
 import DetailsEditor from "../Components/DetailsEditor";
 import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
+import ReorderModal from "./Components/ReorderModal";
 
 function randomizeCardPositions(puzzle: ConnectionsGame): ConnectionsGame {
   const randomized = {
@@ -39,6 +40,7 @@ export default function ConnectionsCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
   const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
   const [data, setData] = useState<ConnectionsGame | null>(null);
+  const [reorderOpen, setReorderOpen] = useState<boolean>(false);
 
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
   const [details, setDetails] = useState({ title: "Untitled Puzzle", options: [] as string[] });
@@ -180,6 +182,14 @@ export default function ConnectionsCreator() {
               Details
             </Button>
             <Button
+              startIcon={<LayoutGridIcon />}
+              onClick={() => {
+                setReorderOpen(true);
+              }}
+            >
+              Reorder
+            </Button>
+            <Button
               startIcon={<SaveIcon />}
               appearance="primary"
               color={saveStatus === "unsaved" ? "blue" : undefined}
@@ -198,6 +208,7 @@ export default function ConnectionsCreator() {
             )}
           </Text>
         </VStack>
+        <ReorderModal open={reorderOpen} setOpen={setReorderOpen} data={data} setData={setData} />
         <DetailsEditor open={editingDetails} setOpen={setEditingDetails} details={details} setDetails={setDetails} />
       </Box>
     );

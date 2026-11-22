@@ -190,3 +190,54 @@
     }
   }
 }
+
+.reorder-modal .reorder-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 150px));
+  gap: 8px;
+  justify-content: center;
+  padding-block: 8px;
+}
+
+.reorder-modal .reorder-card {
+  height: 80px;
+  min-width: 0;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 6px;
+  background: #efefe6;
+  color: #121212;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    scale 150ms linear,
+    background-color 150ms linear,
+    color 150ms linear,
+    outline-color 150ms linear;
+}
+
+.reorder-modal .reorder-card.selected {
+  background: #5a594e;
+  color: #f8f8f8;
+  outline: 2px solid #5a594e;
+  outline-offset: -2px;
+}
+
+@media (max-width: 644px) {
+  .reorder-modal .reorder-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .reorder-modal .reorder-card {
+    height: 64px;
+  }
+}
