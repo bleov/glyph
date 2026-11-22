@@ -1,5 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 
+const zone = new Timezone("America/New_York")
+$app.cron().setTimezone(zone);
+
 routerAdd("GET", "/api/today/mini", (e) => {
   const util = require(`${__hooks}/util.js`);
 

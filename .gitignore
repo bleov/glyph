@@ -32,7 +32,5 @@ pb_data/
 pb_public/
 pocketbase.bin
 
-bot/puppeteer-data
-bot/out.log
-bot/import
-bot/out
+scripts/import/mini
+scripts/import/out

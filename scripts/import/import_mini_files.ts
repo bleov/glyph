@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { Crossword } from "../src/lib/types";
+import type { Crossword } from "../../src/lib/types";
 import fs from "fs";
 
 const REQUIRED_VARS = ["LOCAL_POCKETBASE_URL", "PB_SUPERUSER_EMAIL", "PB_SUPERUSER_PASSWORD"];
@@ -21,7 +21,7 @@ const records = await archive.getFullList({ fields: "publication_date", filter: 
 console.log(`Found ${records.length} pre-existing records.`);
 
 console.log("Finding files to import...");
-let files = fs.readdirSync("bot/import/mini");
+let files = fs.readdirSync("scripts/import/mini");
 const dateFilter = /\d{4}-\d{2}-\d{2}/;
 files = files.filter((file) => {
   const date = file.split(".")[0];
@@ -58,7 +58,7 @@ let errors = 0;
 for (const file of files) {
   const date = file.split(".")[0];
   console.log(`Importing ${file}...`);
-  const content = fs.readFileSync(`bot/import/mini/${file}`, "utf-8");
+  const content = fs.readFileSync(`scripts/import/mini/${file}`, "utf-8");
   const data = JSON.parse(content) as Crossword;
   data.body[0].SVG = {};
   try {
