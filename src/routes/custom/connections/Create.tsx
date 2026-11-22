@@ -8,10 +8,11 @@ import { Button, Center, Text, VStack, ButtonToolbar, Box } from "rsuite";
 import CategoryEditor from "./Components/CategoryEditor";
 import posthog from "posthog-js";
 import DetailsEditor from "../Components/DetailsEditor";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function ConnectionsCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
   const [data, setData] = useState<ConnectionsGame | null>(null);
 
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
@@ -67,10 +68,10 @@ export default function ConnectionsCreator() {
         })
         .catch((err) => {
           console.error(err);
-          setError("Failed to load custom puzzle.");
+          setError(err?.toString().includes("404") ? "NOT_FOUND" : "NETWORK_ERROR");
         });
     } else {
-      setError("Custom puzzle not found.");
+      setError("NOT_FOUND");
     }
   }, []);
 
@@ -116,15 +117,11 @@ export default function ConnectionsCreator() {
     setSaveStatus("unsaved");
   }, [data, details]);
 
-  if (data) {
-    if (error) {
-      return (
-        <Center style={{ height: "100vh" }}>
-          <Text>{error}</Text>
-        </Center>
-      );
-    }
+  if (error) {
+    return <PuzzleLoadError errorType={error} />;
+  }
 
+  if (data) {
     return (
       <Box width={"min(100%, 800px)"} margin={"0 auto"}>
         <VStack spacing={8}>

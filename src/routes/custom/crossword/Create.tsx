@@ -9,11 +9,12 @@ import { Box, Button, ButtonToolbar, Center, Col, Grid, Heading, HStack, Input, 
 import DetailsEditor from "../Components/DetailsEditor";
 import AnswerInput from "./Components/AnswerInput";
 import ShapePreview from "./Components/ShapePreview";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function Create() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
   const [data, setData] = useState<MiniCrossword | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
 
   const [editingClue, setEditingClue] = useState<number | null>(null);
   const [clueInputText, setClueInputText] = useState<string>("");
@@ -99,11 +100,10 @@ export default function Create() {
         })
         .catch((err) => {
           console.error(err);
-          setError("Failed to load custom puzzle.");
+          setError(err?.toString().includes("404") ? "NOT_FOUND" : "NETWORK_ERROR");
         });
     } else {
-      // No puzzle found
-      setError("Custom puzzle not found.");
+      setError("NOT_FOUND");
     }
   }, []);
 
@@ -204,11 +204,7 @@ export default function Create() {
     }
 
     if (error) {
-      return (
-        <Center style={{ height: "100vh" }}>
-          <Text>{error}</Text>
-        </Center>
-      );
+      return <PuzzleLoadError errorType={error} />;
     }
 
     return (

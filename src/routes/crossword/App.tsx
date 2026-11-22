@@ -31,11 +31,12 @@ import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
 import { Stats } from "../../Components/Stats";
 import type { CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const [data, setData] = useState<CrosswordType | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
   const [paused, setPaused] = useState(false);
   const [complete, setComplete] = useState(false);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
@@ -96,7 +97,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         >(params.id, { expand: "author,shape" })
         .then((record) => {
           if (!record.expand?.shape) {
-            setError("Puzzle data is corrupted.");
+            setError("CORRUPTED");
             return;
           }
           const newData = record.puzzle as CrosswordType;
@@ -109,21 +110,25 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         })
         .catch((err) => {
           console.error(err);
-          setError("Failed to load custom puzzle.");
+          setError("NOT_FOUND");
         });
       return;
     }
     pb.send("/api/today/" + type, { method: "GET" })
       .then((json) => {
         if (json.error && json.error === "Not Found") {
-          setError("Failed to load today's puzzle.");
+          setError("NOT_ARCHIVED");
           return;
         }
         setData(json);
       })
       .catch((err) => {
         console.error(err);
-        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb.baseURL}` : "Failed to load today's puzzle."}`);
+        if (err.toString().includes("404")) {
+          setError("NOT_ARCHIVED");
+        } else {
+          setError("NETWORK_ERROR");
+        }
       });
   }, [data]);
 
@@ -467,7 +472,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
       ) : (
         !data && !error && <Text className="loading centered block"></Text>
       )}
-      {error && <div className="error centered block">{error}</div>}
+      {error && <PuzzleLoadError errorType={error} />}
     </CrosswordAppState.Provider>
   );
 }

@@ -2,14 +2,15 @@ import type { StrandsGame } from "@/lib/types";
 import { pb } from "@/main";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
-import { Center, Content, Loader, Text } from "rsuite";
+import { Content, Loader } from "rsuite";
 import Strands from "./Components/Strands";
 import { useParams } from "react-router";
 import ArchivePage from "@/Components/ArchivePage";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function App() {
   const [data, setData] = useState<StrandsGame | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
 
   const params = useParams();
   const isArchive = params.date && params.date === "archive";
@@ -32,19 +33,21 @@ export default function App() {
         posthog.capture("load_strands");
       } else if (!isArchive) {
         const archiveData = await pb.collection("archive").getFirstListItem(`publication_date="${params.date}"`, { fields: "strands" });
-        if (archiveData.connections !== null) {
+        if (archiveData.strands !== null) {
           setData(archiveData.strands as StrandsGame);
           posthog.capture("load_archive_strands");
         } else {
-          setError("Failed to load puzzle.");
+          setError("NOT_ARCHIVED");
         }
       }
     } catch (err) {
       console.error(err);
-      if (params.date === "today") {
-        setError("Failed to load today's puzzle.");
+      if (params.date === "today" && err?.toString().includes("404")) {
+        setError("NOT_ARCHIVED");
+      } else if (err?.toString().includes("404")) {
+        setError("NOT_FOUND");
       } else {
-        setError("Failed to load puzzle.");
+        setError("NETWORK_ERROR");
       }
     }
   }
@@ -56,13 +59,7 @@ export default function App() {
   }, [data, fetchData]);
 
   if (error) {
-    return (
-      <>
-        <Center>
-          <Text size={"md"}>{error}</Text>
-        </Center>
-      </>
-    );
+    return <PuzzleLoadError errorType={error} />;
   }
 
   if (isArchive) {

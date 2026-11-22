@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import Wordle from "./Components/Wordle";
 import type { typedArchiveResponse, WordleGame } from "@/lib/types";
-import { Center, Content, Loader, Text } from "rsuite";
+import { Content, Loader } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
 import type { CustomPuzzlesResponse, ShapesRecord } from "@/lib/pb-types";
 import ArchivePage from "@/Components/ArchivePage";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function App({ custom = false }: { custom?: boolean }) {
   const [data, setData] = useState<WordleGame | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
 
   const params = useParams();
   const isArchive = params.date && params.date === "archive";
@@ -39,7 +40,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
             const newData = record.puzzle;
 
             if (!newData) {
-              setError("No puzzle data found for custom puzzle");
+              setError("CORRUPTED");
               console.error("No puzzle data found for custom puzzle");
               return;
             }
@@ -50,7 +51,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
           })
           .catch((err) => {
             console.error(err);
-            setError("Failed to load custom puzzle.");
+            setError(err?.toString().includes("404") ? "NOT_FOUND" : "NETWORK_ERROR");
           });
       }
     } else {
@@ -69,15 +70,17 @@ export default function App({ custom = false }: { custom?: boolean }) {
             setData(archiveData.wordle as WordleGame);
             posthog.capture("load_archive_wordle");
           } else {
-            setError("Failed to load puzzle.");
+            setError("NOT_ARCHIVED");
           }
         }
       } catch (err) {
         console.error(err);
-        if (params.date === "today") {
-          setError("Failed to load today's puzzle.");
+        if (params.date === "today" && err?.toString().includes("404")) {
+          setError("NOT_ARCHIVED");
+        } else if (err?.toString().includes("404")) {
+          setError("NOT_FOUND");
         } else {
-          setError("Failed to load puzzle.");
+          setError("NETWORK_ERROR");
         }
       }
     }
@@ -90,13 +93,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
   }, []);
 
   if (error) {
-    return (
-      <>
-        <Center>
-          <Text size={"md"}>{error}</Text>
-        </Center>
-      </>
-    );
+    return <PuzzleLoadError errorType={error} />;
   }
 
   if (isArchive) {

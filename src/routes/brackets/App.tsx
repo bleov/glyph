@@ -3,14 +3,15 @@ import { pb } from "@/main";
 import posthog from "posthog-js";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Center, Container, Content, Loader, Text } from "rsuite";
+import { Container, Content, Loader } from "rsuite";
 import BracketCity from "./components/BracketCity";
 import "@/css/Brackets.css";
 import ArchivePage from "@/Components/ArchivePage";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function App() {
   const [data, setData] = useState<BracketCityGame | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
 
   const params = useParams();
   const isArchive = params.date && params.date === "archive";
@@ -41,15 +42,17 @@ export default function App() {
           setData(archiveData.brackets as unknown as BracketCityGame);
           posthog.capture("load_archive_brackets");
         } else {
-          setError("Failed to load puzzle.");
+          setError("NOT_ARCHIVED");
         }
       }
     } catch (err) {
       console.error(err);
-      if (params.today === "today") {
-        setError("Failed to load today's puzzle");
+      if (params.date === "today" && err?.toString().includes("404")) {
+        setError("NOT_ARCHIVED");
+      } else if (err?.toString().includes("404")) {
+        setError("NOT_FOUND");
       } else {
-        setError("Failed to load puzzle.");
+        setError("NETWORK_ERROR");
       }
     }
   }, [params.date, isArchive, params.today]);
@@ -61,13 +64,7 @@ export default function App() {
   }, [data, fetchData]);
 
   if (error) {
-    return (
-      <>
-        <Center>
-          <Text size={"md"}>{error}</Text>
-        </Center>
-      </>
-    );
+    return <PuzzleLoadError errorType={error} />;
   }
 
   if (isArchive) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Center, Content, Loader, Text } from "rsuite";
+import { Content, Loader } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
@@ -7,10 +7,11 @@ import ArchivePage from "@/Components/ArchivePage";
 import type { CrypticGame, typedArchiveResponse } from "@/lib/types";
 import Cryptic from "./Components/Cryptic";
 import "@/css/Cryptic.css";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function App() {
   const [data, setData] = useState<CrypticGame | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
 
   const params = useParams();
   const isArchive = params.date && params.date === "archive";
@@ -39,15 +40,17 @@ export default function App() {
           setData(archiveData.cryptic as unknown as CrypticGame);
           posthog.capture("load_archive_cryptic");
         } else {
-          setError("Failed to load puzzle.");
+          setError("NOT_ARCHIVED");
         }
       }
     } catch (err) {
       console.error(err);
-      if (params.date === "today") {
-        setError("Failed to load today's puzzle.");
+      if (params.date === "today" && err?.toString().includes("404")) {
+        setError("NOT_ARCHIVED");
+      } else if (err?.toString().includes("404")) {
+        setError("NOT_FOUND");
       } else {
-        setError("Failed to load puzzle.");
+        setError("NETWORK_ERROR");
       }
     }
   }
@@ -59,13 +62,7 @@ export default function App() {
   }, []);
 
   if (error) {
-    return (
-      <>
-        <Center>
-          <Text size={"md"}>{error}</Text>
-        </Center>
-      </>
-    );
+    return <PuzzleLoadError errorType={error} />;
   }
 
   if (isArchive) {

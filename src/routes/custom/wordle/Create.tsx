@@ -7,10 +7,11 @@ import { useContext, useEffect, useState } from "react";
 import { useBeforeUnload, useParams } from "react-router";
 import { Box, Button, ButtonToolbar, Center, HStack, Input, Slider, Text, useDialog, VStack } from "rsuite";
 import DetailsEditor from "../Components/DetailsEditor";
+import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
 export default function WordleCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
   const [revisiting, setRevisiting] = useState<boolean>(false);
 
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
@@ -63,10 +64,10 @@ export default function WordleCreator() {
         })
         .catch((err) => {
           console.error(err);
-          setError("Failed to load custom puzzle.");
+          setError(err?.toString().includes("404") ? "NOT_FOUND" : "NETWORK_ERROR");
         });
     } else {
-      setError("Custom puzzle not found.");
+      setError("NOT_FOUND");
     }
   }, []);
 
@@ -111,11 +112,7 @@ export default function WordleCreator() {
   }, [solutionValue, guessesValue, details]);
 
   if (error) {
-    return (
-      <Center style={{ height: "100vh" }}>
-        <Text>{error}</Text>
-      </Center>
-    );
+    return <PuzzleLoadError errorType={error} />;
   }
 
   return (
