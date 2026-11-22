@@ -12,7 +12,7 @@ export default function NotFound() {
         <Text width={"100%"} align={"center"} size={"lg"}>
           This page does not exist.
         </Text>
-        <Text muted width={"100%"} align={"center"} width={"100%"} size={"lg"}>
+        <Text muted width={"100%"} align={"center"} size={"lg"}>
           <em>"What are we doing? What's going on?"</em>
         </Text>
       </VStack>

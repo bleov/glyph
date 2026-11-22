@@ -25,6 +25,7 @@ import CreateRouter from "./routes/custom/CreateRouter.tsx";
 import CustomPage from "./routes/custom/CustomPage.tsx";
 import GameRouter from "./routes/custom/GameRouter.tsx";
 import NotFound from "./routes/404/NotFound.tsx";
+import AppError from "./Components/AppError.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
 const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
@@ -127,7 +128,13 @@ function Main() {
 
 createRoot(document.getElementById("root")!).render(
   <PostHogProvider client={posthog}>
-    <PostHogErrorBoundary>
+    <PostHogErrorBoundary
+      fallback={({ resetError }) => <AppError resetError={resetError} />}
+      additionalProperties={(_error, errorInfo) => ({
+        appErrorBoundary: true,
+        reactComponentStack: errorInfo.componentStack
+      })}
+    >
       <CustomProvider>
         <Main />
       </CustomProvider>
