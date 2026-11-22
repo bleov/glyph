@@ -10,6 +10,31 @@ import posthog from "posthog-js";
 import DetailsEditor from "../Components/DetailsEditor";
 import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
 
+function randomizeCardPositions(puzzle: ConnectionsGame): ConnectionsGame {
+  const randomized = {
+    ...puzzle,
+    categories: puzzle.categories.map((category) => ({
+      ...category,
+      cards: category.cards.map((card) => ({ ...card }))
+    }))
+  };
+  const positions = randomized.categories.flatMap((category) => category.cards.map((card) => card.position));
+
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+
+  let positionIndex = 0;
+  randomized.categories.forEach((category) => {
+    category.cards.forEach((card) => {
+      card.position = positions[positionIndex++];
+    });
+  });
+
+  return randomized;
+}
+
 export default function ConnectionsCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
   const [error, setError] = useState<PuzzleLoadErrorType | null>(null);
@@ -59,7 +84,7 @@ export default function ConnectionsCreator() {
         .then((record) => {
           if (record.puzzle == null) {
             setRecord(record as CustomPuzzle);
-            setData(DefaultPuzzle);
+            setData(randomizeCardPositions(DefaultPuzzle));
           } else {
             setRecord(record as CustomPuzzle);
             setDetails({ title: record.title, options: record.public ? ["public"] : [] });
@@ -85,15 +110,6 @@ export default function ConnectionsCreator() {
     const puzzle = {
       ...data
     };
-    const cards = puzzle.categories.flatMap((category) => category.cards);
-    const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
-    shuffledCards.forEach((card, index) => {
-      const cardCategory = puzzle.categories.find((category) => category.cards.some((c) => c.position === card.position));
-      if (cardCategory) {
-        const categoryIndex = puzzle.categories.indexOf(cardCategory);
-        puzzle.categories[categoryIndex].cards[cardCategory.cards.findIndex((c) => c.position === card.position)].position = index;
-      }
-    });
     const newRecord = {
       author: user.id,
       title: details.title?.substring(0, 35) || "Untitled Puzzle",
