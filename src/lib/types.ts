@@ -126,15 +126,27 @@ export interface StrandsState {
 }
 
 export type typedArchiveResponse<Texpand = unknown> = ArchiveResponse<
-  Crossword,
-  Crossword,
-  Crossword,
+  BracketCityGame,
   ConnectionsGame,
+  CrypticGame,
+  Crossword,
+  Crossword,
+  Crossword,
+  StrandsGame,
   WordleGame,
   Texpand
 >;
 
-export type typedArchiveRecord = ArchiveRecord<Crossword, Crossword, Crossword, ConnectionsGame, WordleGame>;
+export type typedArchiveRecord = ArchiveRecord<
+  BracketCityGame,
+  ConnectionsGame,
+  CrypticGame,
+  Crossword,
+  Crossword,
+  Crossword,
+  StrandsGame,
+  WordleGame
+>;
 
 export interface CrypticClue {
   text: string;

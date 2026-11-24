@@ -92,10 +92,12 @@ function Main() {
           <Routes>
             <Route path="/" element={<Index />} />
 
-            <Route path="/mini" element={<CrosswordApp type={"mini"} />} />
-            <Route path="/crossword" element={<Navigate to="/daily" replace />} />
-            <Route path="/daily" element={<CrosswordApp type={"daily"} />} />
-            <Route path="/midi" element={<CrosswordApp type={"midi"} />} />
+            <Route path="/mini" element={<Navigate to="/mini/today" replace />} />
+            <Route path="/mini/:date" element={<CrosswordApp type={"mini"} />} />
+            <Route path="/daily" element={<Navigate to="/daily/today" replace />} />
+            <Route path="/daily/:date" element={<CrosswordApp type={"daily"} />} />
+            <Route path="/midi" element={<Navigate to="/midi/today" replace />} />
+            <Route path="/midi/:date" element={<CrosswordApp type={"midi"} />} />
 
             <Route path="/cascades" element={<Cascades />} />
 

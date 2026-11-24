@@ -4,10 +4,14 @@ import type { typedArchiveRecord } from "@/lib/types";
 import { pb } from "@/main";
 import { getButtonText, getMonthFilter } from "@/lib/formatting";
 import { ArrowLeftIcon, CircleCheckIcon, CircleIcon, HourglassIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { ArchiveRecord, PuzzleStateRecord } from "@/lib/pb-types";
 
-export default function ArchivePage({ type }: { type: "connections" | "wordle" | "strands" | "cryptic" | "brackets" }) {
+export default function ArchivePage({
+  type
+}: {
+  type: "connections" | "wordle" | "strands" | "cryptic" | "brackets" | "mini" | "daily" | "midi";
+}) {
   const [data, setData] = useState<ArchiveRecord[] | null>(null);
   const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -16,11 +20,13 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
     return today.toISOString().split("T")[0];
   });
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
+  const navigate = useNavigate();
   const dataCache = useRef<{ [month: string]: typedArchiveRecord[] }>({});
   const puzzleStateCache = useRef<{ [month: string]: PuzzleStateRecord[] }>({});
 
   const archive = pb.collection("archive");
-  const states = pb.collection(`${type}_state`);
+  const isCrossword = type === "mini" || type === "daily" || type === "midi";
+  const states = pb.collection(isCrossword ? "puzzle_state" : `${type}_state`);
 
   useEffect(() => {
     if (!data) {
@@ -37,11 +43,16 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
           filter: `${type}_id!=0 && ${type}_id!="" && ${monthFilter}`
         })) as typedArchiveRecord[];
 
-        let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replaceAll("publication_date", "puzzle_date")}`;
+        let stateFilter = `user="${pb.authStore?.record?.id}"`;
 
         let completed: typedArchiveRecord[] = [];
 
         if (list.length > 0) {
+          if (isCrossword) {
+            stateFilter += ` && (${list.map((x) => `puzzle_id = "${x[`${type}_id`]}"`).join(" || ")})`;
+          } else {
+            stateFilter += ` && ${monthFilter.replaceAll("publication_date", "puzzle_date")}`;
+          }
           completed = (await states.getFullList({
             fields: "puzzle_id,complete",
             filter: stateFilter
@@ -147,7 +158,11 @@ export default function ArchivePage({ type }: { type: "connections" | "wordle" |
           appearance="primary"
           onClick={() => {
             if (!data || !selectedDate) return;
-            location.href = `/${type}/${selectedDate}`;
+            if (isCrossword) {
+              navigate(`/${type}/${selectedDate}`, { state: { fromArchive: true } });
+            } else {
+              window.location.href = `/${type}/${selectedDate}`;
+            }
           }}
         >
           {getButtonText(selectedPuzzleState)}

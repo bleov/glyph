@@ -73,7 +73,7 @@ export default function PuzzleMenu({
       </MenuItem>
       <MenuItem
         onClick={() => {
-          onExit("archive");
+          navigate(`/${type}/archive`);
         }}
         disabled={(hardcore && !complete) || type === "custom"}
       >

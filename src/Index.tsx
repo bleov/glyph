@@ -23,7 +23,17 @@ function LinkGroup({ children, title, titleIcon }: { children: React.ReactNode; 
   );
 }
 
-function LinkGroupItem({ title, imageSrc, link, archiveLink }: { title: string; imageSrc: string; link: string; archiveLink?: string }) {
+function LinkGroupItem({
+  title,
+  imageSrc,
+  link,
+  archiveLink
+}: {
+  title: string;
+  imageSrc: string;
+  link: string;
+  archiveLink?: string;
+}) {
   return (
     <List.Item>
       <Link to={link}>
@@ -102,9 +112,24 @@ export default function Index() {
       </div>
       <CardGroup columns={columns} className={`game-cards${columns === 1 ? " vertical" : ""}`} spacing={10}>
         <LinkGroup title="The New York Times" titleIcon={<NewspaperIcon />}>
-          <LinkGroupItem title="The Mini" link="/mini" imageSrc="/icons/mini/favicon.svg" />
-          <LinkGroupItem title="The Midi" link="/midi" imageSrc="/icons/midi/favicon.svg" />
-          <LinkGroupItem title="The Daily" link="/daily" imageSrc="/icons/daily/favicon.svg" />
+          <LinkGroupItem
+            title="The Mini"
+            link="/mini/today"
+            imageSrc="/icons/mini/favicon.svg"
+            archiveLink="/mini/archive"
+          />
+          <LinkGroupItem
+            title="The Midi"
+            link="/midi/today"
+            imageSrc="/icons/midi/favicon.svg"
+            archiveLink="/midi/archive"
+          />
+          <LinkGroupItem
+            title="The Daily"
+            link="/daily/today"
+            imageSrc="/icons/daily/favicon.svg"
+            archiveLink="/daily/archive"
+          />
           <LinkGroupItem
             title="Connections"
             link="/connections/today"

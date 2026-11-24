@@ -67,7 +67,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const { user } = useContext(GlobalState);
-  const { paused, type, options, setModalState, complete, setComplete, setData } = useContext(CrosswordAppState);
+  const { paused, type, options, setModalState, complete, setComplete } = useContext(CrosswordAppState);
 
   const toast = useCallback(
     (message: string, duration: number = 1500) => {
@@ -83,11 +83,9 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const exit = useCallback(
     (destination: string = "welcome") => {
       setComplete(false);
-      stateDocId.current = "";
-      setData(null);
       setModalState(destination);
     },
-    [setComplete, setData, setModalState, stateDocId]
+    [setComplete, setModalState]
   );
 
   useEffect(() => {

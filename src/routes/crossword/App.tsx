@@ -8,6 +8,7 @@ import {
   Center,
   Checkbox,
   CheckboxGroup,
+  Content,
   Heading,
   Image,
   Modal,
@@ -22,16 +23,16 @@ import AccountButtons from "@/Components/AccountButtons";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import { formatDate } from "@/lib/formatting";
-import type { Crossword as CrosswordType } from "@/lib/types";
+import type { Crossword as CrosswordType, typedArchiveResponse } from "@/lib/types";
 import { pb } from "@/main";
-import { Archive } from "./Components/Archive";
 import Crossword from "./Components/Crossword";
 import Timer from "./Components/Timer";
 import { CrosswordAppState } from "./state";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { Stats } from "../../Components/Stats";
 import type { CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
 import PuzzleLoadError, { type PuzzleLoadErrorType } from "@/Components/PuzzleLoadError";
+import ArchivePage from "@/Components/ArchivePage";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const [data, setData] = useState<CrosswordType | null>(null);
@@ -42,13 +43,14 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
   const [options, setOptions] = useState<(string | number)[]>([]);
-  const [modalState, setModalState] = useState<"welcome" | "archive" | "sign-in" | "friends" | "account" | "stats" | null>("welcome");
+  const [modalState, setModalState] = useState<"welcome" | "sign-in" | "friends" | "account" | "stats" | null>("welcome");
 
   const timeRef = useRef<number[]>([]);
   const startTouched = useRef(false);
   const stateDocId = useRef<string>("");
   const dialog = useDialog();
   const navigate = useNavigate();
+  const location = useLocation();
   const params = useParams();
   const { user } = useContext(GlobalState);
 
@@ -79,23 +81,35 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
     setPaused(true);
   }
 
+  const isArchive = params.date === "archive";
+
   useEffect(() => {
-    if (data) return;
-    if (type === "custom") {
-      if (!params.id) {
-        return;
-      }
-      pb.collection("custom_puzzles")
-        .getOne<
-          CustomPuzzlesResponse<
-            CrosswordType,
-            {
-              author: UsersRecord;
-              shape: ShapesRecord<CrosswordType>;
-            }
-          >
-        >(params.id, { expand: "author,shape" })
-        .then((record) => {
+    let cancelled = false;
+    setData(null);
+    setError(null);
+    setRestoredTime(-1);
+    setComplete(false);
+    setAlreadyCompleted(false);
+    setPaused(false);
+    setOptions([]);
+    startTouched.current = false;
+    timeRef.current = [];
+    stateDocId.current = "";
+
+    async function fetchData() {
+      try {
+        if (type === "custom") {
+          if (!params.id) return;
+          const record = await pb.collection("custom_puzzles").getOne<
+            CustomPuzzlesResponse<
+              CrosswordType,
+              {
+                author: UsersRecord;
+                shape: ShapesRecord<CrosswordType>;
+              }
+            >
+          >(params.id, { expand: "author,shape" });
+          if (cancelled) return;
           if (!record.expand?.shape) {
             setError("CORRUPTED");
             return;
@@ -103,34 +117,54 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
           const newData = record.puzzle as CrosswordType;
           newData.id = record.id as unknown as number;
           newData.title = record.title;
-          newData.constructors = [record.expand?.author?.username ?? "Unknown User"];
+          newData.constructors = [record.expand.author?.username ?? "Unknown User"];
           newData.editor = "";
           newData.body[0].board = record.expand.shape.data!.body[0].board;
           setData(newData);
-        })
-        .catch((err) => {
-          console.error(err);
-          setError("NOT_FOUND");
-        });
-      return;
-    }
-    pb.send("/api/today/" + type, { method: "GET" })
-      .then((json) => {
-        if (json.error && json.error === "Not Found") {
-          setError("NOT_ARCHIVED");
           return;
         }
-        setData(json);
-      })
-      .catch((err) => {
+
+        if (isArchive) return;
+
+        if (params.date === "today") {
+          const json = await pb.send("/api/today/" + type, { method: "GET" });
+          if (cancelled) return;
+          if (json.error === "Not Found") {
+            setError("NOT_ARCHIVED");
+            return;
+          }
+          setData(json);
+        } else {
+          const record = await pb.collection("archive").getFirstListItem<typedArchiveResponse>(`publication_date="${params.date}"`, {
+            fields: type
+          });
+          if (cancelled) return;
+          const puzzle = record[type];
+          if (puzzle) {
+            setData(puzzle as CrosswordType);
+            posthog.capture("load_archive_crossword", { type });
+          } else {
+            setError("NOT_ARCHIVED");
+          }
+        }
+      } catch (err) {
         console.error(err);
-        if (err.toString().includes("404")) {
+        if (cancelled) return;
+        if (params.date === "today" && err?.toString().includes("404")) {
           setError("NOT_ARCHIVED");
+        } else if (err?.toString().includes("404")) {
+          setError("NOT_FOUND");
         } else {
           setError("NETWORK_ERROR");
         }
-      });
-  }, [data]);
+      }
+    }
+
+    fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, [type, params.date, params.id]);
 
   useEffect(() => {
     if (type === "custom") {
@@ -247,7 +281,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
 
   return (
     <CrosswordAppState.Provider value={appState}>
-      {data && restoredTime > -1 && (
+      {data && restoredTime > -1 && !isArchive && (
         <Modal
           open={modalState === "welcome"}
           onClose={() => {}}
@@ -346,7 +380,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
               {type !== "custom" && (
                 <Button
                   onClick={() => {
-                    setModalState("archive");
+                    navigate(`/${type}/archive`);
                     posthog.capture("open_archive");
                   }}
                   appearance="default"
@@ -363,6 +397,10 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
                 onClick={() => {
                   if (type === "custom") {
                     navigate("/custom");
+                    return;
+                  }
+                  if (location.state?.fromArchive) {
+                    navigate(`/${type}/archive`);
                     return;
                   }
                   navigate("/");
@@ -425,23 +463,20 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         }}
       />
 
-      {type !== "custom" && (
-        <>
-          <Archive
-            open={modalState === "archive"}
-            setOpen={() => {
-              setModalState("welcome");
-            }}
-          />
+      {type !== "custom" && isArchive && (
+        <Content className="connections">
+          <ArchivePage type={type} />
+        </Content>
+      )}
 
-          <Stats
-            open={modalState === "stats"}
-            setOpen={() => {
-              setModalState("welcome");
-            }}
-            type={type}
-          />
-        </>
+      {type !== "custom" && (
+        <Stats
+          open={modalState === "stats"}
+          setOpen={() => {
+            setModalState("welcome");
+          }}
+          type={type}
+        />
       )}
 
       {data && restoredTime > -1 && modalState === null ? (
