@@ -33,10 +33,10 @@ interface LinkCardProps {
   disabled?: boolean;
   badgeContent?: string;
   small?: boolean;
-  children?: React.ReactNode;
+  archiveLink?: string;
 }
 
-function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, children }: LinkCardProps) {
+function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, archiveLink }: LinkCardProps) {
   const classList = ["link-card"];
 
   if (disabled) {
@@ -61,7 +61,15 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
           </Card.Header>
           {!small && <Card.Body>{description}</Card.Body>}
         </VStack>
-        {children}
+        {archiveLink && (
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={archiveLink}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        )}
       </Card>
     </Link>
   );
@@ -140,51 +148,12 @@ export default function Index() {
           description="Create groups of four"
           link="/connections/today"
           imageSrc="/icons/connections/pwa-192x192.png"
-        >
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
-              <Link to={"/connections/archive"}>
-                <IconButton icon={<ArchiveIcon />} />
-              </Link>
-            </Whisper>
-          </Center>
-        </LinkCard>
-        <LinkCard title="Wordle" description="Guess the 5-letter word" link="/wordle/today" imageSrc="/icons/wordle/pwa-192x192.png">
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
-              <Link to={"/wordle/archive"}>
-                <IconButton icon={<ArchiveIcon />} />
-              </Link>
-            </Whisper>
-          </Center>
-        </LinkCard>
-        <LinkCard title="Strands" description="Uncover hidden words" link="/strands/today" imageSrc="/icons/strands/pwa-192x192.png">
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
-              <Link to={"/strands/archive"}>
-                <IconButton icon={<ArchiveIcon />} />
-              </Link>
-            </Whisper>
-          </Center>
-        </LinkCard>
-        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png">
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
-              <Link to={"/cryptic/archive"}>
-                <IconButton icon={<ArchiveIcon />} />
-              </Link>
-            </Whisper>
-          </Center>
-        </LinkCard>
-        <LinkCard title="Bracket City" description="Crack nested clues" link="/brackets/today" imageSrc="/icons/brackets/pwa-192x192.png">
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
-              <Link to={"/brackets/archive"}>
-                <IconButton icon={<ArchiveIcon />} />
-              </Link>
-            </Whisper>
-          </Center>
-        </LinkCard>
+          archiveLink="/connections/archive"
+        />
+        <LinkCard title="Wordle" description="Guess the 5-letter word" link="/wordle/today" imageSrc="/icons/wordle/pwa-192x192.png" archiveLink="/wordle/archive" />
+        <LinkCard title="Strands" description="Uncover hidden words" link="/strands/today" imageSrc="/icons/strands/pwa-192x192.png" archiveLink="/strands/archive" />
+        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png" archiveLink="/cryptic/archive" />
+        <LinkCard title="Bracket City" description="Crack nested clues" link="/brackets/today" imageSrc="/icons/brackets/pwa-192x192.png" archiveLink="/brackets/archive" />
         <LinkCard
           title="Custom Puzzles"
           description="Create and share puzzles"
