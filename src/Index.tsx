@@ -1,77 +1,47 @@
-import {
-  ButtonGroup,
-  Card,
-  CardGroup,
-  Heading,
-  HStack,
-  Image,
-  Text,
-  Center,
-  Badge,
-  VStack,
-  IconButton,
-  Whisper,
-  Tooltip,
-  useBreakpointValue
-} from "rsuite";
-import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { Box, Button, ButtonGroup, CardGroup, Center, Heading, HStack, Image, List, Text, useBreakpointValue } from "rsuite";
+import { ArchiveIcon, LayoutGridIcon, NewspaperIcon } from "lucide-react";
 
 import Account from "@/Components/Account";
+import AccountButtons from "@/Components/AccountButtons";
 import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
-import AccountButtons from "@/Components/AccountButtons";
-import { pb } from "./main";
-import { ArchiveIcon } from "lucide-react";
 import Notifications from "./Components/Notifications";
+import { pb } from "./main";
 
-interface LinkCardProps {
-  title: string;
-  description: string;
-  imageSrc: string;
-  link: string;
-  disabled?: boolean;
-  badgeContent?: string;
-  small?: boolean;
-  archiveLink?: string;
+function LinkGroup({ children, title, titleIcon }: { children: React.ReactNode; title: string; titleIcon?: React.ReactNode }) {
+  return (
+    <List bordered hover size="md" className="link-group">
+      <List.Item>
+        <Text size={"sm"}>
+          {titleIcon} {title}
+        </Text>
+      </List.Item>
+      {children}
+    </List>
+  );
 }
 
-function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, archiveLink }: LinkCardProps) {
-  const classList = ["link-card"];
-
-  if (disabled) {
-    classList.push("link-card-disabled");
-  }
-  if (small) {
-    classList.push("link-card-small");
-  }
-
+function LinkGroupItem({ title, imageSrc, link, archiveLink }: { title: string; imageSrc: string; link: string; archiveLink?: string }) {
   return (
-    <Link to={link} aria-disabled={disabled} className={classList.join(" ")}>
-      <Card shaded direction={"row"} alignItems={small ? "center" : "unset"}>
-        <Image src={imageSrc} width={"100%"} height={50} fit="contain" draggable={false} alignSelf={"center"}></Image>
-        <VStack spacing={0}>
-          <Card.Header>
-            <HStack width={"100%"} justifyContent={"center"}>
-              <Text size="lg" weight="bold">
-                {title}
-              </Text>
-              {badgeContent && <Badge content={badgeContent} />}
-            </HStack>
-          </Card.Header>
-          {!small && <Card.Body>{description}</Card.Body>}
-        </VStack>
-        {archiveLink && (
-          <Center paddingRight={17}>
-            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+    <List.Item>
+      <Link to={link}>
+        <HStack spacing={10} alignItems={"center"}>
+          <Image src={imageSrc} width={30} height={30} fit="contain" draggable={false}></Image>
+          <Link to={link}>{title}</Link>
+          {archiveLink && (
+            <Box marginLeft={"auto"}>
               <Link to={archiveLink}>
-                <IconButton icon={<ArchiveIcon />} />
+                <Button startIcon={<ArchiveIcon />} size="xs" appearance="subtle">
+                  Archive
+                </Button>
               </Link>
-            </Whisper>
-          </Center>
-        )}
-      </Card>
-    </Link>
+            </Box>
+          )}
+        </HStack>
+      </Link>
+    </List.Item>
   );
 }
 
@@ -80,7 +50,7 @@ export default function Index() {
   const [manualModalState, setManualModalState] = useState<ModalState>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const columns = useBreakpointValue({ xs: 1, sm: 1, md: 2 });
+  const columns = useBreakpointValue({ xs: 1, sm: 2 });
 
   const hashModalState: ModalState = (() => {
     switch (location.hash) {
@@ -131,35 +101,34 @@ export default function Index() {
         </Center>
       </div>
       <CardGroup columns={columns} className={`game-cards${columns === 1 ? " vertical" : ""}`} spacing={10}>
-        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
-        {columns === 1 ? (
-          <>
-            <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
-            <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
-          </>
-        ) : (
-          <CardGroup columns={columns} spacing={10} className="game-cards game-cards-small">
-            <LinkCard title="The Midi" description="" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" small />
-            <LinkCard title="The Daily" description="" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" small />
-          </CardGroup>
-        )}
-        <LinkCard
-          title="Connections"
-          description="Create groups of four"
-          link="/connections/today"
-          imageSrc="/icons/connections/pwa-192x192.png"
-          archiveLink="/connections/archive"
-        />
-        <LinkCard title="Wordle" description="Guess the 5-letter word" link="/wordle/today" imageSrc="/icons/wordle/pwa-192x192.png" archiveLink="/wordle/archive" />
-        <LinkCard title="Strands" description="Uncover hidden words" link="/strands/today" imageSrc="/icons/strands/pwa-192x192.png" archiveLink="/strands/archive" />
-        <LinkCard title="Minute Cryptic" description="Solve cryptic clues" link="/cryptic/today" imageSrc="/icons/cryptic/pwa-192x192.png" archiveLink="/cryptic/archive" />
-        <LinkCard title="Bracket City" description="Crack nested clues" link="/brackets/today" imageSrc="/icons/brackets/pwa-192x192.png" archiveLink="/brackets/archive" />
-        <LinkCard
-          title="Custom Puzzles"
-          description="Create and share puzzles"
-          link="/custom"
-          imageSrc="/icons/custom_crossword/pwa-192x192.png"
-        />
+        <LinkGroup title="The New York Times" titleIcon={<NewspaperIcon />}>
+          <LinkGroupItem title="The Mini" link="/mini" imageSrc="/icons/mini/favicon.svg" />
+          <LinkGroupItem title="The Midi" link="/midi" imageSrc="/icons/midi/favicon.svg" />
+          <LinkGroupItem title="The Daily" link="/daily" imageSrc="/icons/daily/favicon.svg" />
+          <LinkGroupItem
+            title="Connections"
+            link="/connections/today"
+            imageSrc="/icons/connections/favicon.svg"
+            archiveLink="/connections/archive"
+          />
+          <LinkGroupItem title="Wordle" link="/wordle/today" imageSrc="/icons/wordle/favicon.svg" archiveLink="/wordle/archive" />
+          <LinkGroupItem title="Strands" link="/strands/today" imageSrc="/icons/strands/favicon.svg" archiveLink="/strands/archive" />
+        </LinkGroup>
+        <LinkGroup title="Other" titleIcon=<LayoutGridIcon />>
+          <LinkGroupItem
+            title="Minute Cryptic"
+            link="/cryptic/today"
+            imageSrc="/icons/cryptic/favicon.svg"
+            archiveLink="/cryptic/archive"
+          />
+          <LinkGroupItem
+            title="Bracket City"
+            link="/brackets/today"
+            imageSrc="/icons/brackets/pwa-192x192.png"
+            archiveLink="/brackets/archive"
+          />
+          <LinkGroupItem title="Custom Puzzles" link="/custom" imageSrc="/icons/custom_crossword/favicon.svg" />
+        </LinkGroup>
       </CardGroup>
     </main>
   );
