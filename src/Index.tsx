@@ -149,7 +149,7 @@ export default function Index() {
           <LinkGroupItem
             title="Bracket City"
             link="/brackets/today"
-            imageSrc="/icons/brackets/pwa-192x192.png"
+            imageSrc="/icons/brackets/favicon.svg"
             archiveLink="/brackets/archive"
           />
           <LinkGroupItem title="Custom Puzzles" link="/custom" imageSrc="/icons/custom_crossword/favicon.svg" />
