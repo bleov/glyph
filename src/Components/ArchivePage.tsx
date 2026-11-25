@@ -7,14 +7,28 @@ import { ArrowLeftIcon, CircleCheckIcon, CircleIcon, HourglassIcon } from "lucid
 import { Link, useNavigate } from "react-router";
 import type { ArchiveRecord, PuzzleStateRecord } from "@/lib/pb-types";
 
+type ArchiveType = "connections" | "wordle" | "strands" | "cryptic" | "brackets" | "mini" | "daily" | "midi";
+
 export default function ArchivePage({
   type
 }: {
-  type: "connections" | "wordle" | "strands" | "cryptic" | "brackets" | "mini" | "daily" | "midi";
+  type: ArchiveType;
 }) {
+  return <ArchivePageContent key={type} type={type} />;
+}
+
+function ArchivePageContent({ type }: { type: ArchiveType }) {
   const [data, setData] = useState<ArchiveRecord[] | null>(null);
   const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const savedDate = sessionStorage.getItem(`archive-date-${type}`);
+    if (savedDate && /^\d{4}-\d{2}-\d{2}$/.test(savedDate)) {
+      const parsedDate = new Date(`${savedDate}T00:00:00Z`);
+      if (!Number.isNaN(parsedDate.getTime()) && parsedDate.toISOString().slice(0, 10) === savedDate) {
+        return savedDate;
+      }
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today.toISOString().split("T")[0];
@@ -129,6 +143,7 @@ export default function ArchivePage({
           adjustedDate.setHours(0, 0, 0, 0);
           const day = adjustedDate.toISOString().split("T")[0];
           setSelectedDate(day);
+          sessionStorage.setItem(`archive-date-${type}`, day);
         }}
         renderCell={(date) => {
           const day = date.toISOString().split("T")[0];
