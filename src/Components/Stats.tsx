@@ -23,6 +23,11 @@ export function Stats({
   const [activeTab, setActiveTab] = useState<StatType>(type);
   const [visitedTabs, setVisitedTabs] = useState<Set<StatType>>(() => new Set([type]));
 
+  if (open && activeTab !== type) {
+    setActiveTab(type);
+    setVisitedTabs((visited) => new Set(visited).add(type));
+  }
+
   function selectTab(eventKey: string | number | undefined) {
     if (
       eventKey !== "mini" &&
