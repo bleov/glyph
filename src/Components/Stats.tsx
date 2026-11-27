@@ -449,6 +449,8 @@ function StrandsStats({ user, open }: { user?: UsersRecord; open: boolean; setOp
   );
 }
 
+export type StatType = "mini" | "daily" | "midi" | "strands" | "wordle" | "custom";
+
 export function Stats({
   open,
   setOpen,
@@ -457,7 +459,7 @@ export function Stats({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  type: "mini" | "daily" | "midi" | "strands" | "wordle" | "custom";
+  type: StatType;
   user?: UsersRecord;
 }) {
   return (
@@ -484,7 +486,7 @@ export function Stats({
           <Tabs.Tab eventKey="wordle" title="Wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} />}>
             <WordleStats user={user} open={open} setOpen={setOpen} />
           </Tabs.Tab>
-          <Tabs.Tab eventKey="custom" title="Custom" icon={<Image src="/icons/custom_crossword/pwa-192x192.png" width={16} height={16} />}>
+          <Tabs.Tab eventKey="custom" title="Custom" icon={<Image src="/icons/custom_crossword/favicon.svg" width={16} height={16} />}>
             <CustomPuzzleStats user={user} open={open} setOpen={setOpen} />
           </Tabs.Tab>
         </Tabs>
