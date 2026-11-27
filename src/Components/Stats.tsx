@@ -22,8 +22,10 @@ export function Stats({
 }) {
   const [activeTab, setActiveTab] = useState<StatType>(type);
   const [visitedTabs, setVisitedTabs] = useState<Set<StatType>>(() => new Set([type]));
+  const [previousType, setPreviousType] = useState(type);
 
-  if (open && activeTab !== type) {
+  if (type !== previousType) {
+    setPreviousType(type);
     setActiveTab(type);
     setVisitedTabs((visited) => new Set(visited).add(type));
   }
